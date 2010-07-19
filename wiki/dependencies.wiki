@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary Credits
 
 = Introduction =
 
@@ -7,8 +7,13 @@ ElectricSleep is reliant on several other open-source projects and snippets of c
 
 = Libraries =
 
-*AChartEngine* http://www.achartengine.org/ 0.5.0 used for logging sleep movement data
+*AChartEngine* http://www.achartengine.org/ 0.5.0 
+  Efficient and open-source charting library used for logging and displaying sleep movement data.
 
 = Borrowed Code or Concepts = 
 
-*Smart Alarm Clock*  http://www.smart-alarm-clock.com/ Inspiration for project, seems to be defunct, and doesn't work reliably on latest versions of Android.
+*Smart Alarm Clock*  http://www.smart-alarm-clock.com/ 
+  Inspirational Android App for project, which seems to be defunct, and doesn't work reliably on latest versions of Android.
+
+*David Webb* http://thebigbyte.blogspot.com/2010/06/android-using-accelerometer-to.html 
+  Borrowed code snippet for calculating force; helped clarify how built-in accelerometers output data.
