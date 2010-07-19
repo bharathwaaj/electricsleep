@@ -1,0 +1,14 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+ElectricSleep is reliant on several other open-source projects and snippets of code. This wiki page will be used to help document these depencies and give credit where credit is due.
+
+
+= Libraries =
+
+*AChartEngine* http://www.achartengine.org/ 0.5.0 used for logging sleep movement data
+
+= Borrowed Code or Concepts = 
+
+*Smart Alarm Clock*  http://www.smart-alarm-clock.com/ Inspiration for project, seems to be defunct, and doesn't work reliably on latest versions of Android.
