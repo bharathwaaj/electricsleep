@@ -17,3 +17,6 @@ ElectricSleep is reliant on several other open-source projects and snippets of c
 
 *David Webb* http://thebigbyte.blogspot.com/2010/06/android-using-accelerometer-to.html 
   Borrowed code snippet for calculating force; helped clarify how built-in accelerometers output data.
+
+*Google IOSched App* http://code.google.com/p/iosched/
+  Borrowed a lot of UI code and concepts
