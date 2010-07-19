@@ -21,5 +21,5 @@ ElectricSleep is reliant on several other open-source projects and snippets of c
 *Google IOSched App* http://code.google.com/p/iosched/
   Borrowed a lot of UI code and concepts
 
-*Accelerometer Service snippet* http://stackoverflow.com/questions/2143102/accelerometer-stops-delivering-samples-when-the-screen-is-off-on-droid-nexus-one
+*Accelerometer Service snippet* http://stackoverflow.com/revisions/77de9d5a-a9dd-488a-8e30-8f0041939bfd/view-source
   Borrowed some structure for my accelerometer sensor service from i4ndroid's post
