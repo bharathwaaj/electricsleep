@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/wizardViewFlipper" android:layout_height="wrap_content"
+	android:layout_width="match_parent">
+	<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent">
+		<TextView style="@style/TextHeader" android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:layout_gravity="center_horizontal" android:text="@string/title_welcome"></TextView>
+
+		<ImageView android:id="@+id/ImageView01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/icon" android:layout_gravity="center"></ImageView><TextView android:layout_height="wrap_content" style="@style/TextBody"
+			android:layout_width="wrap_content" android:text="placeholder" android:layout_gravity="center"></TextView>
+	
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/skip_tutorial" android:id="@+id/ButtonSkipTutorial" android:onClick="onSkipTutorialClick" android:layout_gravity="bottom|center_horizontal"></Button>
+</LinearLayout><LinearLayout android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="match_parent">
+		<TextView style="@style/TextHeader" android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_gravity="center_horizontal" android:text="@string/electricsleep_about"></TextView>
+
+		<TextView android:layout_height="wrap_content" style="@style/TextBody" android:layout_width="wrap_content" android:text="@string/electricsleep_description"></TextView>
+	</LinearLayout><LinearLayout android:layout_height="wrap_content" android:orientation="vertical" android:layout_width="match_parent" android:id="@+id/accountCreation">
+		<TextView android:layout_height="wrap_content" style="@style/TextHeader" android:layout_width="wrap_content" android:layout_gravity="center_horizontal" android:text="@string/account_creation" android:enabled="false"></TextView>
+
+		
+		<TextView style="@style/TextBody" android:layout_height="wrap_content" android:layout_width="wrap_content" android:paddingTop="12dip" android:text="This does nothing!!! ...under construction" android:enabled="false"></TextView>
+	
+<EditText android:layout_height="wrap_content" android:hint="@string/username" android:id="@+id/editTextUsername" android:layout_width="match_parent" android:enabled="false"></EditText><EditText android:layout_height="wrap_content" android:id="@+id/editTextUsername" android:layout_width="match_parent" android:hint="@string/password" android:enabled="false"></EditText>
+</LinearLayout>
+	
+	
+
+	
+	
+</ViewFlipper>
