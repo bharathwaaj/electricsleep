@@ -22,7 +22,7 @@
 			android:textAppearance="@style/TextHeader" android:id="@+id/home_review_title_text"
 			android:layout_width="match_parent"></TextView>
 	</LinearLayout>
-	<com.androsz.electricsleep.view.SleepChartView
+	<com.androsz.electricsleepbeta.view.SleepChartView
 		android:id="@+id/home_sleep_chart" android:layout_width="match_parent"
 		android:layout_height="match_parent" android:layout_margin="4dip"
 		android:layout_toRightOf="@+id/home_button_container"
