@@ -20,6 +20,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.androsz.electricsleepbeta.achartengine.chart.AbstractChart;
@@ -54,6 +55,7 @@ public abstract class ChartView extends View {
 		if (mChart instanceof XYChart) {
 			mRenderer = ((XYChart) mChart).getRenderer();
 		}
+		this.setFocusable(false);
 	}
 
 	public ChartView(final Context context, final AttributeSet as) {
@@ -63,6 +65,7 @@ public abstract class ChartView extends View {
 		if (mChart instanceof XYChart) {
 			mRenderer = ((XYChart) mChart).getRenderer();
 		}
+		this.setFocusable(false);
 	}
 
 	protected abstract AbstractChart buildChart();
@@ -108,11 +111,6 @@ public abstract class ChartView extends View {
 		final int height = mRect.height();
 		mChart.draw(canvas, left, top, width, height);
 	}
-
-	/*
-	 * @Override public boolean onTouchEvent(MotionEvent event) {
-	 * handleTouch(event); return true; }
-	 */
 
 	/**
 	 * Schedule a user interface repaint.

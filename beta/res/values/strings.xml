@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="title_report">Report Issue</string>
+    <string name="summary_pref_analytics_off">Anonymous usage will not be uploaded</string>
+    <string name="summary_pref_analytics_on">Anonymous usage will be uploaded</string>
+    <string name="title_pref_analytics">Upload Anonymous Usage</string>
+    <string name="pref_analytics">Allow Google Analytics</string>
+    <string name="saving_sleep">Saving sleep</string>
     <string name="cancel">Cancel</string>
     <string name="manual">Manual</string>
     <string name="calibrate">Calibrate</string>
@@ -68,7 +74,7 @@
 		Wizard or manually
 		configure your Settings now.</string>
 	<string name="message_prefs_not_compatible">Your preferences are not compatible with this
-		version of ElectricSleep.</string>
+		version of ElectricSleep. They have been reset to the latest default values to prevent errors.</string>
 	<string name="message_not_calibrated">You have not yet calibrated ElectricSleep to work
 		on your device.</string>
 	<string name="alarm_trigger_sensitivity_set_to">Alarm trigger sensitivity set to: </string>

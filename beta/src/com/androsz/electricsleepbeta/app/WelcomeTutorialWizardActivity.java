@@ -5,11 +5,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.view.View;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.view.SleepChartView;
 
 public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity {
+
+	private boolean required = false;
 
 	@Override
 	protected int getWizardLayoutId() {
@@ -18,10 +22,31 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 	}
 
 	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		required = getIntent().hasExtra("required");
+		if (required) {
+			setHomeButtonAsLogo();
+		}
+	}
+
+	@Override
 	protected void onFinishWizardActivity() {
 		enforceCalibrationBeforeStartingSleep();
 	}
-	
+
+	@Override
+	protected void onRestoreInstanceState(final Bundle savedState) {
+		super.onRestoreInstanceState(savedState);
+		required = savedState.getBoolean("required");
+	}
+
+	@Override
+	protected void onSaveInstanceState(final Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean("required", required);
+	}
+
 	private void enforceCalibrationBeforeStartingSleep() {
 
 		final SharedPreferences userPrefs = getSharedPreferences(
@@ -48,7 +73,8 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 								public void onClick(
 										final DialogInterface dialog,
 										final int id) {
-									startActivity(new Intent(WelcomeTutorialWizardActivity.this,
+									startActivity(new Intent(
+											WelcomeTutorialWizardActivity.this,
 											CalibrationWizardActivity.class));
 									finish();
 								}
@@ -59,7 +85,8 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 								public void onClick(
 										final DialogInterface dialog,
 										final int id) {
-									startActivity(new Intent(WelcomeTutorialWizardActivity.this,
+									startActivity(new Intent(
+											WelcomeTutorialWizardActivity.this,
 											SettingsActivity.class));
 									finish();
 								}
@@ -74,21 +101,26 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 								}
 							});
 			dialog.show();
-		}
-		else
-		{
+		} else {
 			finish();
 		}
 	}
-	
-	public void onLeftButtonClick(View v)
-	{
-		if(viewFlipper.getDisplayedChild() == 0)
-		{
-			return;
+
+	@Override
+	public void onHomeClick(final View v) {
+		if (required) {
+			// do nothing b/c home is home!
+		} else {
+			super.onHomeClick(v);
 		}
-		else
+	}
+
+	public void onLeftButtonClick(View v) {
+		if (viewFlipper.getDisplayedChild() == 0 && required) {
+			return;
+		} else {
 			super.onLeftButtonClick(v);
+		}
 	}
 
 	@Override

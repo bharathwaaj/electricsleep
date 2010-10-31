@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
@@ -60,6 +62,9 @@ public class HomeActivity extends CustomTitlebarActivity {
 		} else if (prefsVersion != getResources().getInteger(
 				R.integer.prefs_version)) {
 			message = getString(R.string.message_prefs_not_compatible);
+			PreferenceManager.getDefaultSharedPreferences(this).edit().clear()
+					.commit();
+			PreferenceManager.setDefaultValues(this, R.xml.settings, true);
 		}
 
 		if (message.length() > 0) {
@@ -111,9 +116,10 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
+		// do this before the google analytics tracker can send any data
 		PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+
+		super.onCreate(savedInstanceState);
 
 		showTitleButton1(R.drawable.ic_title_share);
 		// showTitleButton2(R.drawable.ic_title_refresh);
@@ -124,7 +130,24 @@ public class HomeActivity extends CustomTitlebarActivity {
 		final int prefsVersion = userPrefs.getInt(
 				getString(R.string.prefs_version), 0);
 		if (prefsVersion == 0) {
-			startActivity(new Intent(this, WelcomeTutorialWizardActivity.class));
+			SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+			Sensor accelerometer = sensorManager
+					.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+			if (accelerometer != null) {
+				StringBuffer sb = new StringBuffer();
+				sb.append("Vendor: " + accelerometer.getVendor());
+				sb.append(" | Version: " + accelerometer.getVersion());
+				sb.append(" | Range: " + accelerometer.getMaximumRange());
+				sb.append(" | Power: " + accelerometer.getPower());
+				sb.append(" | Resolution: " + accelerometer.getResolution());
+				sb.append(" | Type: " + accelerometer.getType());
+				analytics.trackEvent("accelerometer", accelerometer.getName(),
+						sb.toString(), 0);
+			}
+			startActivity(new Intent(this, WelcomeTutorialWizardActivity.class)
+					.putExtra("required", true));
+		} else {
+			enforceCalibrationBeforeStartingSleep(null, null);
 		}
 	}
 
@@ -147,11 +170,10 @@ public class HomeActivity extends CustomTitlebarActivity {
 	protected void onRestoreInstanceState(final Bundle savedState) {
 		try {
 			super.onRestoreInstanceState(savedState);
-			sleepChartView = (SleepChartView) savedState
-					.getSerializable("sleepChartView");
 		} catch (final RuntimeException re) {
-
 		}
+		sleepChartView = (SleepChartView) savedState
+				.getSerializable("sleepChartView");
 	}
 
 	@Override
@@ -170,9 +192,9 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 		final SharedPreferences userPrefs = PreferenceManager
 				.getDefaultSharedPreferences(HomeActivity.this);
-		final int minSensitivity = userPrefs.getInt(
+		final double minSensitivity = userPrefs.getFloat(
 				getString(R.string.pref_minimum_sensitivity), -1);
-		final int alarmTriggerSensitivity = userPrefs.getInt(
+		final double alarmTriggerSensitivity = userPrefs.getFloat(
 				getString(R.string.pref_alarm_trigger_sensitivity), -1);
 
 		final boolean useAlarm = userPrefs.getBoolean(

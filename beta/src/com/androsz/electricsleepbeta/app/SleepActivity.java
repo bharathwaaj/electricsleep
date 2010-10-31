@@ -56,9 +56,9 @@ public class SleepActivity extends CustomTitlebarActivity {
 			if (sleepChartView != null) {
 				sleepChartView.syncByAdding(intent.getDoubleExtra("x", 0),
 						intent.getDoubleExtra("y", 0),
-						intent.getIntExtra("min",
+						intent.getDoubleExtra("min",
 								SettingsActivity.DEFAULT_MIN_SENSITIVITY),
-						intent.getIntExtra("alarm",
+						intent.getDoubleExtra("alarm",
 								SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 
 				if (sleepChartView.makesSenseToDisplay()
@@ -82,13 +82,13 @@ public class SleepActivity extends CustomTitlebarActivity {
 			// sleepChartView.xySeriesMovement.mY = (List<Double>) intent
 			// .getSerializableExtra("currentSeriesY");
 
-			sleepChartView.syncByCopying((List<Double>) intent
-					.getSerializableExtra("currentSeriesX"),
-					(List<Double>) intent
-							.getSerializableExtra("currentSeriesY"), intent
-							.getIntExtra("min",
-									SettingsActivity.DEFAULT_MIN_SENSITIVITY),
-					intent.getIntExtra("alarm",
+			sleepChartView.xySeriesMovement.mX = ((List<Double>) intent
+					.getSerializableExtra("currentSeriesX"));
+			sleepChartView.xySeriesMovement.mY = ((List<Double>) intent
+					.getSerializableExtra("currentSeriesY"));
+			sleepChartView.redraw(intent.getDoubleExtra("min",
+					SettingsActivity.DEFAULT_MIN_SENSITIVITY), intent
+					.getDoubleExtra("alarm",
 							SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 
 			if (sleepChartView.makesSenseToDisplay()
@@ -159,25 +159,21 @@ public class SleepActivity extends CustomTitlebarActivity {
 	protected void onResume() {
 		super.onResume();
 
-		// sendBroadcast(new Intent(SleepAccelerometerService.POKE_SYNC_CHART));
-		// addChartView();
 		registerReceiver(updateChartReceiver, new IntentFilter(UPDATE_CHART));
 		registerReceiver(syncChartReceiver, new IntentFilter(SYNC_CHART));
 		sendBroadcast(new Intent(SleepAccelerometerService.POKE_SYNC_CHART));
 
 		try {
-			final Alarm alarm = Alarms.calculateNextAlert(this, -1);// adb.getNearestEnabledAlarm();
+			final Alarm alarm = Alarms.calculateNextAlert(this, -1);
 			if (alarm != null) {
 				final Calendar alarmTime = Calendar.getInstance();
 				alarmTime.setTimeInMillis(alarm.time);
 
-				java.text.DateFormat df = DateFormat.getDateFormat(this);// .getDateFormat(this);
+				java.text.DateFormat df = DateFormat.getDateFormat(this);
 				String dateTime = df.format(alarmTime.getTime());
 				df = DateFormat.getTimeFormat(this);
 				dateTime = df.format(alarmTime.getTime()) + " on " + dateTime;
-				// CharSequence cs = "":
-				// StringBuilder sb = new StringBuilder();
-				// Formatter formatter = new Formatter();
+
 				Toast.makeText(this, "Bound to alarm @ " + dateTime,
 						Toast.LENGTH_LONG).show();
 			}
@@ -194,26 +190,8 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 	public void onTitleButton1Click(final View v) {
 
-		new AlertDialog.Builder(this)
-				.setMessage("Are you sure you want to end sleep monitoring?")
-				.setCancelable(false)
-				.setPositiveButton(getString(R.string.yes),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(final DialogInterface dialog,
-									final int id) {
-								sendBroadcast(new Intent(
-										SleepAccelerometerService.STOP_AND_SAVE_SLEEP));
-								finish();
-							}
-						})
-				.setNegativeButton(getString(R.string.no),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(final DialogInterface dialog,
-									final int id) {
-							}
-						}).show();
+		sendBroadcast(new Intent(SleepAccelerometerService.STOP_AND_SAVE_SLEEP));
+		finish();
 	}
 
 	public void onTitleButton2Click(final View v) {

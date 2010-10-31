@@ -19,8 +19,8 @@ public class CalibrateForResultActivity extends Activity {
 	private final BroadcastReceiver updateChartReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
-			CalibrateForResultActivity.this.setResult((int) intent
-					.getDoubleExtra("y", 0));
+			CalibrateForResultActivity.this.setResult(1,
+					intent);
 			finish();
 		}
 	};
@@ -58,11 +58,6 @@ public class CalibrateForResultActivity extends Activity {
 		registerReceiver(updateChartReceiver, new IntentFilter(
 				SleepActivity.UPDATE_CHART));
 	}
-
-	/*
-	 * @Override public void onWindowFocusChanged(boolean hasFocus) { if
-	 * (!hasFocus) { setFailed(); } }
-	 */
 
 	private void setFailed() {
 		this.setResult(CALIBRATION_FAILED);

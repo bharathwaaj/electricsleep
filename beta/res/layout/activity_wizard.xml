@@ -11,11 +11,11 @@
 		<Button android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:layout_gravity="bottom|left"
 			android:layout_weight="1" android:id="@+id/leftButton"
-			android:onClick="onLeftButtonClick"></Button>
+			android:onClick="onLeftButtonClick" android:drawableLeft="@drawable/arrow_left"></Button>
 		<Button android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:layout_gravity="bottom|right"
 			android:onClick="onRightButtonClick" android:id="@+id/rightButton"
-			android:layout_weight="1"></Button>
+			android:layout_weight="1" android:drawableRight="@drawable/arrow_right"></Button>
 	</LinearLayout>
 
 </LinearLayout>

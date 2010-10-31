@@ -101,14 +101,14 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 		}
 	}
 
-	private int minCalibration;
-	private int alarmTriggerCalibration;
+	private double minCalibration;
+	private double alarmTriggerCalibration;
 
 	private TextToSpeech textToSpeech;
 
 	private boolean ttsAvailable = false;
 
-	private boolean useTTS = true;
+	private boolean useTTS = false;
 	private static AsyncTask<Void, Void, Void> currentTask;
 	private static final int TEST_TTS_INSTALLED = 0x1337;
 
@@ -156,19 +156,21 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 		}
 		switch (requestCode) {
 		case R.id.minTest:
-			minCalibration = resultCode;
-			notifyUser(getString(R.string.minimum_sensitivity_set_to) + " "
-					+ minCalibration);
+			minCalibration = data.getDoubleExtra("y", 0);
+			notifyUser(String.format("%s %.2f",
+					getString(R.string.minimum_sensitivity_set_to),
+					minCalibration));
 			stopService(new Intent(this, SleepAccelerometerService.class));
 			break;
 		case R.id.alarmTest:
-			alarmTriggerCalibration = resultCode;
+			alarmTriggerCalibration = data.getDoubleExtra("y", 0);
 			final float ratioAlarm = (float) Math.abs(ALARM_CALIBRATION_TIME
 					- MINIMUM_CALIBRATION_TIME)
 					/ MINIMUM_CALIBRATION_TIME;
 			alarmTriggerCalibration += minCalibration / ratioAlarm;
-			notifyUser(getString(R.string.alarm_trigger_sensitivity_set_to)
-					+ " " + alarmTriggerCalibration);
+			notifyUser(String.format("%s %.2f",
+					getString(R.string.alarm_trigger_sensitivity_set_to),
+					alarmTriggerCalibration));
 			stopService(new Intent(this, SleepAccelerometerService.class));
 			break;
 		case TEST_TTS_INSTALLED:
@@ -193,11 +195,8 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		showTitleButton1(android.R.drawable.ic_lock_silent_mode_off);
+		showTitleButton1(android.R.drawable.ic_lock_silent_mode);
 		checkTextToSpeechInstalled();
-		if (textToSpeech == null) {
-			textToSpeech = new TextToSpeech(this, this);
-		}
 	}
 
 	@Override
@@ -212,9 +211,10 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 	protected void onFinishWizardActivity() {
 		final SharedPreferences.Editor ed = PreferenceManager
 				.getDefaultSharedPreferences(getBaseContext()).edit();
-		ed.putInt(getString(R.string.pref_minimum_sensitivity), minCalibration);
-		ed.putInt(getString(R.string.pref_alarm_trigger_sensitivity),
-				alarmTriggerCalibration);
+		ed.putFloat(getString(R.string.pref_minimum_sensitivity),
+				(float) minCalibration);
+		ed.putFloat(getString(R.string.pref_alarm_trigger_sensitivity),
+				(float) alarmTriggerCalibration);
 		ed.commit();
 
 		final SharedPreferences.Editor ed2 = getSharedPreferences(
@@ -241,9 +241,9 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 	@Override
 	protected void onPrepareLastSlide() {
 		final TextView textViewMin = (TextView) findViewById(R.id.minResult);
-		textViewMin.setText("" + minCalibration);
+		textViewMin.setText(String.format("%.2f", minCalibration));
 		final TextView textViewAlarm = (TextView) findViewById(R.id.alarmResult);
-		textViewAlarm.setText("" + alarmTriggerCalibration);
+		textViewAlarm.setText(String.format("%.2f", alarmTriggerCalibration));
 	}
 
 	@Override
@@ -253,8 +253,8 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 
 		viewFlipper.setDisplayedChild(savedState.getInt("child"));
 
-		minCalibration = savedState.getInt("min");
-		alarmTriggerCalibration = savedState.getInt("alarm");
+		minCalibration = savedState.getDouble("min");
+		alarmTriggerCalibration = savedState.getDouble("alarm");
 
 		useTTS = savedState.getBoolean("useTTS");
 		updateTitleButtonTTS();
@@ -267,11 +267,9 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 		super.onSaveInstanceState(outState);
 		outState.putInt("child", viewFlipper.getDisplayedChild());
 
-		outState.putInt("min", minCalibration);
-		outState.putInt("alarm", alarmTriggerCalibration);
+		outState.putDouble("min", minCalibration);
+		outState.putDouble("alarm", alarmTriggerCalibration);
 		outState.putBoolean("useTTS", useTTS);
-
-		// outState.putSerializable("tts", textToSpeech);
 	}
 
 	public void onTitleButton1Click(final View v) {

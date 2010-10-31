@@ -26,13 +26,13 @@ public class SeekBarPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(final boolean positiveResult) {
 		if (positiveResult) {
-			persistInt(seekBar.getProgress());
+			persistFloat(seekBar.getProgress());
 		}
 	}
 
 	@Override
 	protected Object onGetDefaultValue(final TypedArray a, final int index) {
-		return (int) a.getInt(index, 0);
+		return a.getFloat(index, 0);
 	}
 
 	@Override
@@ -50,17 +50,17 @@ public class SeekBarPreference extends DialogPreference {
 				ViewGroup.LayoutParams.WRAP_CONTENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT));
 
-		syncTextViewText(getPersistedInt(0));
+		syncTextViewText(Math.round(getPersistedFloat(0)));
 		textView.setPadding(5, 5, 5, 5);
 		layout.addView(textView);
 
 		seekBar = new SeekBar(context);
-		seekBar.setMax(200);
+		seekBar.setMax(10);
 		seekBar.setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT));
 
-		seekBar.setProgress(getPersistedInt(0));
+		seekBar.setProgress(Math.round(getPersistedFloat(0)));
 		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
@@ -88,10 +88,10 @@ public class SeekBarPreference extends DialogPreference {
 	@Override
 	protected void onSetInitialValue(final boolean restoreValue,
 			final Object defaultValue) {
-		final int temp = restoreValue ? getPersistedInt(0)
-				: (Integer) defaultValue;
+		final float temp = restoreValue ? getPersistedFloat(0)
+				: (Float) defaultValue;
 		if (!restoreValue) {
-			persistInt(temp);
+			persistFloat(temp);
 		}
 	}
 

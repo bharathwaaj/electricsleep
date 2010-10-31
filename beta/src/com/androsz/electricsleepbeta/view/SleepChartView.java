@@ -98,7 +98,7 @@ public class SleepChartView extends ChartView implements Serializable {
 		return xySeriesMovement.getItemCount() > 1;
 	}
 
-	protected void redraw(final int min, final int alarm) {
+	public void redraw(final double min, final double alarm) {
 		if (makesSenseToDisplay()) {
 			final double firstX = xySeriesMovement.mX.get(0);
 			final double lastX = xySeriesMovement.mX.get(xySeriesMovement.mX
@@ -136,17 +136,10 @@ public class SleepChartView extends ChartView implements Serializable {
 		}
 	}
 
-	public void syncByAdding(final Double x, final Double y, final int min,
-			final int alarm) {
+	public void syncByAdding(final Double x, final Double y, final double min,
+			final double alarm) {
 		xySeriesMovement.mX.add(x);
 		xySeriesMovement.mY.add(y);
-		redraw(min, alarm);
-	}
-
-	public void syncByCopying(final List<Double> x, final List<Double> y,
-			final int min, final int alarm) {
-		xySeriesMovement.mX = x;
-		xySeriesMovement.mY = y;
 		redraw(min, alarm);
 	}
 
@@ -155,8 +148,7 @@ public class SleepChartView extends ChartView implements Serializable {
 		final String name = cursor
 				.getString(cursor
 						.getColumnIndexOrThrow(SleepHistoryDatabase.KEY_SLEEP_DATE_TIME));
-		// final int rating =
-		// cursor.getInt(cursor.getColumnIndexOrThrow(SleepHistoryDatabase.))
+
 		try {
 
 			xySeriesMovement.mX = (List<Double>) SleepHistoryDatabase
@@ -178,11 +170,11 @@ public class SleepChartView extends ChartView implements Serializable {
 			e.printStackTrace();
 		}
 
-		final int min = cursor
-				.getInt(cursor
+		final double min = cursor
+				.getDouble(cursor
 						.getColumnIndexOrThrow(SleepHistoryDatabase.KEY_SLEEP_DATA_MIN));
-		final int alarm = cursor
-				.getInt(cursor
+		final double alarm = cursor
+				.getDouble(cursor
 						.getColumnIndexOrThrow(SleepHistoryDatabase.KEY_SLEEP_DATA_ALARM));
 		rating = cursor
 				.getInt(cursor

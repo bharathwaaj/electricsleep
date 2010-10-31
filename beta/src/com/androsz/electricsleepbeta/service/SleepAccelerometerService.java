@@ -42,8 +42,8 @@ public class SleepAccelerometerService extends Service implements
 
 	private static final int NOTIFICATION_ID = 0x1337a;
 
-	public ArrayList<Double> currentSeriesX;
-	public ArrayList<Double> currentSeriesY;
+	private ArrayList<Double> currentSeriesX = new ArrayList<Double>();
+	private ArrayList<Double> currentSeriesY = new ArrayList<Double>();
 
 	private SensorManager sensorManager;
 
@@ -52,11 +52,9 @@ public class SleepAccelerometerService extends Service implements
 
 	private long lastChartUpdateTime = System.currentTimeMillis();
 	private long lastOnSensorChangedTime = System.currentTimeMillis();
-	private long totalTimeBetweenSensorChanges = 0;
-	private int totalNumberOfSensorChanges = 0;
-
-	private int minSensitivity = SettingsActivity.DEFAULT_MIN_SENSITIVITY;
-	private int alarmTriggerSensitivity = SettingsActivity.DEFAULT_ALARM_SENSITIVITY;
+	
+	private double minSensitivity = SettingsActivity.DEFAULT_MIN_SENSITIVITY;
+	private double alarmTriggerSensitivity = SettingsActivity.DEFAULT_ALARM_SENSITIVITY;
 
 	private boolean airplaneMode = true;
 	private boolean useAlarm = false;
@@ -66,7 +64,7 @@ public class SleepAccelerometerService extends Service implements
 
 	private Date dateStarted;
 
-	public static final int SENSOR_DELAY = SensorManager.SENSOR_DELAY_UI;
+	public static final int SENSOR_DELAY = SensorManager.SENSOR_DELAY_GAME;
 
 	private final BroadcastReceiver pokeSyncChartReceiver = new BroadcastReceiver() {
 		@Override
@@ -153,7 +151,7 @@ public class SleepAccelerometerService extends Service implements
 		// notificationManager = (NotificationManager)
 		// getSystemService(Context.NOTIFICATION_SERVICE);
 
-		final int icon = R.drawable.icon;
+		final int icon = R.drawable.icon_small;
 		final CharSequence tickerText = getText(R.string.notification_sleep_ticker);
 		final long when = System.currentTimeMillis();
 
@@ -238,70 +236,72 @@ public class SleepAccelerometerService extends Service implements
 		stopForeground(true);
 	}
 
+	double maxNetForce = 0;
+	double lastX = 0;
+	double lastY = 0;
+	double lastZ = 0;
+
 	@Override
-	public void onSensorChanged(final SensorEvent event) {
+	public void onSensorChanged(SensorEvent event) {
 		final long currentTime = System.currentTimeMillis();
+
+		double curX = event.values[0];
+		double curY = event.values[1];
+		double curZ = event.values[2];
+
+		if (lastOnSensorChangedTime == 0) {
+			lastOnSensorChangedTime = currentTime;
+			lastX = curX;
+			lastY = curY;
+			lastZ = curZ;
+			return;
+		}
+
 		final long timeSinceLastSensorChange = currentTime
 				- lastOnSensorChangedTime;
-
-		totalNumberOfSensorChanges++;
-		totalTimeBetweenSensorChanges += timeSinceLastSensorChange;
+		if (timeSinceLastSensorChange > 0) {
+			double force = Math.abs(curX + curY + curZ - lastX - lastY - lastZ)
+					/ timeSinceLastSensorChange;
+			
+			maxNetForce = (force > maxNetForce) ? force : maxNetForce;
+			lastX = curX;
+			lastY = curY;
+			lastZ = curZ;
+			lastOnSensorChangedTime = currentTime;
+		}
 
 		final long deltaTime = currentTime - lastChartUpdateTime;
-		final double averageTimeBetweenUpdates = totalTimeBetweenSensorChanges
-				/ totalNumberOfSensorChanges;
+		
 		final double x = currentTime;
-		final double y = java.lang.Math.max(
-				minSensitivity,
-				java.lang.Math.min(alarmTriggerSensitivity, deltaTime
-						/ averageTimeBetweenUpdates));
+		final double y = java.lang.Math.max(minSensitivity,
+				java.lang.Math.min(alarmTriggerSensitivity, maxNetForce));
 
 		if (deltaTime >= updateInterval) {
-
-			// this should help reduce both runtime memory and saved data memory
-			// later on.
-			// final int yOneAgoIndex = currentSeriesY.size() - 1;
-			// final int yTwoAgoIndex = currentSeriesY.size() - 2;
-			final boolean syncChart = false;
-			/*
-			 * if (yTwoAgoIndex > 0) { final double oneAgo =
-			 * currentSeriesY.get(yOneAgoIndex); final double twoAgo =
-			 * currentSeriesY.get(yTwoAgoIndex); if (Math.round(oneAgo) ==
-			 * Math.round(twoAgo) && Math.round(oneAgo) == Math.round(y)) {
-			 * currentSeriesX.remove(yOneAgoIndex);
-			 * currentSeriesY.remove(yOneAgoIndex); // flag to sync instead of
-			 * update syncChart = true; } }
-			 */
 
 			currentSeriesX.add(x);
 			currentSeriesY.add(y);
 
-			if (syncChart) {
-				pokeSyncChartReceiver.onReceive(this, null);
-			} else {
-				final Intent i = new Intent(SleepActivity.UPDATE_CHART);
-				i.putExtra("x", x);
-				i.putExtra("y", y);
-				i.putExtra("min", minSensitivity);
-				i.putExtra("alarm", alarmTriggerSensitivity);
-				sendBroadcast(i);
-			}
+			final Intent i = new Intent(SleepActivity.UPDATE_CHART);
+			i.putExtra("x", x);
+			i.putExtra("y", y);
+			i.putExtra("min", minSensitivity);
+			i.putExtra("alarm", alarmTriggerSensitivity);
+			sendBroadcast(i);
 
-			totalNumberOfSensorChanges = 0;
-			totalTimeBetweenSensorChanges = 0;
+			//totalTimeBetweenSensorChanges = 0;
 
 			lastChartUpdateTime = currentTime;
+			maxNetForce = 0;
 
 			triggerAlarmIfNecessary(currentTime, y);
-		} else {
-			if (triggerAlarmIfNecessary(currentTime, y)) {
-				currentSeriesX.add((double) currentTime);
-				currentSeriesY.add(y);
-				totalNumberOfSensorChanges = 0;
-				totalTimeBetweenSensorChanges = 0;
+		} else if (triggerAlarmIfNecessary(currentTime, y)) {
+			currentSeriesX.add(x);
+			currentSeriesY.add(y);
 
-				lastChartUpdateTime = currentTime;
-			}
+			//totalTimeBetweenSensorChanges = 0;
+
+			lastChartUpdateTime = currentTime;
+			maxNetForce = 0;
 		}
 		lastOnSensorChangedTime = currentTime;
 	}
@@ -312,16 +312,14 @@ public class SleepAccelerometerService extends Service implements
 		if (intent != null && startId == 1) {
 			updateInterval = intent.getIntExtra("interval",
 					CalibrationWizardActivity.MINIMUM_CALIBRATION_TIME);
-			minSensitivity = intent.getIntExtra("min",
+			minSensitivity = intent.getDoubleExtra("min",
 					SettingsActivity.DEFAULT_MIN_SENSITIVITY);
-			alarmTriggerSensitivity = intent.getIntExtra("alarm",
+			alarmTriggerSensitivity = intent.getDoubleExtra("alarm",
 					SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
 
 			useAlarm = intent.getBooleanExtra("useAlarm", false);
 			alarmWindow = intent.getIntExtra("alarmWindow", 0);
 			airplaneMode = intent.getBooleanExtra("airplaneMode", false);
-			currentSeriesX = new ArrayList<Double>();
-			currentSeriesY = new ArrayList<Double>();
 			toggleAirplaneMode(true);
 		}
 		return startId;

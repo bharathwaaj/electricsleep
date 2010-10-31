@@ -81,6 +81,17 @@ public abstract class CustomTitlebarWizardActivity extends
 			}
 		}
 	}
+	
+	//hack to prevent a crash on android 2.1 and 2.2 - http://daniel-codes.blogspot.com/2010/05/viewflipper-receiver-not-registered.html
+	@Override
+	public void onDetachedFromWindow() {
+	    try {
+	        super.onDetachedFromWindow();
+	    }
+	    catch (IllegalArgumentException e) {
+	        viewFlipper.stopFlipping();
+	    }
+	}
 
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {

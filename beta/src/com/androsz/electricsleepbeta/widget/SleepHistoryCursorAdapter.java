@@ -24,12 +24,11 @@ public class SleepHistoryCursorAdapter extends ResourceCursorAdapter {
 	public void bindView(final View view, final Context context,
 			final Cursor cursor) {
 
-		System.gc();
 		final SleepChartView sleepChartView = (SleepChartView) view
 				.findViewById(R.id.sleep_history_list_item_sleepchartview);
 
 		sleepChartView.syncWithCursor(cursor);
-		sleepChartView.setMinimumHeight(parent.getHeight());
+		sleepChartView.setMinimumHeight(parent.getHeight()/2);
 	}
 
 	@Override

@@ -1,9 +1,11 @@
 package com.androsz.electricsleepbeta.preference;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,11 +16,14 @@ import android.widget.TextView;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.app.HomeActivity;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public abstract class CustomTitlebarPreferenceActivity extends
 		PreferenceActivity {
 
 	protected abstract int getContentAreaLayoutId();
+
+	protected GoogleAnalyticsTracker analytics;
 
 	public void hideTitleButton1() {
 		final ImageButton btn1 = (ImageButton) findViewById(R.id.title_button_1);
@@ -34,6 +39,10 @@ public abstract class CustomTitlebarPreferenceActivity extends
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
+		analytics = GoogleAnalyticsTracker.getInstance();
+		analytics.start(getString(R.string.analytics_ua_number), this);
+		analytics.trackPageView("/" + getLocalClassName());
+
 		getWindow().setFormat(PixelFormat.RGBA_8888);
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		super.onCreate(savedInstanceState);
@@ -46,6 +55,20 @@ public abstract class CustomTitlebarPreferenceActivity extends
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
 				R.layout.titlebar);
 		((TextView) findViewById(R.id.title_text)).setText(getTitle());
+	}
+
+	protected void onDestroy() {
+		super.onDestroy();
+
+		final SharedPreferences userPrefs = PreferenceManager
+				.getDefaultSharedPreferences(this);
+
+		final boolean analyticsOn = userPrefs.getBoolean(
+				getString(R.string.pref_analytics), true);
+		if (analyticsOn) {
+			analytics.dispatch();
+		}
+		analytics.stop();
 	}
 
 	@Override
@@ -66,11 +89,11 @@ public abstract class CustomTitlebarPreferenceActivity extends
 		/*
 		 * switch (item.getItemId()) { case R.id.menuItemDonate: final Uri
 		 * marketUri = Uri
-		 * .parse("market://details?id=com.androsz.electricsleepbetadonate"); final
-		 * Intent marketIntent = new Intent(Intent.ACTION_VIEW, marketUri);
-		 * startActivity(marketIntent); return true; case R.id.menuItemSettings:
-		 * startActivity(new Intent(this, SettingsActivity.class)); return true;
-		 * default: return false; }
+		 * .parse("market://details?id=com.androsz.electricsleepbetadonate");
+		 * final Intent marketIntent = new Intent(Intent.ACTION_VIEW,
+		 * marketUri); startActivity(marketIntent); return true; case
+		 * R.id.menuItemSettings: startActivity(new Intent(this,
+		 * SettingsActivity.class)); return true; default: return false; }
 		 */
 		return false;
 	}
