@@ -5,14 +5,14 @@ import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ViewFlipper;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.widget.ViewFlipperBugfix;
 
 public abstract class CustomTitlebarWizardActivity extends
 		CustomTitlebarActivity {
 
-	protected ViewFlipper viewFlipper;
+	protected ViewFlipperBugfix viewFlipper;
 
 	@Override
 	protected int getContentAreaLayoutId() {
@@ -31,7 +31,7 @@ public abstract class CustomTitlebarWizardActivity extends
 		super.onCreate(savedInstanceState);
 		final ViewStub wizardViewFlipperStub = (ViewStub) findViewById(R.id.wizardViewFlipperStub);
 		wizardViewFlipperStub.setLayoutResource(getWizardLayoutId());
-		viewFlipper = (ViewFlipper) wizardViewFlipperStub.inflate();
+		viewFlipper = (ViewFlipperBugfix) wizardViewFlipperStub.inflate();
 		setupNavigationButtons();
 	}
 
@@ -80,17 +80,6 @@ public abstract class CustomTitlebarWizardActivity extends
 				setupNavigationButtons();
 			}
 		}
-	}
-	
-	//hack to prevent a crash on android 2.1 and 2.2 - http://daniel-codes.blogspot.com/2010/05/viewflipper-receiver-not-registered.html
-	@Override
-	public void onDetachedFromWindow() {
-	    try {
-	        super.onDetachedFromWindow();
-	    }
-	    catch (IllegalArgumentException e) {
-	        viewFlipper.stopFlipping();
-	    }
 	}
 
 	@Override

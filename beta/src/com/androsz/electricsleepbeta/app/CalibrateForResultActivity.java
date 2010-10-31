@@ -48,8 +48,8 @@ public class CalibrateForResultActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		unregisterReceiver(updateChartReceiver);
 		super.onPause();
+		unregisterReceiver(updateChartReceiver);
 	}
 
 	@Override
