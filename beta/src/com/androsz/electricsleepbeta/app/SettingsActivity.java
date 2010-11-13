@@ -13,33 +13,9 @@ import com.androsz.electricsleepbeta.preference.CustomTitlebarPreferenceActivity
 
 public class SettingsActivity extends CustomTitlebarPreferenceActivity {
 
-	public static double DEFAULT_MAX_SENSITIVITY = 500;
 	public static double DEFAULT_MIN_SENSITIVITY = 0;
-	public static double DEFAULT_ALARM_SENSITIVITY = 2;
-
-	public static boolean areSensitivitiesValid(final float minSensitivity,
-			final float maxSensitivity, final float alarmSensitivity) {
-		if (maxSensitivity < 0 || minSensitivity < 0 || alarmSensitivity < 0) {
-			return false;
-		}
-
-		if (minSensitivity > alarmSensitivity
-				|| minSensitivity > maxSensitivity) {
-			return false;
-		}
-
-		if (alarmSensitivity > maxSensitivity
-				|| alarmSensitivity < minSensitivity) {
-			return false;
-		}
-
-		if (maxSensitivity < alarmSensitivity
-				|| maxSensitivity < minSensitivity) {
-			return false;
-		}
-
-		return true;
-	}
+	public static double DEFAULT_ALARM_SENSITIVITY = 0.5;
+	public static double MAX_ALARM_SENSITIVITY = 2;
 
 	@Override
 	protected int getContentAreaLayoutId() {

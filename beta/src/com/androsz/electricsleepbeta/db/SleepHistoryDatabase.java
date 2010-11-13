@@ -182,8 +182,8 @@ public class SleepHistoryDatabase {
 	 */
 	public void addSleep(final Context context, final String sleepDateTime,
 			final List<Double> sleepChartDataX,
-			final List<Double> sleepChartDataY, final double min, final double alarm,
-			final int rating) throws IOException {
+			final List<Double> sleepChartDataY, final double min,
+			final double alarm, final int rating) throws IOException {
 		databaseOpenHelper.addSleep(sleepDateTime, sleepChartDataX,
 				sleepChartDataY, min, alarm, rating);
 	}
@@ -193,8 +193,8 @@ public class SleepHistoryDatabase {
 	}
 
 	public boolean deleteRow(final long id) {
-		SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
-		boolean value = db.delete(FTS_VIRTUAL_TABLE, "rowid=?",
+		final SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
+		final boolean value = db.delete(FTS_VIRTUAL_TABLE, "rowid=?",
 				new String[] { Long.toString(id) }) > 0;
 		db.close();
 		return value;
@@ -275,7 +275,7 @@ public class SleepHistoryDatabase {
 		final SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 		builder.setTables(FTS_VIRTUAL_TABLE);
 		builder.setProjectionMap(columnMap);
-		SQLiteDatabase db = databaseOpenHelper.getReadableDatabase();
+		final SQLiteDatabase db = databaseOpenHelper.getReadableDatabase();
 		final Cursor cursor = builder.query(db, columns, selection,
 				selectionArgs, null, null, null);
 

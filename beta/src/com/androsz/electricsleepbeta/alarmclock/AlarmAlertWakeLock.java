@@ -29,7 +29,8 @@ class AlarmAlertWakeLock {
 
 	static void acquireCpuWakeLock(final Context context) {
 		Log.v("Acquiring cpu wake lock");
-		if (sCpuWakeLock != null) {
+		if (sCpuWakeLock != null && sCpuWakeLock.isHeld()) {
+			Log.v("Wake lock already held");
 			return;
 		}
 

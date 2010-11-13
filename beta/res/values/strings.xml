@@ -1,39 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="title_report">Report Issue</string>
-    <string name="summary_pref_analytics_off">Anonymous usage will not be uploaded</string>
-    <string name="summary_pref_analytics_on">Anonymous usage will be uploaded</string>
-    <string name="title_pref_analytics">Upload Anonymous Usage</string>
-    <string name="pref_analytics">Allow Google Analytics</string>
-    <string name="saving_sleep">Saving sleep</string>
-    <string name="cancel">Cancel</string>
-    <string name="manual">Manual</string>
-    <string name="calibrate">Calibrate</string>
-    <string name="password">Password</string>
-    <string name="username">Username</string>
-    <string name="account_creation">ElectricSleep Account Creation</string>
-    <string name="skip_tutorial">Skip Tutorial</string>
-    <string name="electricsleep_about">About Electricsleep</string>
+	<string name="how_review">Your sleep movement graph is saved for later
+		review. Statistics will be available for individual as well as all
+		records.</string>
+	<string name="how_wake">Wake up! (With help of smart alarm or naturally.)</string>
+	<string name="how_sleep">
+		Place your Android device near you on your bed and press sleep.
+		<br />
+		<br />
+		Go to sleep!
+	</string>
+	<string name="how_configure">Configure: set an optional smart alarm, adjust
+		sensitivity of accelerometer and more.</string>
+	<string name="title_report">Report Issue</string>
+	<string name="summary_pref_analytics_off">Anonymous usage will not be uploaded</string>
+	<string name="summary_pref_analytics_on">Anonymous usage will be uploaded</string>
+	<string name="title_pref_analytics">Upload Anonymous Usage</string>
+	<string name="pref_analytics">Allow Google Analytics</string>
+	<string name="saving_sleep">Saving sleep</string>
+	<string name="cancel">Cancel</string>
+	<string name="manual">Manual</string>
+	<string name="calibrate">Calibrate</string>
+	<string name="password">Password</string>
+	<string name="username">Username</string>
+	<string name="account_creation">ElectricSleep Account Creation</string>
+	<string name="skip_tutorial">Skip Tutorial</string>
+	<string name="electricsleep_about">How ElectricSleep Works</string>
 	<string name="electricsleep_description">
-		ElectricSleep is a new way to sleep. After you
+		\tElectricSleep is a new way to sleep. After you
 		place your Android device near you on your
-		bed/placeofslumber, ElectricSleep
+		bed/placeofslumber,
+		ElectricSleep
 		will record data from your device\'s
-		accelerometer all night.\n\n
-		The movements it records help signify
-		sleep stages. Aside from
+		accelerometer all
+		night.\n\n
+		\tThe movements it records help signify
+		sleep stages. Aside
+		from
 		providing analysis and insight into your sleep
-		patterns, you can set
+		patterns, you can
+		set
 		an alarm to wake you during light sleep, so you
-		wake more easily than
-		with a traditionally-fixed alarm.
+		wake more easily
+		than
+		with a traditional alarm.
 	</string>
 	<string name="title_review_sleep">Review Sleep</string>
 	<string name="title_welcome">Welcome to ElectricSleep!</string>
 	<string name="no">No</string>
 	<string name="yes">Yes</string>
+	<string name="ok">OK</string>
 	<string name="deleted_sleep_record">Deleted sleep record.</string>
-	<string name="delete_sleep_record">Delete this sleep record?</string>
+	<string name="delete_sleep_record">Sleep record will be deleted</string>
 	<string name="about">About</string>
 	<string name="welcome_tutorial">Welcome Tutorial</string>
 	<string name="summary_pref_airplane_mode_off">Airplane mode will not be automatically enabled
@@ -55,17 +73,18 @@
 	<string name="title_pref_calibration">Calibration Wizard</string>
 	<string name="pref_calibration">calibrationWizard</string>
 	<string name="pref_last_sleep_row">lastSavedSleepRow</string>
-	<string name="summary_pref_alarms">Manage ElectricSleep\'s built-in alarms - ElectricSleep will always
-		bind to the next enabled alarm if Use Alarms is enabled.</string>
+	<string name="summary_pref_alarms">Manage ElectricSleep\'s built-in alarms -
+		ElectricSleep will try to wake you up during light sleep before the
+		next enabled alarm if Light Sleep Pre-Alarm is enabled.</string>
 	<string name="preset">Preset:</string>
 	<string name="summary_pref_use_alarm_off">ElectricSleep will not wake you up in sleep mode
 		(recording only)</string>
 	<string name="summary_pref_use_alarm_on">ElectricSleep is set to wake you before the next
 		enabled alarm in sleep mode</string>
-	<string name="title_pref_use_alarm">Use Alarm</string>
+	<string name="title_pref_use_alarm">Light Sleep Pre-Alarm</string>
 	<string name="pref_use_alarm">useAlarm</string>
 	<string name="monitoring_sleep">Monitoring Sleep</string>
-	<string name="movement_level_during_sleep">"(&lt;-deep) Sleep (light-&gt;)"</string>
+	<string name="movement_level_during_sleep">"&lt;-deep| Sleep |light-&gt;"</string>
 	<string name="search">Search</string>
 	<string name="invalid_settings">Your calibration settings are invalid. Please
 		manually configure settings or run the Calibration Wizard.</string>
@@ -74,11 +93,11 @@
 		Wizard or manually
 		configure your Settings now.</string>
 	<string name="message_prefs_not_compatible">Your preferences are not compatible with this
-		version of ElectricSleep. They have been reset to the latest default values to prevent errors.</string>
+		version of ElectricSleep. They have been reset to the latest default
+		values to prevent errors.</string>
 	<string name="message_not_calibrated">You have not yet calibrated ElectricSleep to work
 		on your device.</string>
 	<string name="alarm_trigger_sensitivity_set_to">Alarm trigger sensitivity set to: </string>
-	<string name="minimum_sensitivity_set_to">Minimum sensitivity set to: </string>
 	<string name="move_once">Move once.</string>
 	<string name="start_moving">Start moving.</string>
 	<string name="remain_still">Remain still.</string>
@@ -133,30 +152,11 @@
 		\n
 		<li>
 			At this time,
-			<b>situate yourself and your device as you would when sleeping.</b>
+			<b>situate yourself and your device exactly as you would when
+				sleeping.</b>
 		</li>
 	</string>
 	<string name="calibrate_title_placement">Device Placement</string>
-	<string name="calibrate_directions_min">
-		<li>
-			The calibration test will begin after a
-			<b>5 second delay.</b>
-		</li>
-		\n
-		<li>
-			It will last exactly
-			<b>30 seconds.</b>
-		</li>
-		\n
-		<li>
-			Remain
-			<b>completely still</b>
-			until you are instructed that the test is
-			over.
-		</li>
-		\n
-		<li>Press next when you are ready.</li>
-	</string>
 	<string name="calibrate_title_welcome">Movement Calibration Wizard</string>
 	<string name="finish">Finish</string>
 	<string name="back">Back</string>
@@ -194,29 +194,19 @@
 	<string name="notification_sleep_ticker">ElectricSleep is monitoring movements</string>
 	<string name="notification_sleep_title">ElectricSleep is active</string>
 	<string name="notification_sleep_text">Select to interrupt or view progress</string>
-	<string name="dialog_wait_for_sleep_data_message">Have a restful sleep!\n\nThere\'s nothing to diplay
+	<string name="dialog_wait_for_sleep_data_message">Have a restful sleep!\n\nThere\'s nothing to
+		display
 		yet, check back later!</string>
-	<string name="pref_minimum_sensitivity">minimum_sensitivity</string>
 	<string name="pref_alarm_trigger_sensitivity">alarmTriggerSensitivity</string>
-	<string name="title_pref_minimum_sensitivity">Deep Sleep Sensitivity</string>
 	<string name="title_pref_alarm_trigger_sensitivity">Light Sleep Sensitivity</string>
-	<string name="summary_minimum_sensitivity">Filters out \'noise\' non-movements so they do not
-		visually distort movement charts.</string>
 	<string name="summary_alarm_trigger_sensitivity">Level of movement that signifies light sleep will
 		trigger alarm
 		to go off.</string>
 	<string name="exit">Exit</string>
-	<string name="calibrate_title_min">Calibrate Deep Sleep Sensitivity</string>
-	<string name="calibrate_description_min">
-		<b>Goal:</b>
-		find the cut-off level to remove
-		the sensor \'noise\' that occurs when
-		there is little or no
-		movement.
-	</string>
 	<string name="calibrate_description_welcome">
-		This wizard will calibrate ElectricSleep. The process takes about a
-		minute and requires you briefly simulate your sleeping
+		This wizard will calibrate ElectricSleep. The process takes less than
+		a
+		minute and requires that you briefly simulate your sleeping
 		conditions.\nWhy?\n
 		<li>
 			There are many
@@ -304,13 +294,6 @@
 		<item>120</item>
 	</string-array>
 
-	<string-array name="array_prefs_alarm_binding">
-		<item>Google Deskclock</item>
-		<item>Curvefish Clock</item>
-		<item>HTC WorldClock</item>
-		<item>Motoblur Clock</item>
-	</string-array>
-
 	<string name="title_pref_alarm_window">Pre-Alarm Window</string>
 	<string name="summary_pref_alarm_window">The window of time before your alarm is set to go
 		off during which ElectricSleep will try to wake you.</string>
@@ -330,240 +313,301 @@
 
 	<!-- alarmclock -->
 	<!-- Label shown on launcher icon -->
-    <string name="app_label">Clock</string>
+	<string name="app_label">Clock</string>
 
-    <!-- Title for AlarmClock activity -->
-    <string name="alarm_list_title">Alarms</string>
+	<!-- Title for AlarmClock activity -->
+	<string name="alarm_list_title">Alarms</string>
 
-    <!-- Menu item on Alarm Clock screen: Add alarm -->
-    <string name="add_alarm">Add alarm</string>
+	<!-- Menu item on Alarm Clock screen: Add alarm -->
+	<string name="add_alarm">Add alarm</string>
 
-    <!-- Menu item on Alarm Clock screen: Desk clock -->
-    <string name="menu_desk_clock">Desk clock</string>
+	<!-- Menu item on Alarm Clock screen: Desk clock -->
+	<string name="menu_desk_clock">Desk clock</string>
 
-    <!-- Menu item on Alarm Clock screen: Edit alarm -->
-    <string name="menu_edit_alarm">Edit alarm</string>
+	<!-- Menu item on Alarm Clock screen: Edit alarm -->
+	<string name="menu_edit_alarm">Edit alarm</string>
 
-    <!-- Context Menu Item on Alarm Settings screen: Delete alarm -->
-    <string name="delete_alarm">Delete alarm</string>
+	<!-- Context Menu Item on Alarm Settings screen: Delete alarm -->
+	<string name="delete_alarm">Delete alarm</string>
 
-    <!-- Context Menu Item on Alarm Settings screen: Enable alarm -->
-    <string name="enable_alarm">Turn alarm on</string>
+	<!-- Context Menu Item on Alarm Settings screen: Enable alarm -->
+	<string name="enable_alarm">Turn alarm on</string>
 
-    <!-- Context Menu Item on Alarm Settings screen: Disable alarm -->
-    <string name="disable_alarm">Turn alarm off</string>
+	<!-- Context Menu Item on Alarm Settings screen: Disable alarm -->
+	<string name="disable_alarm">Turn alarm off</string>
 
-    <!-- Delete alarm confirmation dialog message. -->
-    <string name="delete_alarm_confirm">This alarm will be deleted.</string>
+	<!-- Delete alarm confirmation dialog message. -->
+	<string name="delete_alarm_confirm">This alarm will be deleted.</string>
 
-    <!-- Menu item on Alarm Clock screen: Show clock -->
-    <string name="show_clock">Show clock</string>
+	<!-- Menu item on Alarm Clock screen: Show clock -->
+	<string name="show_clock">Show clock</string>
 
-    <!-- Menu item on Alarm Clock screen: Hide clock -->
-    <string name="hide_clock">Hide clock</string>
+	<!-- Menu item on Alarm Clock screen: Hide clock -->
+	<string name="hide_clock">Hide clock</string>
 
-    <!-- Setting label on Set alarm screen: Label -->
-    <string name="label">Label</string>
+	<!-- Setting label on Set alarm screen: Label -->
+	<string name="label">Label</string>
 
-    <!-- Default label to display for an alarm -->
-    <string name="default_label">Alarm</string>
+	<!-- Default label to display for an alarm -->
+	<string name="default_label">Alarm</string>
 
-    <!-- Preference category on Alarm Settings screen: Set alarm -->
-    <string name="set_alarm">Set alarm</string>
+	<!-- Preference category on Alarm Settings screen: Set alarm -->
+	<string name="set_alarm">Set alarm</string>
 
-    <!-- Setting labels on Set alarm screen: Vibration on or off -->
-    <string name="alarm_vibrate">Vibrate</string>
+	<!-- Setting labels on Set alarm screen: Vibration on or off -->
+	<string name="alarm_vibrate">Vibrate</string>
 
-    <!-- Setting labels on Set alarm screen: Repeat -->
-    <string name="alarm_repeat">Repeat</string>
+	<!-- Setting labels on Set alarm screen: Repeat -->
+	<string name="alarm_repeat">Repeat</string>
 
-    <!-- Setting labels on Set alarm screen: Select alarm ringtone  -->
-    <string name="alert">Ringtone</string>
+	<!-- Setting labels on Set alarm screen: Select alarm ringtone -->
+	<string name="alert">Ringtone</string>
 
-    <!-- Setting labels on Set alarm screen: Set time  -->
-    <string name="time">Time</string>
+	<!-- Setting labels on Set alarm screen: Set time -->
+	<string name="time">Time</string>
 
-    <!-- Button labels on the alarm dialog: Dismiss -->
-    <string name="alarm_alert_dismiss_text">Dismiss</string>
+	<!-- Button labels on the alarm dialog: Dismiss -->
+	<string name="alarm_alert_dismiss_text">Dismiss</string>
 
-    <!-- Alarm Alert screen: this message is shown after an alarm rung
-         unattended for a number of minutes.  It tells the user that
-         the alarm has been silenced.-->
-    <string name="alarm_alert_alert_silenced">Alarm silenced after <xliff:g id="minutes">%d</xliff:g> minutes</string>
+	<!-- Alarm Alert screen: this message is shown after an alarm rung unattended 
+		for a number of minutes. It tells the user that the alarm has been silenced. -->
+	<string name="alarm_alert_alert_silenced">
+		Alarm silenced after
+		<xliff:g id="minutes">%d</xliff:g>
+		minutes
+	</string>
 
-    <!-- Button labels on the alarm dialog: Snooze -->
-    <string name="alarm_alert_snooze_text">Snooze</string>
+	<!-- Button labels on the alarm dialog: Snooze -->
+	<string name="alarm_alert_snooze_text">Snooze</string>
 
-    <!-- Toast that appears after Alarm is snoozed from the Alarm
-         dialog. Says the alarm will snooze for xxx minutes.  -->
-    <string name="alarm_alert_snooze_set">Snoozing for <xliff:g id="minutes">%d</xliff:g> minutes.</string>
+	<!-- Toast that appears after Alarm is snoozed from the Alarm dialog. Says 
+		the alarm will snooze for xxx minutes. -->
+	<string name="alarm_alert_snooze_set">
+		Snoozing for
+		<xliff:g id="minutes">%d</xliff:g>
+		minutes.
+	</string>
 
-    <!-- 0: nothing
-         1: days
-         2:      hours
-         3: days hours
-         4:            minutes
-         5: days       minutes
-         6:      hours minutes
-         7: days hours minutes
-    --><skip />
+	<!-- 0: nothing 1: days 2: hours 3: days hours 4: minutes 5: days minutes 
+		6: hours minutes 7: days hours minutes -->
+	<skip />
 
-    <!-- Alarm confirmation toast: Describes how long from now until
-         alarm fires -->
-    <string-array name="alarm_set">
-        <item>This alarm is set for less than 1 minute from now.</item>
-        <item>This alarm is set for <xliff:g id="DAYS" example="2 days">%1$s</xliff:g> from now.</item>
-        <item>This alarm is set for <xliff:g id="HOURS" example="2 hours">%2$s</xliff:g> from now.</item>
-        <item>This alarm is set for <xliff:g id="DAYS" example="2 days">%1$s</xliff:g> and <xliff:g id="HOURS" example="2 hours">%2$s</xliff:g> from now.</item>
-        <item>This alarm is set for <xliff:g id="MINUTES" example="2 minutes">%3$s</xliff:g> from now.</item>
-        <item>This alarm is set for <xliff:g id="DAYS" example="2 days">%1$s</xliff:g> and <xliff:g id="MINUTES" example="2 minutes">%3$s</xliff:g> from now.</item>
-        <item>This alarm is set for <xliff:g id="HOURS" example="2 hours">%2$s</xliff:g> and <xliff:g id="MINUTES" example="2 minutes">%3$s</xliff:g> from now.</item>
-        <item>This alarm is set for <xliff:g id="DAYS" example="2 days">%1$s</xliff:g>, <xliff:g id="HOURS" example="2 hours">%2$s</xliff:g>, and <xliff:g id="MINUTES" example="2 minutes">%3$s</xliff:g> from now.</item>
-    </string-array>
+	<!-- Alarm confirmation toast: Describes how long from now until alarm fires -->
+	<string-array name="alarm_set">
+		<item>This alarm is set for less than 1 minute from now.</item>
+		<item>
+			This alarm is set for
+			<xliff:g id="DAYS" example="2 days">%1$s</xliff:g>
+			from now.
+		</item>
+		<item>
+			This alarm is set for
+			<xliff:g id="HOURS" example="2 hours">%2$s</xliff:g>
+			from now.
+		</item>
+		<item>
+			This alarm is set for
+			<xliff:g id="DAYS" example="2 days">%1$s</xliff:g>
+			and
+			<xliff:g id="HOURS" example="2 hours">%2$s</xliff:g>
+			from now.
+		</item>
+		<item>
+			This alarm is set for
+			<xliff:g id="MINUTES" example="2 minutes">%3$s</xliff:g>
+			from now.
+		</item>
+		<item>
+			This alarm is set for
+			<xliff:g id="DAYS" example="2 days">%1$s</xliff:g>
+			and
+			<xliff:g id="MINUTES" example="2 minutes">%3$s</xliff:g>
+			from now.
+		</item>
+		<item>
+			This alarm is set for
+			<xliff:g id="HOURS" example="2 hours">%2$s</xliff:g>
+			and
+			<xliff:g id="MINUTES" example="2 minutes">%3$s</xliff:g>
+			from now.
+		</item>
+		<item>
+			This alarm is set for
+			<xliff:g id="DAYS" example="2 days">%1$s</xliff:g>
+			,
+			<xliff:g id="HOURS" example="2 hours">%2$s</xliff:g>
+			, and
+			<xliff:g id="MINUTES" example="2 minutes">%3$s</xliff:g>
+			from now.
+		</item>
+	</string-array>
 
-    <!-- Alarm confirmation toast: singular day -->
-    <string name="day">"1 day"</string>
+	<!-- Alarm confirmation toast: singular day -->
+	<string name="day">"1 day"</string>
 
-    <!-- Alarm confirmation toast: plural days -->
-    <string name="days">"<xliff:g id="days">%s</xliff:g> days"</string>
+	<!-- Alarm confirmation toast: plural days -->
+	<string name="days">
+		"
+		<xliff:g id="days">%s</xliff:g>
+		days"
+	</string>
 
-    <!-- Alarm confirmation toast: singular hour -->
-    <string name="hour">1 hour</string>
+	<!-- Alarm confirmation toast: singular hour -->
+	<string name="hour">1 hour</string>
 
-    <!-- Alarm confirmation toast: plural hours -->
-    <string name="hours"><xliff:g id="hours">%s</xliff:g> hours</string>
+	<!-- Alarm confirmation toast: plural hours -->
+	<string name="hours">
+		<xliff:g id="hours">%s</xliff:g>
+		hours
+	</string>
 
-    <!-- Alarm confirmation toast: singular minute  -->
-    <string name="minute">"1 minute"</string>
+	<!-- Alarm confirmation toast: singular minute -->
+	<string name="minute">"1 minute"</string>
 
-    <!-- Alarm confirmation toast: plural minutes  -->
-    <string name="minutes">"<xliff:g id="minutes">%s</xliff:g> minutes"</string>
+	<!-- Alarm confirmation toast: plural minutes -->
+	<string name="minutes">
+		"
+		<xliff:g id="minutes">%s</xliff:g>
+		minutes"
+	</string>
 
-    <!-- Repeat options that appear under an alarm on main Alarm Clock
-         screen to identify repetition schedule: special case for when
-         the alarm is set to repeat every day -->
-    <string name="every_day">every day</string>
+	<!-- Repeat options that appear under an alarm on main Alarm Clock screen 
+		to identify repetition schedule: special case for when the alarm is set to 
+		repeat every day -->
+	<string name="every_day">every day</string>
 
-    <!-- Repeat options that appear under an alarm on main Alarm Clock
-         screen to identify repetition schedule: special case for when
-         the alarm is set to never repeat -->
-    <string name="never">Never</string>
+	<!-- Repeat options that appear under an alarm on main Alarm Clock screen 
+		to identify repetition schedule: special case for when the alarm is set to 
+		never repeat -->
+	<string name="never">Never</string>
 
-    <!-- Repeat options that appear under an alarm on main Alarm Clock
-         screen to identify repetition schedule: concatenate days with
-         this character, i.e. "Mon, Tue, Wed" -->
-    <string name="day_concat">", "</string>
+	<!-- Repeat options that appear under an alarm on main Alarm Clock screen 
+		to identify repetition schedule: concatenate days with this character, i.e. 
+		"Mon, Tue, Wed" -->
+	<string name="day_concat">", "</string>
 
-    <!-- Appears at the top of the Clock Picker screen: Tell user to
-         select a clock to display -->
-    <string name="clock_instructions">Select a clock to display.</string>
+	<!-- Appears at the top of the Clock Picker screen: Tell user to select 
+		a clock to display -->
+	<string name="clock_instructions">Select a clock to display.</string>
 
-    <!-- Label for analog clock gadget, shown in list of all gadgets -->
-    <string name="analog_gadget">Analog clock</string>
+	<!-- Label for analog clock gadget, shown in list of all gadgets -->
+	<string name="analog_gadget">Analog clock</string>
 
-    <!-- Menu item title for general Alarm Clock Settings -->
-    <string name="alarmclock_settings">Alarmclock Settings</string>
+	<!-- Menu item title for general Alarm Clock Settings -->
+	<string name="alarmclock_settings">Alarmclock Settings</string>
 
-    <!-- Setting title for whether the alarm should play in silent mode.
-         Usually, silent mode only affects the ringer, but this setting
-         will make the alarms respect silent mode too. -->
-    <string name="alarm_in_silent_mode_title">Alarm in silent mode</string>
+	<!-- Setting title for whether the alarm should play in silent mode. Usually, 
+		silent mode only affects the ringer, but this setting will make the alarms 
+		respect silent mode too. -->
+	<string name="alarm_in_silent_mode_title">Alarm in silent mode</string>
 
-    <!-- Setting summary for whether the alarm should play in silent mode. -->
-    <string name="alarm_in_silent_mode_summary">Play alarm even when the phone is in silent mode</string>
+	<!-- Setting summary for whether the alarm should play in silent mode. -->
+	<string name="alarm_in_silent_mode_summary">Play alarm even when the phone is in silent mode</string>
 
-    <!-- Setting title for changing the snooze duration. -->
-    <string name="snooze_duration_title">Snooze duration</string>
+	<!-- Setting title for changing the snooze duration. -->
+	<string name="snooze_duration_title">Snooze duration</string>
 
-    <!-- Entries listed in the ListPreference when invoking the snooze duration
-         preference. -->
-    <string-array name="snooze_duration_entries">
-      <item>5 minutes</item>
-      <item>10 minutes</item>
-      <item>15 minutes</item>
-      <item>20 minutes</item>
-      <item>25 minutes</item>
-      <item>30 minutes</item>
-    </string-array>
+	<!-- Entries listed in the ListPreference when invoking the snooze duration 
+		preference. -->
+	<string-array name="snooze_duration_entries">
+		<item>5 minutes</item>
+		<item>10 minutes</item>
+		<item>15 minutes</item>
+		<item>20 minutes</item>
+		<item>25 minutes</item>
+		<item>30 minutes</item>
+	</string-array>
 
-    <!-- Values that are retrieved from the ListPreference. These must match
-         the snooze_duration_entries above. -->
-    <string-array name="snooze_duration_values">
-      <item>5</item>
-      <item>10</item>
-      <item>15</item>
-      <item>20</item>
-      <item>25</item>
-      <item>30</item>
-    </string-array>
+	<!-- Values that are retrieved from the ListPreference. These must match 
+		the snooze_duration_entries above. -->
+	<string-array name="snooze_duration_values">
+		<item>5</item>
+		<item>10</item>
+		<item>15</item>
+		<item>20</item>
+		<item>25</item>
+		<item>30</item>
+	</string-array>
 
-    <!-- Done button when editing an alarm. -->
-    <string name="done">Done</string>
+	<!-- Done button when editing an alarm. -->
+	<string name="done">Done</string>
 
-    <!-- Revert button when editing an alarm. -->
-    <string name="revert">Revert</string>
+	<!-- Revert button when editing an alarm. -->
+	<string name="revert">Revert</string>
 
-    <!-- Delete button when editing an alarm. -->
-    <string name="delete">Delete</string>
+	<!-- Delete button when editing an alarm. -->
+	<string name="delete">Delete</string>
 
-    <!-- Setting title for changing the alarm volume. -->
-    <string name="alarm_volume_title">Alarm volume</string>
+	<!-- Setting title for changing the alarm volume. -->
+	<string name="alarm_volume_title">Alarm volume</string>
 
-    <!-- Setting summary for changing the alarm volume. -->
-    <string name="alarm_volume_summary">Set the volume of alarms</string>
+	<!-- Setting summary for changing the alarm volume. -->
+	<string name="alarm_volume_summary">Set the volume of alarms</string>
 
-    <!-- Summary for the alarm preference when silent is chosen. -->
-    <string name="silent_alarm_summary">Silent</string>
+	<!-- Summary for the alarm preference when silent is chosen. -->
+	<string name="silent_alarm_summary">Silent</string>
 
-    <!-- Text to display in the small text of the notification -->
-    <string name="alarm_notify_text">Select to snooze or dismiss this alarm.</string>
+	<!-- Text to display in the small text of the notification -->
+	<string name="alarm_notify_text">Select to snooze or dismiss this alarm.</string>
 
-    <!-- Text to display in the notification ticker and label -->
-    <string name="alarm_notify_snooze_label"><xliff:g id="label">%s</xliff:g> (snoozed)</string>
+	<!-- Text to display in the notification ticker and label -->
+	<string name="alarm_notify_snooze_label">
+		<xliff:g id="label">%s</xliff:g>
+		(snoozed)
+	</string>
 
-    <!-- Text to display in the notification when the alarm has been snoozed -->
-    <string name="alarm_notify_snooze_text">Alarm set for <xliff:g id="time">%s</xliff:g>. Select to cancel.</string>
+	<!-- Text to display in the notification when the alarm has been snoozed -->
+	<string name="alarm_notify_snooze_text">
+		Alarm set for
+		<xliff:g id="time">%s</xliff:g>
+		. Select to cancel.
+	</string>
 
-    <!-- Title of the setting to change the volume/camera button behavior. -->
-    <string name="volume_button_setting_title">Volume and Camera</string>
+	<!-- Title of the setting to change the volume/camera button behavior. -->
+	<string name="volume_button_setting_title">Volume and Camera</string>
 
-    <!-- Dialog title of the volume and power setting. -->
-    <string name="volume_button_dialog_title">Button effect</string>
+	<!-- Dialog title of the volume and power setting. -->
+	<string name="volume_button_dialog_title">Button effect</string>
 
-    <!-- The summary of the side button setting. -->
-    <string name="volume_button_setting_summary">Set what these buttons do when pressed during an alarm</string>
+	<!-- The summary of the side button setting. -->
+	<string name="volume_button_setting_summary">Set what these buttons do when pressed during an
+		alarm</string>
 
-    <!-- Entries listed in the setting for the side-button action. -->
-    <string-array name="volume_button_setting_entries">
-      <item>None</item>
-      <item>Snooze</item>
-      <item>Dismiss</item>
-    </string-array>
+	<!-- Entries listed in the setting for the side-button action. -->
+	<string-array name="volume_button_setting_entries">
+		<item>None</item>
+		<item>Snooze</item>
+		<item>Dismiss</item>
+	</string-array>
 
-    <!-- Values for the side-button setting. -->
-    <string-array name="volume_button_setting_values">
-      <item>0</item>
-      <item>1</item>
-      <item>2</item>
-    </string-array>
+	<!-- Values for the side-button setting. -->
+	<string-array name="volume_button_setting_values">
+		<item>0</item>
+		<item>1</item>
+		<item>2</item>
+	</string-array>
 
-    <!-- Accessibility labels for Clock activity buttons --><skip/>
-    <string name="alarm_button_description">Alarms</string>
-    <string name="gallery_button_description">Gallery</string>
-    <string name="music_button_description">Music</string>
-    <string name="nightmode_button_description">Dim</string>
-    <string name="home_button_description">Launcher</string>
-    <string name="desk_clock_button_description">Clock Display</string>
+	<!-- Accessibility labels for Clock activity buttons -->
+	<skip />
+	<string name="alarm_button_description">Alarms</string>
+	<string name="gallery_button_description">Gallery</string>
+	<string name="music_button_description">Music</string>
+	<string name="nightmode_button_description">Dim</string>
+	<string name="home_button_description">Launcher</string>
+	<string name="desk_clock_button_description">Clock Display</string>
 
-    <!-- A short representation of charging information, e.g "34%" -->
-    <string name="battery_charging_level"><xliff:g id="number">%d</xliff:g><xliff:g id="percent">%%</xliff:g></string>
+	<!-- A short representation of charging information, e.g "34%" -->
+	<string name="battery_charging_level">
+		<xliff:g id="number">%d</xliff:g>
+		<xliff:g id="percent">%%</xliff:g>
+	</string>
 
-    <!-- What to show the user if the weather widget exists but fails to
-         respond. This is a sign of an error; if the weather widget is not
-         present on the device, we show nothing at all. -->
-    <string name="weather_fetch_failure">Weather information currently unavailable.</string>
+	<!-- What to show the user if the weather widget exists but fails to respond. 
+		This is a sign of an error; if the weather widget is not present on the device, 
+		we show nothing at all. -->
+	<string name="weather_fetch_failure">Weather information currently unavailable.</string>
 
-    <string name="menu_item_dock_settings" msgid="9161438664257429372">Dock settings</string>
-	<!-- alarmclock end  -->
-	
+	<string name="menu_item_dock_settings" msgid="9161438664257429372">Dock settings</string>
+	<!-- alarmclock end -->
+
 </resources>

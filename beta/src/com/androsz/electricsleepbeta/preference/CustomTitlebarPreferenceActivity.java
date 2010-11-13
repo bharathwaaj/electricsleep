@@ -21,9 +21,9 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 public abstract class CustomTitlebarPreferenceActivity extends
 		PreferenceActivity {
 
-	protected abstract int getContentAreaLayoutId();
-
 	protected GoogleAnalyticsTracker analytics;
+
+	protected abstract int getContentAreaLayoutId();
 
 	public void hideTitleButton1() {
 		final ImageButton btn1 = (ImageButton) findViewById(R.id.title_button_1);
@@ -57,6 +57,14 @@ public abstract class CustomTitlebarPreferenceActivity extends
 		((TextView) findViewById(R.id.title_text)).setText(getTitle());
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(final Menu menu) {
+		// final MenuInflater inflater = getMenuInflater();
+		// inflater.inflate(R.menu.titlebar_menu, menu);
+		return false;
+	}
+
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 
@@ -69,13 +77,6 @@ public abstract class CustomTitlebarPreferenceActivity extends
 			analytics.dispatch();
 		}
 		analytics.stop();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		// final MenuInflater inflater = getMenuInflater();
-		// inflater.inflate(R.menu.titlebar_menu, menu);
-		return false;
 	}
 
 	public void onHomeClick(final View v) {

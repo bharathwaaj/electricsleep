@@ -93,7 +93,7 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 			final AlertDialog.Builder dialog = new AlertDialog.Builder(
 					ReviewSleepActivity.this)
 					.setMessage(getString(R.string.delete_sleep_record))
-					.setPositiveButton(getString(R.string.yes),
+					.setPositiveButton(getString(R.string.ok),
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(
@@ -108,7 +108,7 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 									finish();
 								}
 							})
-					.setNegativeButton(getString(R.string.no),
+					.setNegativeButton(getString(R.string.cancel),
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(

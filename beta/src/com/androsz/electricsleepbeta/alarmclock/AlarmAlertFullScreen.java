@@ -65,7 +65,7 @@ public class AlarmAlertFullScreen extends Activity {
 				snooze();
 			} else if (action.equals(Alarms.ALARM_DISMISS_ACTION)) {
 				dismiss(false);
-			} else {
+			} else if (action.equals(Alarms.ALARM_KILLED)) {
 				final Alarm alarm = intent
 						.getParcelableExtra(Alarms.ALARM_INTENT_EXTRA);
 				if (alarm != null && mAlarm.id == alarm.id) {

@@ -1,5 +1,6 @@
 package com.androsz.electricsleepbeta.app;
 
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,6 +22,16 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 
 	private float rating = Float.NaN;
 
+	ProgressDialog progress;
+
+	private final BroadcastReceiver saveCompletedReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(final Context context, final Intent intent) {
+			progress.dismiss();
+		}
+	};
+
 	@Override
 	protected int getContentAreaLayoutId() {
 		return R.layout.activity_save_sleep;
@@ -36,6 +47,14 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 
 	public void onDiscardClick(final View v) {
 		finish();
+		final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(getIntent().getExtras().getInt("id"));
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		unregisterReceiver(saveCompletedReceiver);
 	}
 
 	@Override
@@ -50,27 +69,15 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 	protected void onRestoreInstanceState(final Bundle savedState) {
 		super.onRestoreInstanceState(savedState);
 		rating = savedState.getFloat("rating");
-		
+
 	}
 
 	@Override
-	protected void onSaveInstanceState(final Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putFloat("rating", rating);		
-	}
-
 	public void onResume() {
 		super.onResume();
 		registerReceiver(saveCompletedReceiver, new IntentFilter(
 				SaveSleepReceiver.SAVE_SLEEP_COMPLETED));
 	}
-
-	public void onPause() {
-		super.onPause();
-		unregisterReceiver(saveCompletedReceiver);
-	}
-
-	ProgressDialog progress;
 
 	public void onSaveClick(final View v) {
 
@@ -86,18 +93,18 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 		saveIntent.putExtras(getIntent().getExtras());
 
 		v.setEnabled(false);
-		progress  = new ProgressDialog(this);
+		progress = new ProgressDialog(this);
 		progress.setMessage(getString(R.string.saving_sleep));
 		progress.show();
 		sendBroadcast(saveIntent);
+		final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(getIntent().getExtras().getInt("id"));
 		finish();
 	}
 
-	private BroadcastReceiver saveCompletedReceiver = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			progress.dismiss();
-		}
-	};
+	@Override
+	protected void onSaveInstanceState(final Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putFloat("rating", rating);
+	}
 }

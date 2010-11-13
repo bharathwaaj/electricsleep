@@ -3,7 +3,6 @@ package com.androsz.electricsleepbeta.app;
 import java.util.Calendar;
 import java.util.List;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -82,14 +81,41 @@ public class SleepActivity extends CustomTitlebarActivity {
 			// sleepChartView.xySeriesMovement.mY = (List<Double>) intent
 			// .getSerializableExtra("currentSeriesY");
 
-			sleepChartView.xySeriesMovement.mX = ((List<Double>) intent
-					.getSerializableExtra("currentSeriesX"));
-			sleepChartView.xySeriesMovement.mY = ((List<Double>) intent
-					.getSerializableExtra("currentSeriesY"));
+			sleepChartView.xySeriesMovement.mX = (List<Double>) intent
+					.getSerializableExtra("currentSeriesX");
+			sleepChartView.xySeriesMovement.mY = (List<Double>) intent
+					.getSerializableExtra("currentSeriesY");
 			sleepChartView.redraw(intent.getDoubleExtra("min",
 					SettingsActivity.DEFAULT_MIN_SENSITIVITY), intent
 					.getDoubleExtra("alarm",
 							SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
+			boolean useAlarm = intent.getBooleanExtra("useAlarm", false);
+			if (useAlarm) {
+				try {
+					final Alarm alarm = Alarms.calculateNextAlert(context);
+					if (alarm != null) {
+						final Calendar alarmTime = Calendar.getInstance();
+						alarmTime.setTimeInMillis(alarm.time);
+
+						java.text.DateFormat df = DateFormat
+								.getDateFormat(context);
+						String dateTime = df.format(alarmTime.getTime());
+						df = DateFormat.getTimeFormat(context);
+						dateTime = df.format(alarmTime.getTime()) + " on "
+								+ dateTime;
+
+						Toast.makeText(context, "Bound to alarm @ " + dateTime,
+								Toast.LENGTH_LONG).show();
+					}
+				} catch (final Exception e) {
+
+				}
+			}
+			else
+			{
+				Toast.makeText(context, "Not bound to any alarms.",
+						Toast.LENGTH_LONG).show();
+			}
 
 			if (sleepChartView.makesSenseToDisplay()
 					&& waitForSeriesData != null) {
@@ -162,24 +188,6 @@ public class SleepActivity extends CustomTitlebarActivity {
 		registerReceiver(updateChartReceiver, new IntentFilter(UPDATE_CHART));
 		registerReceiver(syncChartReceiver, new IntentFilter(SYNC_CHART));
 		sendBroadcast(new Intent(SleepAccelerometerService.POKE_SYNC_CHART));
-
-		try {
-			final Alarm alarm = Alarms.calculateNextAlert(this, -1);
-			if (alarm != null) {
-				final Calendar alarmTime = Calendar.getInstance();
-				alarmTime.setTimeInMillis(alarm.time);
-
-				java.text.DateFormat df = DateFormat.getDateFormat(this);
-				String dateTime = df.format(alarmTime.getTime());
-				df = DateFormat.getTimeFormat(this);
-				dateTime = df.format(alarmTime.getTime()) + " on " + dateTime;
-
-				Toast.makeText(this, "Bound to alarm @ " + dateTime,
-						Toast.LENGTH_LONG).show();
-			}
-		} catch (final Exception e) {
-
-		}
 	}
 
 	@Override

@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -23,9 +21,9 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public abstract class CustomTitlebarActivity extends Activity {
 
-	protected abstract int getContentAreaLayoutId();
-
 	protected GoogleAnalyticsTracker analytics;
+
+	protected abstract int getContentAreaLayoutId();
 
 	public void hideTitleButton1() {
 		final ImageButton btn1 = (ImageButton) findViewById(R.id.title_button_1);
@@ -57,6 +55,14 @@ public abstract class CustomTitlebarActivity extends Activity {
 		((TextView) findViewById(R.id.title_text)).setText(getTitle());
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(final Menu menu) {
+		final MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.titlebar_menu, menu);
+		return true;
+	}
+
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 
@@ -69,13 +75,6 @@ public abstract class CustomTitlebarActivity extends Activity {
 			analytics.dispatch();
 		}
 		analytics.stop();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		final MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.titlebar_menu, menu);
-		return true;
 	}
 
 	public void onHomeClick(final View v) {

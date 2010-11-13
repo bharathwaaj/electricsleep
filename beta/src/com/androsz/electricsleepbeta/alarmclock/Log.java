@@ -23,7 +23,7 @@ package com.androsz.electricsleepbeta.alarmclock;
 import android.util.Config;
 
 class Log {
-	public final static String LOGTAG = "AlarmClock";
+	public final static String LOGTAG = "com.androsz.electricsleepbeta.AlarmClock";
 
 	static final boolean LOGV = AlarmClock.DEBUG ? Config.LOGD : Config.LOGV;
 

@@ -20,7 +20,6 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 
 import com.androsz.electricsleepbeta.achartengine.chart.AbstractChart;

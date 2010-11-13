@@ -12,11 +12,28 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+import com.androsz.electricsleepbeta.app.SettingsActivity;
+
 public class SeekBarPreference extends DialogPreference {
 
 	private final Context context;
 	private SeekBar seekBar;
 	private TextView textView;
+
+	private final static float PRECISION = 100f;
+
+	private static java.text.NumberFormat nf = java.text.NumberFormat
+			.getInstance();
+
+	static {
+		nf.setGroupingUsed(false);
+		nf.setMinimumFractionDigits(0);
+		nf.setMaximumFractionDigits(("" + (int) Math.pow(PRECISION, 0.5))
+				.length());
+		nf.setMinimumFractionDigits(("" + (int) Math.pow(PRECISION, 0.5))
+				.length());
+		nf.setMaximumIntegerDigits(1);
+	}
 
 	public SeekBarPreference(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
@@ -26,7 +43,7 @@ public class SeekBarPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(final boolean positiveResult) {
 		if (positiveResult) {
-			persistFloat(seekBar.getProgress());
+			persistFloat(seekBar.getProgress() / PRECISION);
 		}
 	}
 
@@ -50,23 +67,23 @@ public class SeekBarPreference extends DialogPreference {
 				ViewGroup.LayoutParams.WRAP_CONTENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT));
 
-		syncTextViewText(Math.round(getPersistedFloat(0)));
+		syncTextViewText(getPersistedFloat(0));
 		textView.setPadding(5, 5, 5, 5);
 		layout.addView(textView);
 
 		seekBar = new SeekBar(context);
-		seekBar.setMax(10);
+		seekBar.setMax((int) (SettingsActivity.MAX_ALARM_SENSITIVITY * PRECISION));
 		seekBar.setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT));
 
-		seekBar.setProgress(Math.round(getPersistedFloat(0)));
+		seekBar.setProgress(Math.round((getPersistedFloat(0) * PRECISION)));
 		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
 			public void onProgressChanged(final SeekBar seekBar,
 					final int progress, final boolean fromUser) {
-				syncTextViewText(progress);
+				syncTextViewText(progress / PRECISION);
 			}
 
 			@Override
@@ -95,7 +112,7 @@ public class SeekBarPreference extends DialogPreference {
 		}
 	}
 
-	private void syncTextViewText(final int progress) {
-		textView.setText("" + progress);
+	private void syncTextViewText(final float progress) {
+		textView.setText(nf.format(progress));
 	}
 }

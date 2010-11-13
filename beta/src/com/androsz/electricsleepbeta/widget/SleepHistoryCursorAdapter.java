@@ -28,7 +28,7 @@ public class SleepHistoryCursorAdapter extends ResourceCursorAdapter {
 				.findViewById(R.id.sleep_history_list_item_sleepchartview);
 
 		sleepChartView.syncWithCursor(cursor);
-		sleepChartView.setMinimumHeight(parent.getHeight()/2);
+		sleepChartView.setMinimumHeight(parent.getHeight() / 2);
 	}
 
 	@Override

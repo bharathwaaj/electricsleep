@@ -111,13 +111,19 @@ public class Alarms {
 		if (alarm.enabled) {
 			clearSnoozeIfNeeded(context, timeInMillis);
 		}
-		setNextAlert(context, -1);
+		setNextAlert(context);
 		return timeInMillis;
 	}
 
 	private static long calculateAlarm(final Alarm alarm) {
-		return calculateAlarm(alarm.hour, alarm.minutes, alarm.daysOfWeek)
-				.getTimeInMillis();
+		return calculateAlarm(alarm.hour, alarm.minutes, alarm.daysOfWeek,
+				System.currentTimeMillis()).getTimeInMillis();
+	}
+
+	static Calendar calculateAlarm(final int hour, final int minute,
+			final Alarm.DaysOfWeek daysOfWeek) {
+		return calculateAlarm(hour, minute, daysOfWeek,
+				System.currentTimeMillis());
 	}
 
 	/**
@@ -125,11 +131,11 @@ public class Alarms {
 	 * in AlarmManager.
 	 */
 	static Calendar calculateAlarm(final int hour, final int minute,
-			final Alarm.DaysOfWeek daysOfWeek) {
+			final Alarm.DaysOfWeek daysOfWeek, final long timeToStartAt) {
 
 		// start with now
 		final Calendar c = Calendar.getInstance();
-		c.setTimeInMillis(System.currentTimeMillis());
+		c.setTimeInMillis(timeToStartAt);
 
 		final int nowHour = c.get(Calendar.HOUR_OF_DAY);
 		final int nowMinute = c.get(Calendar.MINUTE);
@@ -150,7 +156,17 @@ public class Alarms {
 		return c;
 	}
 
-	public static Alarm calculateNextAlert(final Context context, final long timeToIgnore) {
+	private static long calculateAlarmIgnoringNext(final Alarm alarm) {
+		return calculateAlarm(alarm.hour, alarm.minutes, alarm.daysOfWeek,
+				alarm.time + 1).getTimeInMillis();
+	}
+
+	public static Alarm calculateNextAlert(final Context context) {
+		return calculateNextAlert(context, Long.MAX_VALUE);
+	}
+
+	public static Alarm calculateNextAlert(final Context context,
+			final long timeToIgnore) {
 		Alarm alarm = null;
 		long minTime = Long.MAX_VALUE;
 		final long now = System.currentTimeMillis();
@@ -169,7 +185,10 @@ public class Alarms {
 						enableAlarmInternal(context, a, false);
 						continue;
 					}
-					if (a.time < minTime && a.time != timeToIgnore) {
+					if (a.time < minTime) {
+						if (a.time == timeToIgnore) {
+							a.time = calculateAlarmIgnoringNext(a);
+						}
 						minTime = a.time;
 						alarm = a;
 					}
@@ -247,7 +266,7 @@ public class Alarms {
 				alarmId);
 		contentResolver.delete(uri, "", null);
 
-		setNextAlert(context, -1);
+		setNextAlert(context);
 	}
 
 	/**
@@ -319,7 +338,7 @@ public class Alarms {
 	public static void enableAlarm(final Context context, final int id,
 			final boolean enabled) {
 		enableAlarmInternal(context, id, enabled);
-		setNextAlert(context, -1);
+		setNextAlert(context);
 	}
 
 	private static void enableAlarmInternal(final Context context,
@@ -520,7 +539,7 @@ public class Alarms {
 			ed.commit();
 		}
 		// Set the next alert after updating the snooze.
-		setNextAlert(context, -1);
+		setNextAlert(context);
 	}
 
 	/**
@@ -550,9 +569,13 @@ public class Alarms {
 			clearSnoozeIfNeeded(context, timeInMillis);
 		}
 
-		setNextAlert(context, -1);
+		setNextAlert(context);
 
 		return timeInMillis;
+	}
+
+	public static void setNextAlert(final Context context) {
+		setNextAlert(context, Long.MAX_VALUE);
 	}
 
 	/**
@@ -560,7 +583,8 @@ public class Alarms {
 	 * changes alarm settings. Activates snooze if set, otherwise loads all
 	 * alarms, activates next alert.
 	 */
-	public static void setNextAlert(final Context context, final long timeToIgnore) {
+	public static void setNextAlert(final Context context,
+			final long timeToIgnore) {
 		if (!enableSnoozeAlert(context)) {
 			final Alarm alarm = calculateNextAlert(context, timeToIgnore);
 			if (alarm != null) {

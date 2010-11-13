@@ -9,43 +9,10 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.androsz.electricsleepbeta.R;
-import com.androsz.electricsleepbeta.view.SleepChartView;
 
 public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity {
 
 	private boolean required = false;
-
-	@Override
-	protected int getWizardLayoutId() {
-		// TODO Auto-generated method stub
-		return R.layout.wizard_welcome;
-	}
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		required = getIntent().hasExtra("required");
-		if (required) {
-			setHomeButtonAsLogo();
-		}
-	}
-
-	@Override
-	protected void onFinishWizardActivity() {
-		enforceCalibrationBeforeStartingSleep();
-	}
-
-	@Override
-	protected void onRestoreInstanceState(final Bundle savedState) {
-		super.onRestoreInstanceState(savedState);
-		required = savedState.getBoolean("required");
-	}
-
-	@Override
-	protected void onSaveInstanceState(final Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putBoolean("required", required);
-	}
 
 	private void enforceCalibrationBeforeStartingSleep() {
 
@@ -107,6 +74,26 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 	}
 
 	@Override
+	protected int getWizardLayoutId() {
+		// TODO Auto-generated method stub
+		return R.layout.wizard_welcome;
+	}
+
+	@Override
+	protected void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		required = getIntent().hasExtra("required");
+		if (required) {
+			setHomeButtonAsLogo();
+		}
+	}
+
+	@Override
+	protected void onFinishWizardActivity() {
+		enforceCalibrationBeforeStartingSleep();
+	}
+
+	@Override
 	public void onHomeClick(final View v) {
 		if (required) {
 			// do nothing b/c home is home!
@@ -115,7 +102,8 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 		}
 	}
 
-	public void onLeftButtonClick(View v) {
+	@Override
+	public void onLeftButtonClick(final View v) {
 		if (viewFlipper.getDisplayedChild() == 0 && required) {
 			return;
 		} else {
@@ -126,6 +114,18 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 	@Override
 	protected void onPrepareLastSlide() {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	protected void onRestoreInstanceState(final Bundle savedState) {
+		super.onRestoreInstanceState(savedState);
+		required = savedState.getBoolean("required");
+	}
+
+	@Override
+	protected void onSaveInstanceState(final Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean("required", required);
 	}
 
 	public void onSkipTutorialClick(final View v) {

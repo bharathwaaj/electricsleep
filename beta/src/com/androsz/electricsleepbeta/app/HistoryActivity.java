@@ -106,7 +106,7 @@ public class HistoryActivity extends CustomTitlebarActivity {
 								HistoryActivity.this)
 								.setMessage(
 										getString(R.string.delete_sleep_record))
-								.setPositiveButton(getString(R.string.yes),
+								.setPositiveButton(getString(R.string.ok),
 										new DialogInterface.OnClickListener() {
 											@Override
 											public void onClick(
@@ -124,7 +124,7 @@ public class HistoryActivity extends CustomTitlebarActivity {
 												showResults(query);
 											}
 										})
-								.setNegativeButton(getString(R.string.no),
+								.setNegativeButton(getString(R.string.cancel),
 										new DialogInterface.OnClickListener() {
 											@Override
 											public void onClick(

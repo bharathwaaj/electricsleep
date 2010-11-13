@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +12,6 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.widget.Toast;
 
-import com.androsz.electricsleepbeta.app.HistoryActivity;
 import com.androsz.electricsleepbeta.app.ReviewSleepActivity;
 import com.androsz.electricsleepbeta.app.SettingsActivity;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
@@ -26,16 +24,13 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(final Context context, final Intent intent) {
-		// new Thread(new Runnable() {
 
-		// @Override
-		// public void run() {
 		final SleepHistoryDatabase shdb = new SleepHistoryDatabase(context);
 
-		final double min = intent.getDoubleExtra("min",
-				(double) SettingsActivity.DEFAULT_MIN_SENSITIVITY);
+		double min = Double.MAX_VALUE;
+
 		final double alarm = intent.getDoubleExtra("alarm",
-				(double) SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
+				SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
 
 		final String name = intent.getStringExtra("name");
 		final int rating = intent.getIntExtra("rating", 5);
@@ -47,8 +42,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 		final int count = mY.size();
 
 		int numberOfDesiredGroupedPoints = 200;
-		numberOfDesiredGroupedPoints = count > numberOfDesiredGroupedPoints ? count
-				/ (count / numberOfDesiredGroupedPoints)
+		numberOfDesiredGroupedPoints = count > numberOfDesiredGroupedPoints ? numberOfDesiredGroupedPoints
 				: count;
 
 		try {
@@ -60,25 +54,29 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 				final List<Double> lessDetailedY = new ArrayList<Double>(
 						numberOfDesiredGroupedPoints);
 				int numberOfPointsInThisGroup = pointsPerGroup;
-				double maxYForThisGroup = 0;
+				double maxYForThisGroup;
+				double totalForThisGroup;
 				for (int i = 0; i < numberOfDesiredGroupedPoints; i++) {
 					maxYForThisGroup = 0;
+					totalForThisGroup = 0;
 					final int startIndexForThisGroup = i * pointsPerGroup;
 					for (int j = 0; j < pointsPerGroup; j++) {
 						try {
-							double currentY = mY
+							final double currentY = mY
 									.get(startIndexForThisGroup + j);
 							if (currentY > maxYForThisGroup) {
 								maxYForThisGroup = currentY;
 							}
+							totalForThisGroup += currentY;
 						} catch (final IndexOutOfBoundsException ioobe) {
 							// lower the number of points
-							// (and signify that we are done)
+							// (and thereby signify that we are done)
 							numberOfPointsInThisGroup = j - 1;
 							break;
 						}
 					}
-					//maxYForThisGroup /= numberOfPointsInThisGroup;
+					final double averageForThisGroup = totalForThisGroup
+							/ numberOfPointsInThisGroup;
 					if (numberOfPointsInThisGroup < pointsPerGroup) {
 						// we are done
 						final int lastIndex = mX.size() - 1;
@@ -88,6 +86,12 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 						mY = lessDetailedY;
 						break;
 					} else {
+						if (maxYForThisGroup < alarm) {
+							maxYForThisGroup = averageForThisGroup;
+						}
+						if (maxYForThisGroup < min) {
+							min = maxYForThisGroup;
+						}
 						lessDetailedX.add(mX.get(startIndexForThisGroup));
 						lessDetailedY.add(maxYForThisGroup);
 					}
@@ -95,12 +99,10 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 				shdb.addSleep(context, name, lessDetailedX, lessDetailedY, min,
 						alarm, rating);
 			} else {
+				min = intent.getDoubleExtra("min", Double.MAX_VALUE);
 				shdb.addSleep(context, name, mX, mY, min, alarm, rating);
 			}
 		} catch (final IOException e) {
-			Toast.makeText(context,
-					"An error occurred while saving sleep- report this!",
-					Toast.LENGTH_LONG).show();
 			context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
 			return;
 		}
@@ -109,18 +111,18 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 				BaseColumns._ID, SleepHistoryDatabase.KEY_SLEEP_DATE_TIME });
 
 		if (c == null) {
-			Toast.makeText(
+			/*Toast.makeText(
 					context,
 					"Could not find the recently saved sleep in the sleep database- report this!",
-					Toast.LENGTH_LONG).show();
+					Toast.LENGTH_LONG).show();*/
 			shdb.close();
 			context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
 			return;
 		} else if (!c.moveToFirst()) {
-			Toast.makeText(
+			/*Toast.makeText(
 					context,
 					"Could not move to the recently saved sleep in the sleep database- report this!",
-					Toast.LENGTH_LONG).show();
+					Toast.LENGTH_LONG).show();*/
 			shdb.close();
 			c.close();
 			context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
@@ -134,7 +136,6 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 		final Uri uri = Uri.withAppendedPath(SleepContentProvider.CONTENT_URI,
 				String.valueOf(rowId));
 		reviewSleepIntent.setData(uri);
-		// reviewSleepIntent.putExtra("position", position);
 
 		reviewSleepIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 				| Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -142,9 +143,6 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 		context.startActivity(reviewSleepIntent);
 		shdb.close();
 		context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
-		// }
-		// }).start();
-
 	}
 
 }

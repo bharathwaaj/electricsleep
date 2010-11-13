@@ -2,9 +2,12 @@ package com.androsz.electricsleepbeta.app;
 
 import java.util.Locale;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -16,6 +19,7 @@ import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.service.SleepAccelerometerService;
+import com.androsz.electricsleepbeta.util.DeviceUtil;
 
 public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 		implements OnInitListener {
@@ -42,8 +46,7 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 					SleepAccelerometerService.class);
 			stopService(i);
 			i.putExtra("interval", ALARM_CALIBRATION_TIME);
-			i.putExtra("min", minCalibration);
-			i.putExtra("alarm", SettingsActivity.DEFAULT_MAX_SENSITIVITY);
+			i.putExtra("alarm", 2f);
 			startService(i);
 		}
 
@@ -57,51 +60,6 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 		}
 	}
 
-	private class DelayedStartMinCalibrationTask extends
-			AsyncTask<Void, Void, Void> {
-
-		@Override
-		protected Void doInBackground(final Void... params) {
-
-			try {
-				Thread.sleep(DELAYED_START_TIME);
-			} catch (final InterruptedException e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-
-		@Override
-		protected void onCancelled() {
-			final Intent i = new Intent(CalibrationWizardActivity.this,
-					SleepAccelerometerService.class);
-			stopService(i);
-		}
-
-		@Override
-		protected void onPostExecute(final Void result) {
-			notifyUser(CalibrationWizardActivity.this
-					.getString(R.string.remain_still));
-			final Intent i = new Intent(CalibrationWizardActivity.this,
-					SleepAccelerometerService.class);
-			stopService(i);
-			i.putExtra("interval", MINIMUM_CALIBRATION_TIME);
-			i.putExtra("min", SettingsActivity.DEFAULT_MIN_SENSITIVITY);
-			i.putExtra("alarm", SettingsActivity.DEFAULT_MAX_SENSITIVITY);
-			startService(i);
-		}
-
-		@Override
-		protected void onPreExecute() {
-			startActivityForResult(new Intent(CalibrationWizardActivity.this,
-					CalibrateForResultActivity.class), R.id.minTest);
-
-			notifyUser(CalibrationWizardActivity.this
-					.getString(R.string.starting_in));
-		}
-	}
-
-	private double minCalibration;
 	private double alarmTriggerCalibration;
 
 	private TextToSpeech textToSpeech;
@@ -112,16 +70,21 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 	private static AsyncTask<Void, Void, Void> currentTask;
 	private static final int TEST_TTS_INSTALLED = 0x1337;
 
-	public static final int MINIMUM_CALIBRATION_TIME = 30000;
-
-	private static final int ALARM_CALIBRATION_TIME = 5000;
+	public static final int ALARM_CALIBRATION_TIME = 5000;
 
 	private static final int DELAYED_START_TIME = 5000;
 
 	private void checkTextToSpeechInstalled() {
 		final Intent checkIntent = new Intent();
 		checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-		startActivityForResult(checkIntent, TEST_TTS_INSTALLED);
+		try {
+
+			startActivityForResult(checkIntent, TEST_TTS_INSTALLED);
+		} catch (ActivityNotFoundException re) {
+			// prevents crash from:
+			// No Activity found to handle Intent {
+			// act=android.speech.tts.engine.CHECK_TTS_DATA }
+		}
 	}
 
 	@Override
@@ -155,19 +118,8 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 			return;
 		}
 		switch (requestCode) {
-		case R.id.minTest:
-			minCalibration = data.getDoubleExtra("y", 0);
-			notifyUser(String.format("%s %.2f",
-					getString(R.string.minimum_sensitivity_set_to),
-					minCalibration));
-			stopService(new Intent(this, SleepAccelerometerService.class));
-			break;
 		case R.id.alarmTest:
 			alarmTriggerCalibration = data.getDoubleExtra("y", 0);
-			final float ratioAlarm = (float) Math.abs(ALARM_CALIBRATION_TIME
-					- MINIMUM_CALIBRATION_TIME)
-					/ MINIMUM_CALIBRATION_TIME;
-			alarmTriggerCalibration += minCalibration / ratioAlarm;
 			notifyUser(String.format("%s %.2f",
 					getString(R.string.alarm_trigger_sensitivity_set_to),
 					alarmTriggerCalibration));
@@ -211,8 +163,6 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 	protected void onFinishWizardActivity() {
 		final SharedPreferences.Editor ed = PreferenceManager
 				.getDefaultSharedPreferences(getBaseContext()).edit();
-		ed.putFloat(getString(R.string.pref_minimum_sensitivity),
-				(float) minCalibration);
 		ed.putFloat(getString(R.string.pref_alarm_trigger_sensitivity),
 				(float) alarmTriggerCalibration);
 		ed.commit();
@@ -223,6 +173,27 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 				.getInteger(R.integer.prefs_version));
 		ed2.commit();
 		ed.commit();
+
+		final SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		final Sensor accelerometer = sensorManager
+				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		if (accelerometer != null) {
+			final StringBuffer sb = new StringBuffer();
+			sb.append("Hardware: " + DeviceUtil.getHardwareName());
+			sb.append(" | Name: " + accelerometer.getName());
+			sb.append(" | Vendor: " + accelerometer.getVendor());
+			sb.append(" | Version: " + accelerometer.getVersion());
+			sb.append(" | Range: " + accelerometer.getMaximumRange());
+			sb.append(" | Power: " + accelerometer.getPower());
+			sb.append(" | Resolution: " + accelerometer.getResolution());
+			sb.append(" | Type: " + accelerometer.getType());
+			analytics.trackEvent("calibration-class",
+					String.format("%.2f", alarmTriggerCalibration),
+					sb.toString(), 0);
+		} else {
+			analytics.trackEvent("calibration-null-accelerometer", "alarm",
+					String.format("%.2f", alarmTriggerCalibration), 0);
+		}
 		finish();
 	}
 
@@ -240,8 +211,6 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 
 	@Override
 	protected void onPrepareLastSlide() {
-		final TextView textViewMin = (TextView) findViewById(R.id.minResult);
-		textViewMin.setText(String.format("%.2f", minCalibration));
 		final TextView textViewAlarm = (TextView) findViewById(R.id.alarmResult);
 		textViewAlarm.setText(String.format("%.2f", alarmTriggerCalibration));
 	}
@@ -253,7 +222,6 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 
 		viewFlipper.setDisplayedChild(savedState.getInt("child"));
 
-		minCalibration = savedState.getDouble("min");
 		alarmTriggerCalibration = savedState.getDouble("alarm");
 
 		useTTS = savedState.getBoolean("useTTS");
@@ -267,7 +235,6 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 		super.onSaveInstanceState(outState);
 		outState.putInt("child", viewFlipper.getDisplayedChild());
 
-		outState.putDouble("min", minCalibration);
 		outState.putDouble("alarm", alarmTriggerCalibration);
 		outState.putBoolean("useTTS", useTTS);
 	}
@@ -280,21 +247,11 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 		notifyUser(getString(messageId));
 	}
 
-	private void updateTitleButtonTTS() {
-		showTitleButton1(useTTS ? android.R.drawable.ic_lock_silent_mode_off
-				: android.R.drawable.ic_lock_silent_mode);
-	}
-
 	@Override
 	protected boolean onWizardActivity() {
 		boolean didActivity = false;
 		final int currentChildId = viewFlipper.getCurrentView().getId();
 		switch (currentChildId) {
-		case R.id.minTest:
-			currentTask = new DelayedStartMinCalibrationTask().execute(null,
-					null, null);
-			didActivity = true;
-			break;
 		case R.id.alarmTest:
 			currentTask = new DelayedStartAlarmCalibrationTask().execute(null,
 					null, null);
@@ -302,5 +259,10 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 			break;
 		}
 		return didActivity;
+	}
+
+	private void updateTitleButtonTTS() {
+		showTitleButton1(useTTS ? android.R.drawable.ic_lock_silent_mode_off
+				: android.R.drawable.ic_lock_silent_mode);
 	}
 }

@@ -19,8 +19,7 @@ public class CalibrateForResultActivity extends Activity {
 	private final BroadcastReceiver updateChartReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
-			CalibrateForResultActivity.this.setResult(1,
-					intent);
+			CalibrateForResultActivity.this.setResult(1, intent);
 			finish();
 		}
 	};

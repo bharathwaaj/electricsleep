@@ -130,20 +130,6 @@ public class HomeActivity extends CustomTitlebarActivity {
 		final int prefsVersion = userPrefs.getInt(
 				getString(R.string.prefs_version), 0);
 		if (prefsVersion == 0) {
-			SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-			Sensor accelerometer = sensorManager
-					.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-			if (accelerometer != null) {
-				StringBuffer sb = new StringBuffer();
-				sb.append("Vendor: " + accelerometer.getVendor());
-				sb.append(" | Version: " + accelerometer.getVersion());
-				sb.append(" | Range: " + accelerometer.getMaximumRange());
-				sb.append(" | Power: " + accelerometer.getPower());
-				sb.append(" | Resolution: " + accelerometer.getResolution());
-				sb.append(" | Type: " + accelerometer.getType());
-				analytics.trackEvent("accelerometer", accelerometer.getName(),
-						sb.toString(), 0);
-			}
 			startActivity(new Intent(this, WelcomeTutorialWizardActivity.class)
 					.putExtra("required", true));
 		} else {
@@ -192,8 +178,6 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 		final SharedPreferences userPrefs = PreferenceManager
 				.getDefaultSharedPreferences(HomeActivity.this);
-		final double minSensitivity = userPrefs.getFloat(
-				getString(R.string.pref_minimum_sensitivity), -1);
 		final double alarmTriggerSensitivity = userPrefs.getFloat(
 				getString(R.string.pref_alarm_trigger_sensitivity), -1);
 
@@ -204,8 +188,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 		final boolean airplaneMode = userPrefs.getBoolean(
 				getString(R.string.pref_airplane_mode), false);
 
-		if (minSensitivity < 0 || alarmTriggerSensitivity < 0 || useAlarm
-				&& alarmWindow < 0) {
+		if (alarmTriggerSensitivity < 0 || useAlarm && alarmWindow < 0) {
 			final AlertDialog.Builder dialog = new AlertDialog.Builder(
 					HomeActivity.this)
 					.setMessage(getString(R.string.invalid_settings))
@@ -245,7 +228,6 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 		final Intent serviceIntent = new Intent(HomeActivity.this,
 				SleepAccelerometerService.class);
-		serviceIntent.putExtra("min", minSensitivity);
 		serviceIntent.putExtra("alarm", alarmTriggerSensitivity);
 		serviceIntent.putExtra("useAlarm", useAlarm);
 		serviceIntent.putExtra("alarmWindow", alarmWindow);

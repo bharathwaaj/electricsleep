@@ -146,6 +146,10 @@ public class AlarmKlaxon extends Service {
 			return START_NOT_STICKY;
 		}
 
+		if (startId != 1) {
+			return START_NOT_STICKY;
+		}
+
 		if (mCurrentAlarm != null) {
 			sendKillBroadcast(mCurrentAlarm);
 		}

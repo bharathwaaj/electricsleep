@@ -32,7 +32,9 @@
 		android:layout_alignWithParentIfMissing="true"
 		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
 		android:src="@drawable/ic_title_refresh" android:background="@drawable/title_button"
-		android:onClick="onTitleButton1Click" android:visibility="gone" />
+		android:onClick="onTitleButton1Click" android:visibility="gone"
+		android:tint="@android:color/white" android:maxHeight="32dip"
+		android:maxWidth="32dip" />
 
 	<ProgressBar android:id="@+id/title_progress_1"
 		android:indeterminate="true" android:layout_toLeftOf="@dimen/title_height"
@@ -51,6 +53,7 @@
 		android:layout_alignParentTop="true" android:layout_alignParentRight="true"
 		android:layout_alignParentBottom="true" android:src="@drawable/ic_title_search"
 		android:background="@drawable/title_button" android:onClick="onTitleButton2Click"
-		android:visibility="gone" />
+		android:visibility="gone" android:tint="@android:color/white"
+		android:maxHeight="32dip" android:maxWidth="32dip" />
 
 </RelativeLayout>
