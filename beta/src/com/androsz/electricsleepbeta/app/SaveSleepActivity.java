@@ -29,6 +29,7 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 			progress.dismiss();
+			finish();
 		}
 	};
 
@@ -99,7 +100,6 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 		sendBroadcast(saveIntent);
 		final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(getIntent().getExtras().getInt("id"));
-		finish();
 	}
 
 	@Override
