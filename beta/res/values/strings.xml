@@ -51,7 +51,7 @@
 	<string name="yes">Yes</string>
 	<string name="ok">OK</string>
 	<string name="deleted_sleep_record">Deleted sleep record.</string>
-	<string name="delete_sleep_record">Sleep record will be deleted</string>
+	<string name="delete_sleep_record">Sleep record will be deleted.</string>
 	<string name="about">About</string>
 	<string name="welcome_tutorial">Welcome Tutorial</string>
 	<string name="summary_pref_airplane_mode_off">Airplane mode will not be automatically enabled
