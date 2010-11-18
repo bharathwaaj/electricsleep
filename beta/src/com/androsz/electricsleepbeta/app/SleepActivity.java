@@ -19,7 +19,7 @@ import com.androsz.electricsleepbeta.alarmclock.Alarm;
 import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
 import com.androsz.electricsleepbeta.alarmclock.Alarms;
 import com.androsz.electricsleepbeta.service.SleepAccelerometerService;
-import com.androsz.electricsleepbeta.view.SleepChartView;
+import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class SleepActivity extends CustomTitlebarActivity {
 
@@ -44,7 +44,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 	public static final String SYNC_CHART = "com.androsz.electricsleepbeta.SYNC_CHART";
 
-	private SleepChartView sleepChartView;
+	private SleepChart sleepChart;
 
 	private ProgressDialog waitForSeriesData;
 
@@ -52,18 +52,17 @@ public class SleepActivity extends CustomTitlebarActivity {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 
-			if (sleepChartView != null) {
-				sleepChartView.syncByAdding(intent.getDoubleExtra("x", 0),
+			if (sleepChart != null) {
+				sleepChart.syncByAdding(intent.getDoubleExtra("x", 0),
 						intent.getDoubleExtra("y", 0),
 						intent.getDoubleExtra("min",
 								SettingsActivity.DEFAULT_MIN_SENSITIVITY),
 						intent.getDoubleExtra("alarm",
 								SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 
-				if (sleepChartView.makesSenseToDisplay()
+				if (sleepChart.makesSenseToDisplay()
 						&& waitForSeriesData != null) {
 					waitForSeriesData.dismiss();
-					waitForSeriesData = null;
 				}
 			}
 		}
@@ -74,22 +73,22 @@ public class SleepActivity extends CustomTitlebarActivity {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 
-			sleepChartView = (SleepChartView) findViewById(R.id.sleep_movement_chart);
-			// sleepChartView.xySeriesMovement.mX = (List<Double>) intent
+			sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
+			// sleepChart.xySeriesMovement.mX = (List<Double>) intent
 			// .getSerializableExtra("currentSeriesX");
 
-			// sleepChartView.xySeriesMovement.mY = (List<Double>) intent
+			// sleepChart.xySeriesMovement.mY = (List<Double>) intent
 			// .getSerializableExtra("currentSeriesY");
 
-			sleepChartView.xySeriesMovement.mX = (List<Double>) intent
+			sleepChart.xySeriesMovement.mX = (List<Double>) intent
 					.getSerializableExtra("currentSeriesX");
-			sleepChartView.xySeriesMovement.mY = (List<Double>) intent
+			sleepChart.xySeriesMovement.mY = (List<Double>) intent
 					.getSerializableExtra("currentSeriesY");
-			sleepChartView.redraw(intent.getDoubleExtra("min",
+			sleepChart.redraw(intent.getDoubleExtra("min",
 					SettingsActivity.DEFAULT_MIN_SENSITIVITY), intent
 					.getDoubleExtra("alarm",
 							SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
-			boolean useAlarm = intent.getBooleanExtra("useAlarm", false);
+			final boolean useAlarm = intent.getBooleanExtra("useAlarm", false);
 			if (useAlarm) {
 				try {
 					final Alarm alarm = Alarms.calculateNextAlert(context);
@@ -110,14 +109,12 @@ public class SleepActivity extends CustomTitlebarActivity {
 				} catch (final Exception e) {
 
 				}
-			}
-			else
-			{
+			} else {
 				Toast.makeText(context, "Not bound to any alarms.",
 						Toast.LENGTH_LONG).show();
 			}
 
-			if (sleepChartView.makesSenseToDisplay()
+			if (sleepChart.makesSenseToDisplay()
 					&& waitForSeriesData != null) {
 				waitForSeriesData.dismiss();
 				waitForSeriesData = null;
@@ -176,8 +173,8 @@ public class SleepActivity extends CustomTitlebarActivity {
 			// sendBroadcast(new
 			// Intent(SleepAccelerometerService.POKE_SYNC_CHART));
 		}
-		sleepChartView = (SleepChartView) savedState
-				.getSerializable("sleepChartView");
+		sleepChart = (SleepChart) savedState
+				.getSerializable("sleepChart");
 
 	}
 
@@ -193,7 +190,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putSerializable("sleepChartView", sleepChartView);
+		outState.putSerializable("sleepChart", sleepChart);
 	}
 
 	public void onTitleButton1Click(final View v) {
@@ -207,7 +204,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 	}
 
 	private void showWaitForSeriesDataIfNeeded() {
-		if (sleepChartView == null || !sleepChartView.makesSenseToDisplay()) {
+		if (sleepChart == null || !sleepChart.makesSenseToDisplay()) {
 			if (waitForSeriesData == null || !waitForSeriesData.isShowing()) {
 				waitForSeriesData = new WaitForSeriesDataProgressDialog(this);
 				waitForSeriesData
@@ -231,8 +228,9 @@ public class SleepActivity extends CustomTitlebarActivity {
 							@Override
 							public void onClick(final DialogInterface arg0,
 									final int arg1) {
-
-								waitForSeriesData.dismiss();
+								if (waitForSeriesData.isShowing()) {
+									waitForSeriesData.dismiss();
+								}
 							}
 						});
 				waitForSeriesData.show();

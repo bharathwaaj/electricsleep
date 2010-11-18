@@ -1,9 +1,11 @@
 package com.androsz.electricsleepbeta.app;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -11,15 +13,45 @@ import android.widget.Toast;
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
-import com.androsz.electricsleepbeta.view.SleepChartView;
+import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class ReviewSleepActivity extends CustomTitlebarActivity {
 
-	private SleepChartView sleepChartView;
+	private class DeleteSleepTask extends AsyncTask<Void, Void, Void> {
+		ProgressDialog progress;
+
+		@Override
+		protected Void doInBackground(final Void... params) {
+			final SleepHistoryDatabase shdb = new SleepHistoryDatabase(
+					ReviewSleepActivity.this);
+			shdb.deleteRow(rowId);
+			shdb.close();
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(final Void results) {
+			Toast.makeText(ReviewSleepActivity.this,
+					getString(R.string.deleted_sleep_record),
+					Toast.LENGTH_SHORT).show();
+			progress.dismiss();
+			finish();
+		}
+
+		@Override
+		protected void onPreExecute() {
+			progress = new ProgressDialog(ReviewSleepActivity.this);
+			progress.setMessage(getString(R.string.deleting_sleep));
+			progress.show();
+		}
+	}
+
+	private SleepChart sleepChart;
+
 	private long rowId;
 
 	private void addChartView() {
-		sleepChartView = (SleepChartView) findViewById(R.id.sleep_movement_chart);
+		sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
 
 		final Uri uri = getIntent().getData();
 		Cursor cursor;
@@ -33,7 +65,7 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 			} else {
 				cursor.moveToPosition((int) uriEnding);
 				rowId = cursor.getPosition();
-				sleepChartView.syncWithCursor(cursor);
+				sleepChart.syncWithCursor(cursor);
 			}
 		} else {
 			cursor = managedQuery(uri, null, null, null, null);
@@ -44,7 +76,7 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 				rowId = Long.parseLong(uri.getLastPathSegment());
 				showTitleButton1(android.R.drawable.ic_menu_delete);
 				cursor.moveToFirst();
-				sleepChartView.syncWithCursor(cursor);
+				sleepChart.syncWithCursor(cursor);
 			}
 		}
 	}
@@ -68,8 +100,8 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 	protected void onRestoreInstanceState(final Bundle savedState) {
 		try {
 			super.onRestoreInstanceState(savedState);
-			sleepChartView = (SleepChartView) savedState
-					.getSerializable("sleepChartView");
+			sleepChart = (SleepChart) savedState
+					.getSerializable("sleepChart");
 		} catch (final RuntimeException re) {
 
 		}
@@ -84,42 +116,29 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putSerializable("sleepChartView", sleepChartView);
+		outState.putSerializable("sleepChart", sleepChart);
 	}
 
 	public void onTitleButton1Click(final View v) {
-		final SleepHistoryDatabase shdb = new SleepHistoryDatabase(this);
-		try {
-			final AlertDialog.Builder dialog = new AlertDialog.Builder(
-					ReviewSleepActivity.this)
-					.setMessage(getString(R.string.delete_sleep_record))
-					.setPositiveButton(getString(R.string.ok),
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-
-									shdb.deleteRow(rowId);
-									Toast.makeText(
-											ReviewSleepActivity.this,
-											getString(R.string.deleted_sleep_record),
-											Toast.LENGTH_SHORT).show();
-									finish();
-								}
-							})
-					.setNegativeButton(getString(R.string.cancel),
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									dialog.cancel();
-								}
-							});
-			dialog.show();
-		} finally {
-			shdb.close();
-		}
+		final AlertDialog.Builder dialog = new AlertDialog.Builder(
+				ReviewSleepActivity.this)
+				.setMessage(getString(R.string.delete_sleep_record))
+				.setPositiveButton(getString(R.string.ok),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(final DialogInterface dialog,
+									final int id) {
+								new DeleteSleepTask().execute(null, null, null);
+							}
+						})
+				.setNegativeButton(getString(R.string.cancel),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(final DialogInterface dialog,
+									final int id) {
+								dialog.cancel();
+							}
+						});
+		dialog.show();
 	}
 }

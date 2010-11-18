@@ -46,7 +46,7 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 					SleepAccelerometerService.class);
 			stopService(i);
 			i.putExtra("interval", ALARM_CALIBRATION_TIME);
-			i.putExtra("alarm", 2f);
+			i.putExtra("alarm", SettingsActivity.MAX_ALARM_SENSITIVITY);
 			startService(i);
 		}
 
@@ -80,7 +80,7 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 		try {
 
 			startActivityForResult(checkIntent, TEST_TTS_INSTALLED);
-		} catch (ActivityNotFoundException re) {
+		} catch (final ActivityNotFoundException re) {
 			// prevents crash from:
 			// No Activity found to handle Intent {
 			// act=android.speech.tts.engine.CHECK_TTS_DATA }

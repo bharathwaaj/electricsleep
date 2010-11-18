@@ -12,9 +12,11 @@ public class DeviceUtil {
 			final BufferedReader input = new BufferedReader(
 					new InputStreamReader(p.getInputStream()));
 			String line = "";
-			while ((line=input.readLine()) != null && s.toString().length() == 0) {
-				if(line.startsWith("BogoMIPS"))
+			while ((line = input.readLine()) != null
+					&& s.toString().length() == 0) {
+				if (line.startsWith("BogoMIPS")) {
 					s.append(line + "\n");
+				}
 			}
 			final String cpuclockstr = s.substring(s.indexOf(":") + 2,
 					s.length());
@@ -25,7 +27,7 @@ public class DeviceUtil {
 		}
 		return cpuclock;
 	}
-	
+
 	public static String getHardwareName() {
 		String hardwarenamestr = "{}";
 		try {
@@ -34,12 +36,13 @@ public class DeviceUtil {
 			final BufferedReader input = new BufferedReader(
 					new InputStreamReader(p.getInputStream()));
 			String line = "";
-			while ((line=input.readLine()) != null && s.toString().length() == 0) {
-				if(line.startsWith("Hardware"))
+			while ((line = input.readLine()) != null
+					&& s.toString().length() == 0) {
+				if (line.startsWith("Hardware")) {
 					s.append(line + "\n");
+				}
 			}
-			hardwarenamestr = s.substring(s.indexOf(":") + 2,
-					s.length());
+			hardwarenamestr = s.substring(s.indexOf(":") + 2, s.length());
 		} catch (final Exception err) {
 			// if ANYTHING goes wrong, just report 0 since this is only used for
 			// performance appraisal.

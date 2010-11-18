@@ -35,7 +35,7 @@ package com.androsz.electricsleepbeta.achartengine;
 //import com.androsz.electricsleepbeta.achartengine.model.XYMultipleSeriesDataset;
 //import com.androsz.electricsleepbeta.achartengine.renderer.DefaultRenderer;
 //import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
-//import com.androsz.electricsleepbeta.widget.SleepChartView;
+//import com.androsz.electricsleepbeta.widget.SleepChart;
 //
 ///**
 // * Utility methods for creating chart views or intents.

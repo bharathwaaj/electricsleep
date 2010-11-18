@@ -8,18 +8,8 @@
 			android:layout_width="wrap_content" android:text="@string/title_welcome"
 			android:layout_alignParentTop="true" android:layout_centerHorizontal="true"
 			android:id="@+id/welcomeTitle"></TextView>
-		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:layout_below="@+id/welcomeTitle"
-			android:src="@drawable/icon" android:layout_centerHorizontal="true"></ImageView>
 		<TextView android:layout_height="wrap_content" style="@style/TextBody"
-			android:layout_width="wrap_content" android:layout_centerInParent="true"
-			android:text="@string/electricsleep_description"></TextView>
-
-		<Button android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="@string/skip_tutorial"
-			android:id="@+id/ButtonSkipTutorial" android:onClick="onSkipTutorialClick"
-			android:layout_centerHorizontal="true"
-			android:layout_alignParentBottom="true"></Button>
+			android:layout_width="wrap_content" android:text="@string/electricsleep_description" android:layout_below="@+id/welcomeTitle" android:layout_centerHorizontal="true"></TextView>
 	</RelativeLayout>
 	<ScrollView android:layout_width="wrap_content"
 		android:layout_height="wrap_content">

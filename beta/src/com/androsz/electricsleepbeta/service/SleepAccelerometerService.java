@@ -22,6 +22,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.Alarm;
@@ -33,35 +34,46 @@ import com.androsz.electricsleepbeta.app.SleepActivity;
 
 public class SleepAccelerometerService extends Service implements
 		SensorEventListener {
+	private static String LOCK_TAG = "com.androsz.electricsleepbeta.service.SleepAccelerometerService";
+	private static final int NOTIFICATION_ID = 0x1337a;
 	public static final String POKE_SYNC_CHART = "com.androsz.electricsleepbeta.POKE_SYNC_CHART";
-	public static final String STOP_AND_SAVE_SLEEP = "com.androsz.electricsleepbeta.STOP_AND_SAVE_SLEEP";
+
 	public static final String SLEEP_STOPPED = "com.androsz.electricsleepbeta.SLEEP_STOPPED";
 
-	private static final int NOTIFICATION_ID = 0x1337a;
+	public static final String STOP_AND_SAVE_SLEEP = "com.androsz.electricsleepbeta.STOP_AND_SAVE_SLEEP";
+	private boolean airplaneMode = false;
+
+	private final BroadcastReceiver alarmDoneReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(final Context context, final Intent intent) {
+			createSaveSleepNotification();
+			stopSelf();
+		}
+	};
+
+	private double alarmTriggerSensitivity = SettingsActivity.DEFAULT_ALARM_SENSITIVITY;
+	private int alarmWindow = 30;
 
 	private final ArrayList<Double> currentSeriesX = new ArrayList<Double>();
 	private final ArrayList<Double> currentSeriesY = new ArrayList<Double>();
-
-	private WakeLock partialWakeLock;
-
-	private long lastChartUpdateTime = 0;
-	// private double minSensitivity = SettingsActivity.DEFAULT_MIN_SENSITIVITY;
-	private double alarmTriggerSensitivity = SettingsActivity.DEFAULT_ALARM_SENSITIVITY;
-
-	private boolean airplaneMode = false;
-	private boolean useAlarm = false;
-	private int alarmWindow = 30;
-
-	private int updateInterval = CalibrationWizardActivity.ALARM_CALIBRATION_TIME;
-
 	private Date dateStarted;
 
-	public static final int SENSOR_DELAY = SensorManager.SENSOR_DELAY_NORMAL;
+	private long lastChartUpdateTime = 0;
 
+	private double mAccel = 0;
+
+	private double mAccelCurrent = 0;
+
+	private double mAccelLast = Double.POSITIVE_INFINITY;
+
+	private double maxNetForce = 0;
+
+	private double minNetForce = Double.MAX_VALUE;
+
+	private WakeLock partialWakeLock;
 	private final BroadcastReceiver pokeSyncChartReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
-			// if (currentSeriesX.size() > 0 && currentSeriesY.size() > 0) {
 			final Intent i = new Intent(SleepActivity.SYNC_CHART);
 			i.putExtra("currentSeriesX", currentSeriesX);
 			i.putExtra("currentSeriesY", currentSeriesY);
@@ -69,9 +81,12 @@ public class SleepAccelerometerService extends Service implements
 			i.putExtra("alarm", alarmTriggerSensitivity);
 			i.putExtra("useAlarm", useAlarm);
 			sendBroadcast(i);
-			// }
 		}
 	};
+
+	private int testModeRate;
+
+	public int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
 
 	private final BroadcastReceiver stopAndSaveSleepReceiver = new BroadcastReceiver() {
 		@Override
@@ -83,33 +98,9 @@ public class SleepAccelerometerService extends Service implements
 		}
 	};
 
-	private final BroadcastReceiver alarmDoneReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(final Context context, final Intent intent) {
-			createSaveSleepNotification();
-			stopSelf();
-		}
-	};
+	private int updateInterval = CalibrationWizardActivity.ALARM_CALIBRATION_TIME;
 
-	private static String LOCK_TAG = "com.androsz.electricsleepbeta.service.SleepAccelerometerService";
-
-	private double maxNetForce = 0;
-
-	private double minNetForce = Double.MAX_VALUE;
-
-	private static final double a0 = 0.535144118;
-
-	private static final double a1 = -0.132788237;
-
-	private static final double a2 = -0.402355882;
-
-	private static final double b1 = -0.154508496;
-
-	private static final double b2 = -0.0625;
-
-	private double x_r_1, x_r_2, x_1; // x_r_1 means x[n-1], etc.
-
-	private int count = 0;
+	private boolean useAlarm = false;
 
 	private Intent addExtrasToSaveSleepIntent(final Intent saveIntent) {
 		saveIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -208,8 +199,6 @@ public class SleepAccelerometerService extends Service implements
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		obtainWakeLock();
-		registerAccelerometerListener();
 		lastChartUpdateTime = System.currentTimeMillis();
 
 		registerReceiver(pokeSyncChartReceiver, new IntentFilter(
@@ -249,10 +238,6 @@ public class SleepAccelerometerService extends Service implements
 
 	@Override
 	public void onSensorChanged(final SensorEvent event) {
-		if (count < 3) {
-			count++;
-			return;
-		}
 		final long currentTime = System.currentTimeMillis();
 		final long timeSinceLastChartUpdate = currentTime - lastChartUpdateTime;
 
@@ -260,50 +245,48 @@ public class SleepAccelerometerService extends Service implements
 		final double curY = event.values[1];
 		final double curZ = event.values[2];
 
-		// final long timeSinceLastSensorChange = currentTime
-		// - lastOnSensorChangedTime;
+		if (mAccelLast == Double.POSITIVE_INFINITY) {
+			mAccelCurrent = Math.sqrt((curX * curX) + (curY * curY)
+					+ (curZ * curZ));
+			mAccelLast = mAccelCurrent;
+			return;
+		} else {
+			mAccelLast = mAccelCurrent;
+			mAccelCurrent = Math.sqrt((curX * curX) + (curY * curY)
+					+ (curZ * curZ));
+			double delta = mAccelCurrent - mAccelLast;
+			mAccel = (mAccel * 0.9f) + delta; // perform low-cut filter
+			double absAccel = Math.abs(mAccel);
+			maxNetForce = absAccel > maxNetForce ? absAccel : maxNetForce;
+			// lastOnSensorChangedTime = currentTime;
 
-		final double mAccelCurrent = Math
-				.sqrt((curX * curX + curY * curY + curZ * curZ))
-				- SensorManager.GRAVITY_EARTH;
+			if (timeSinceLastChartUpdate >= updateInterval) {
+				if (maxNetForce < minNetForce) {
+					minNetForce = maxNetForce;
+				}
 
-		final double x_r_0 = a0 * mAccelCurrent + a1 * x_r_1 + a2 * x_r_2 + b1
-				* x_r_1 + b2 * x_r_2;
-		x_1 = mAccelCurrent;
-		x_r_2 = x_r_1;
-		x_r_1 = x_r_0;
+				final double x = currentTime;
+				final double y = java.lang.Math.max(minNetForce, java.lang.Math
+						.min(alarmTriggerSensitivity, maxNetForce));
 
-		final double force = Math.abs(x_r_0);
+				currentSeriesX.add(x);
+				currentSeriesY.add(y);
 
-		maxNetForce = force > maxNetForce ? force : maxNetForce;
-		// lastOnSensorChangedTime = currentTime;
+				final Intent i = new Intent(SleepActivity.UPDATE_CHART);
+				i.putExtra("x", x);
+				i.putExtra("y", y);
+				i.putExtra("min", minNetForce);
+				i.putExtra("alarm", alarmTriggerSensitivity);
+				sendBroadcast(i);
 
-		if (timeSinceLastChartUpdate >= updateInterval) {
-			if (maxNetForce < minNetForce) {
-				minNetForce = maxNetForce;
-			}
-			final double x = currentTime;
-			final double y = java.lang.Math.min(alarmTriggerSensitivity,
-					maxNetForce);
+				// totalTimeBetweenSensorChanges = 0;
 
-			currentSeriesX.add(x);
-			currentSeriesY.add(y);
+				lastChartUpdateTime = currentTime;
+				maxNetForce = 0;
 
-			final Intent i = new Intent(SleepActivity.UPDATE_CHART);
-			i.putExtra("x", x);
-			i.putExtra("y", y);
-			i.putExtra("min", minNetForce);
-			i.putExtra("alarm", alarmTriggerSensitivity);
-			sendBroadcast(i);
-
-			// totalTimeBetweenSensorChanges = 0;
-
-			lastChartUpdateTime = currentTime;
-			maxNetForce = 0;
-
-			if(triggerAlarmIfNecessary(currentTime, y))
-			{
-				unregisterAccelerometerListener();
+				if (triggerAlarmIfNecessary(currentTime, y)) {
+					unregisterAccelerometerListener();
+				}
 			}
 		}
 	}
@@ -312,14 +295,25 @@ public class SleepAccelerometerService extends Service implements
 	public int onStartCommand(final Intent intent, final int flags,
 			final int startId) {
 		if (intent != null && startId == 1) {
-			updateInterval = intent.getIntExtra("interval",
-					CalibrationWizardActivity.ALARM_CALIBRATION_TIME);
-			alarmTriggerSensitivity = intent.getDoubleExtra("alarm", 2d);
+			testModeRate = intent
+					.getIntExtra("testModeRate", Integer.MIN_VALUE);
+
+			updateInterval = (testModeRate == Integer.MIN_VALUE ? intent
+					.getIntExtra("interval",
+							CalibrationWizardActivity.ALARM_CALIBRATION_TIME)
+					: testModeRate);
+
+			sensorDelay = intent.getIntExtra("sensorDelay",
+					SensorManager.SENSOR_DELAY_NORMAL);
+			alarmTriggerSensitivity = intent.getDoubleExtra("alarm",
+					SettingsActivity.MAX_ALARM_SENSITIVITY);
 
 			useAlarm = intent.getBooleanExtra("useAlarm", false);
 			alarmWindow = intent.getIntExtra("alarmWindow", 0);
 			airplaneMode = intent.getBooleanExtra("airplaneMode", false);
 
+			obtainWakeLock();
+			registerAccelerometerListener();
 			toggleAirplaneMode(true);
 		}
 		return startId;
@@ -330,7 +324,7 @@ public class SleepAccelerometerService extends Service implements
 
 		sensorManager.registerListener(this,
 				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-				SENSOR_DELAY);
+				sensorDelay);
 	}
 
 	private void toggleAirplaneMode(final boolean enabling) {
@@ -357,7 +351,7 @@ public class SleepAccelerometerService extends Service implements
 				alarmTime.add(Calendar.MINUTE, alarmWindow * -1);
 				final long alarmMillis = alarmTime.getTimeInMillis();
 				if (currentTime >= alarmMillis && y >= alarmTriggerSensitivity) {
-					//alarm.time = currentTime;
+					// alarm.time = currentTime;
 					partialWakeLock.release();
 					Alarms.enableAlert(this, alarm, currentTime);
 

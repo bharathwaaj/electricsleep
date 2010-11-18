@@ -1,4 +1,4 @@
-package com.androsz.electricsleepbeta.view;
+package com.androsz.electricsleepbeta.widget;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -11,6 +11,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.View;
+import android.view.animation.Animation;
+import android.widget.ProgressBar;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.achartengine.ChartView;
@@ -22,7 +25,7 @@ import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRende
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 
-public class SleepChartView extends ChartView implements Serializable {
+public class SleepChart extends ChartView implements Serializable {
 
 	private static final long serialVersionUID = -5692853786456847694L;
 
@@ -34,14 +37,21 @@ public class SleepChartView extends ChartView implements Serializable {
 
 	public XYSeriesRenderer xySeriesMovementRenderer;
 
+	SerializableProgressBar progressBar = new SerializableProgressBar(
+			getContext());
+
 	public int rating;
 
-	public SleepChartView(final Context context) {
+	public SleepChart(final Context context) {
 		super(context);
+		progressBar.setIndeterminate(true);
+		progressBar.setVisibility(View.VISIBLE);
 	}
 
-	public SleepChartView(final Context context, final AttributeSet as) {
+	public SleepChart(final Context context, final AttributeSet as) {
 		super(context, as);
+		progressBar.setIndeterminate(true);
+		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -67,17 +77,9 @@ public class SleepChartView extends ChartView implements Serializable {
 			xyMultipleSeriesRenderer.setShowLegend(false);
 			xyMultipleSeriesRenderer.setAxisTitleTextSize(17);
 			xyMultipleSeriesRenderer.setLabelsTextSize(17);
-			xyMultipleSeriesRenderer.setAntialiasing(true);
-			// TODO move this?
-			/*
-			 * final Display defaultDisplay =
-			 * super.getContext().getWindowManager() .getDefaultDisplay(); if
-			 * (defaultDisplay.getWidth() > defaultDisplay.getHeight()) { //
-			 * landscape xyMultipleSeriesRenderer.setXLabels(10); } else { //
-			 * portrait xyMultipleSeriesRenderer.setXLabels(5); }
-			 */
+			
 			xyMultipleSeriesRenderer.setXLabels(7);
-			xyMultipleSeriesRenderer.setYLabels(0);
+			xyMultipleSeriesRenderer.setYLabels(2);
 			xyMultipleSeriesRenderer.setYTitle(super.getContext().getString(
 					R.string.movement_level_during_sleep));
 			xyMultipleSeriesRenderer.setShowGrid(true);
@@ -120,6 +122,19 @@ public class SleepChartView extends ChartView implements Serializable {
 								+ centerThemDangStarz, height * 2);
 				dStarOff.draw(canvas);
 			}
+		}
+		if (!makesSenseToDisplay()) {
+			final Drawable dProgress = progressBar.getIndeterminateDrawable()
+					.getCurrent();
+			dProgress.setBounds(canvas.getWidth() / 2 - 24,
+					canvas.getHeight() / 2 - 24, canvas.getWidth() / 2 + 24,
+					canvas.getHeight() / 2 + 24);
+			progressBar.draw(canvas);
+			//if(!progressBar.setAnimation(new Animation()).getAnimation().hasStarted())
+			//{
+			//	progressBar.getAnimation().start();
+			//}
+			//dProgress.draw(canvas);
 		}
 	}
 

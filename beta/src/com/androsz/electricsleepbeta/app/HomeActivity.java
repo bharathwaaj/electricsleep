@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,7 +18,7 @@ import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 import com.androsz.electricsleepbeta.service.SleepAccelerometerService;
-import com.androsz.electricsleepbeta.view.SleepChartView;
+import com.androsz.electricsleepbeta.widget.SleepChart;
 
 /**
  * Front-door {@link Activity} that displays high-level features the application
@@ -27,10 +26,10 @@ import com.androsz.electricsleepbeta.view.SleepChartView;
  */
 public class HomeActivity extends CustomTitlebarActivity {
 
-	private SleepChartView sleepChartView;
+	private SleepChart sleepChart;
 
 	private void addChartView() {
-		sleepChartView = (SleepChartView) findViewById(R.id.home_sleep_chart);
+		sleepChart = (SleepChart) findViewById(R.id.home_sleep_chart);
 
 		final Cursor cursor = managedQuery(SleepContentProvider.CONTENT_URI,
 				null, null, new String[] { getString(R.string.to) },
@@ -38,13 +37,13 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 		final TextView reviewTitleText = (TextView) findViewById(R.id.home_review_title_text);
 		if (cursor == null) {
-			sleepChartView.setVisibility(View.GONE);
+			sleepChart.setVisibility(View.GONE);
 			reviewTitleText
 					.setText(getString(R.string.home_review_title_text_empty));
 		} else {
 			cursor.moveToLast();
-			sleepChartView.setVisibility(View.VISIBLE);
-			sleepChartView.syncWithCursor(cursor);
+			sleepChart.setVisibility(View.VISIBLE);
+			sleepChart.syncWithCursor(cursor);
 			reviewTitleText.setText(getString(R.string.home_review_title_text));
 		}
 	}
@@ -158,8 +157,8 @@ public class HomeActivity extends CustomTitlebarActivity {
 			super.onRestoreInstanceState(savedState);
 		} catch (final RuntimeException re) {
 		}
-		sleepChartView = (SleepChartView) savedState
-				.getSerializable("sleepChartView");
+		sleepChart = (SleepChart) savedState
+				.getSerializable("sleepChart");
 	}
 
 	@Override
@@ -171,7 +170,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putSerializable("sleepChartView", sleepChartView);
+		outState.putSerializable("sleepChart", sleepChart);
 	}
 
 	public void onSleepClick(final View v) throws Exception {
@@ -180,7 +179,9 @@ public class HomeActivity extends CustomTitlebarActivity {
 				.getDefaultSharedPreferences(HomeActivity.this);
 		final double alarmTriggerSensitivity = userPrefs.getFloat(
 				getString(R.string.pref_alarm_trigger_sensitivity), -1);
-
+		final int sensorDelay = Integer.parseInt(userPrefs.getString(
+				getString(R.string.pref_sensor_delay), ""
+						+ SensorManager.SENSOR_DELAY_NORMAL));
 		final boolean useAlarm = userPrefs.getBoolean(
 				getString(R.string.pref_use_alarm), false);
 		final int alarmWindow = Integer.parseInt(userPrefs.getString(
@@ -229,6 +230,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 		final Intent serviceIntent = new Intent(HomeActivity.this,
 				SleepAccelerometerService.class);
 		serviceIntent.putExtra("alarm", alarmTriggerSensitivity);
+		serviceIntent.putExtra("sensorDelay", sensorDelay);
 		serviceIntent.putExtra("useAlarm", useAlarm);
 		serviceIntent.putExtra("alarmWindow", alarmWindow);
 		serviceIntent.putExtra("airplaneMode", airplaneMode);

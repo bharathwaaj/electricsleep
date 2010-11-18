@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+	<string name="summary_pref_sensor_delay">Try changing this if you\'re having problems with
+		sleep movement collection.</string>
+	<string name="title_pref_sensor_delay">Sensor Delay</string>
+	<string name="pref_sensor_delay">sensorDelay</string>
 	<string name="how_review">Your sleep movement graph is saved for later
 		review. Statistics will be available for individual as well as all
 		records.</string>
@@ -17,6 +21,7 @@
 	<string name="summary_pref_analytics_on">Anonymous usage will be uploaded</string>
 	<string name="title_pref_analytics">Upload Anonymous Usage</string>
 	<string name="pref_analytics">Allow Google Analytics</string>
+	<string name="deleting_sleep">Deleting sleep</string>
 	<string name="saving_sleep">Saving sleep</string>
 	<string name="cancel">Cancel</string>
 	<string name="manual">Manual</string>
@@ -239,7 +244,14 @@
 	</plurals>
 
 	<string name="no_results">There is no saved sleep.</string>
-
+	<string-array name="array_prefs_sensor_delay_friendly">
+		<item>Normal</item>
+		<item>UI</item>
+	</string-array>
+	<string-array name="array_prefs_sensor_delay_values">
+		<item>3</item>
+		<item>2</item>
+	</string-array>
 	<string-array name="array_prefs_alarm_window_friendly">
 		<item>5 minutes</item>
 		<item>10 minutes</item>

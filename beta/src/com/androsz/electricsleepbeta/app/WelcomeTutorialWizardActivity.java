@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
 
 import com.androsz.electricsleepbeta.R;
 
@@ -72,6 +74,16 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 			finish();
 		}
 	}
+	
+	@Override
+	protected void setupNavigationButtons()
+	{
+		super.setupNavigationButtons();
+		final Button leftButton = (Button) findViewById(R.id.leftButton);
+		if (viewFlipper.getDisplayedChild() == 0) {
+			leftButton.setText(R.string.skip_tutorial);
+		}
+	}
 
 	@Override
 	protected int getWizardLayoutId() {
@@ -104,8 +116,8 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 
 	@Override
 	public void onLeftButtonClick(final View v) {
-		if (viewFlipper.getDisplayedChild() == 0 && required) {
-			return;
+		if (viewFlipper.getDisplayedChild() == 0) {
+			onFinishWizardActivity();
 		} else {
 			super.onLeftButtonClick(v);
 		}
@@ -126,10 +138,6 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 	protected void onSaveInstanceState(final Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean("required", required);
-	}
-
-	public void onSkipTutorialClick(final View v) {
-		onFinishWizardActivity();
 	}
 
 	@Override

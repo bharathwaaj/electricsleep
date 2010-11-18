@@ -1,11 +1,13 @@
 package com.androsz.electricsleepbeta.app;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -22,6 +24,36 @@ import com.androsz.electricsleepbeta.util.DeviceUtil;
 import com.androsz.electricsleepbeta.widget.SleepHistoryCursorAdapter;
 
 public class HistoryActivity extends CustomTitlebarActivity {
+
+	private class DeleteSleepTask extends AsyncTask<Long, Void, Void> {
+		ProgressDialog progress;
+
+		@Override
+		protected Void doInBackground(final Long... params) {
+			final SleepHistoryDatabase shdb = new SleepHistoryDatabase(
+					HistoryActivity.this);
+			shdb.deleteRow(params[0]);
+			shdb.close();
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(final Void results) {
+			mListView.removeAllViewsInLayout();
+			showResults(getString(R.string.to));
+			Toast.makeText(HistoryActivity.this,
+					getString(R.string.deleted_sleep_record),
+					Toast.LENGTH_SHORT).show();
+			progress.dismiss();
+		}
+
+		@Override
+		protected void onPreExecute() {
+			progress = new ProgressDialog(HistoryActivity.this);
+			progress.setMessage(getString(R.string.deleting_sleep));
+			progress.show();
+		}
+	}
 
 	private TextView mTextView;
 
@@ -98,45 +130,31 @@ public class HistoryActivity extends CustomTitlebarActivity {
 
 				@Override
 				public boolean onItemLongClick(final AdapterView<?> parent,
-						final View view, final int position, final long rowid) {
-					final SleepHistoryDatabase shdb = new SleepHistoryDatabase(
-							HistoryActivity.this);
-					try {
-						final AlertDialog.Builder dialog = new AlertDialog.Builder(
-								HistoryActivity.this)
-								.setMessage(
-										getString(R.string.delete_sleep_record))
-								.setPositiveButton(getString(R.string.ok),
-										new DialogInterface.OnClickListener() {
-											@Override
-											public void onClick(
-													final DialogInterface dialog,
-													final int id) {
+						final View view, final int position, final long rowId) {
+					final AlertDialog.Builder dialog = new AlertDialog.Builder(
+							HistoryActivity.this)
+							.setMessage(getString(R.string.delete_sleep_record))
+							.setPositiveButton(getString(R.string.ok),
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(
+												final DialogInterface dialog,
+												final int id) {
 
-												shdb.deleteRow(rowid);
-												Toast.makeText(
-														HistoryActivity.this,
-														getString(R.string.deleted_sleep_record),
-														Toast.LENGTH_SHORT)
-														.show();
-												mListView
-														.removeAllViewsInLayout();
-												showResults(query);
-											}
-										})
-								.setNegativeButton(getString(R.string.cancel),
-										new DialogInterface.OnClickListener() {
-											@Override
-											public void onClick(
-													final DialogInterface dialog,
-													final int id) {
-												dialog.cancel();
-											}
-										});
-						dialog.show();
-					} finally {
-						shdb.close();
-					}
+											new DeleteSleepTask().execute(
+													rowId, null, null);
+										}
+									})
+							.setNegativeButton(getString(R.string.cancel),
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(
+												final DialogInterface dialog,
+												final int id) {
+											dialog.cancel();
+										}
+									});
+					dialog.show();
 					return true;
 				}
 

@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.RatingBar;
@@ -13,6 +14,7 @@ import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.receiver.SaveSleepReceiver;
 
 public class SaveSleepActivity extends CustomTitlebarActivity implements
@@ -28,6 +30,21 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
+
+			final Intent reviewSleepIntent = new Intent(context,
+					ReviewSleepActivity.class);
+
+			final String rowId = intent.getStringExtra("rowId");
+			if (rowId != null) {
+				final Uri uri = Uri.withAppendedPath(
+						SleepContentProvider.CONTENT_URI, rowId);
+				reviewSleepIntent.setData(uri);
+			}
+
+			reviewSleepIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+					| Intent.FLAG_ACTIVITY_NEW_TASK);
+
+			startActivity(reviewSleepIntent);
 			progress.dismiss();
 			finish();
 		}

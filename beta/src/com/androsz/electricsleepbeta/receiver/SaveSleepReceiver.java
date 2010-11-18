@@ -8,13 +8,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.provider.BaseColumns;
-import android.widget.Toast;
 
-import com.androsz.electricsleepbeta.app.ReviewSleepActivity;
 import com.androsz.electricsleepbeta.app.SettingsActivity;
-import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 
 public class SaveSleepReceiver extends BroadcastReceiver {
@@ -143,20 +139,14 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 				final long rowId = c.getLong(0);
 				c.close();
 
-				final Intent reviewSleepIntent = new Intent(context,
-						ReviewSleepActivity.class);
-				final Uri uri = Uri.withAppendedPath(
-						SleepContentProvider.CONTENT_URI, String.valueOf(rowId));
-				reviewSleepIntent.setData(uri);
-
-				reviewSleepIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-						| Intent.FLAG_ACTIVITY_NEW_TASK);
-
-				context.startActivity(reviewSleepIntent);
+				// context.startActivity(reviewSleepIntent);
 				shdb.close();
-				context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
+				final Intent saveSleepCompletedIntent = new Intent(
+						SAVE_SLEEP_COMPLETED);
+				saveSleepCompletedIntent.putExtra("rowId",
+						String.valueOf(rowId));
+				context.sendBroadcast(saveSleepCompletedIntent);
 			}
 		}).start();
 	}
-
 }

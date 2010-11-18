@@ -32,7 +32,6 @@ public class SeekBarPreference extends DialogPreference {
 				.length());
 		nf.setMinimumFractionDigits(("" + (int) Math.pow(PRECISION, 0.5))
 				.length());
-		nf.setMaximumIntegerDigits(1);
 	}
 
 	public SeekBarPreference(final Context context, final AttributeSet attrs) {

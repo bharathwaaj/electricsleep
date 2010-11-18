@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ResourceCursorAdapter;
 
 import com.androsz.electricsleepbeta.R;
-import com.androsz.electricsleepbeta.view.SleepChartView;
 
 public class SleepHistoryCursorAdapter extends ResourceCursorAdapter {
 
@@ -24,11 +23,11 @@ public class SleepHistoryCursorAdapter extends ResourceCursorAdapter {
 	public void bindView(final View view, final Context context,
 			final Cursor cursor) {
 
-		final SleepChartView sleepChartView = (SleepChartView) view
+		final SleepChart sleepChart = (SleepChart) view
 				.findViewById(R.id.sleep_history_list_item_sleepchartview);
 
-		sleepChartView.syncWithCursor(cursor);
-		sleepChartView.setMinimumHeight(parent.getHeight() / 2);
+		sleepChart.syncWithCursor(cursor);
+		sleepChart.setMinimumHeight(parent.getHeight() / 2);
 	}
 
 	@Override
