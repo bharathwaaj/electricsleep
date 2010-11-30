@@ -12,6 +12,7 @@ import android.provider.BaseColumns;
 
 import com.androsz.electricsleepbeta.app.SettingsActivity;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
+import com.androsz.electricsleepbeta.db.SleepRecord;
 
 public class SaveSleepReceiver extends BroadcastReceiver {
 
@@ -25,8 +26,6 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
-
 				final SleepHistoryDatabase shdb = new SleepHistoryDatabase(
 						context);
 
@@ -101,11 +100,12 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 								lessDetailedY.add(maxYForThisGroup);
 							}
 						}
-						shdb.addSleep(context, name, lessDetailedX,
-								lessDetailedY, min, alarm, rating);
+						shdb.addSleep(context, new SleepRecord(name,
+								lessDetailedX, lessDetailedY, min, alarm,
+								rating));
 					} else {
 						min = intent.getDoubleExtra("min", Double.MAX_VALUE);
-						shdb.addSleep(context, name, mX, mY, min, alarm, rating);
+						shdb.addSleep(context, new SleepRecord(name, mX, mY, min, alarm, rating));
 					}
 				} catch (final IOException e) {
 					context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
@@ -114,7 +114,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 				final Cursor c = shdb.getSleepMatches(name, new String[] {
 						BaseColumns._ID,
-						SleepHistoryDatabase.KEY_SLEEP_DATE_TIME });
+						SleepRecord.KEY_SLEEP_DATE_TIME });
 
 				if (c == null) {
 					/*

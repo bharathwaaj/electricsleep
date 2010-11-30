@@ -1,5 +1,8 @@
 package com.androsz.electricsleepbeta.widget;
 
+import java.io.IOException;
+import java.io.StreamCorruptedException;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
@@ -26,7 +29,21 @@ public class SleepHistoryCursorAdapter extends ResourceCursorAdapter {
 		final SleepChart sleepChart = (SleepChart) view
 				.findViewById(R.id.sleep_history_list_item_sleepchartview);
 
-		sleepChart.syncWithCursor(cursor);
+		try {
+			sleepChart.syncWithCursor(cursor);
+		} catch (StreamCorruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		sleepChart.setMinimumHeight(parent.getHeight() / 2);
 	}
 

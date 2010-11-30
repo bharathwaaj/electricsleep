@@ -1,5 +1,8 @@
 package com.androsz.electricsleepbeta.app;
 
+import java.io.IOException;
+import java.io.StreamCorruptedException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -17,6 +20,8 @@ import android.widget.Toast;
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
+import com.androsz.electricsleepbeta.db.SleepRecord;
+import com.androsz.electricsleepbeta.receiver.StartSleepReceiver;
 import com.androsz.electricsleepbeta.service.SleepAccelerometerService;
 import com.androsz.electricsleepbeta.widget.SleepChart;
 
@@ -28,13 +33,12 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 	private SleepChart sleepChart;
 
-	private void addChartView() {
+	private void addChartView() throws StreamCorruptedException, IllegalArgumentException, IOException, ClassNotFoundException {
 		sleepChart = (SleepChart) findViewById(R.id.home_sleep_chart);
 
 		final Cursor cursor = managedQuery(SleepContentProvider.CONTENT_URI,
 				null, null, new String[] { getString(R.string.to) },
-				SleepHistoryDatabase.KEY_SLEEP_DATE_TIME + " DESC");
-
+				SleepRecord.KEY_SLEEP_DATE_TIME + " DESC");
 		final TextView reviewTitleText = (TextView) findViewById(R.id.home_review_title_text);
 		if (cursor == null) {
 			sleepChart.setVisibility(View.GONE);
@@ -48,65 +52,6 @@ public class HomeActivity extends CustomTitlebarActivity {
 		}
 	}
 
-	private void enforceCalibrationBeforeStartingSleep(final Intent service,
-			final Intent activity) {
-
-		final SharedPreferences userPrefs = getSharedPreferences(
-				getString(R.string.prefs_version), Context.MODE_PRIVATE);
-		final int prefsVersion = userPrefs.getInt(
-				getString(R.string.prefs_version), 0);
-		String message = "";
-		if (prefsVersion == 0) {
-			message = getString(R.string.message_not_calibrated);
-		} else if (prefsVersion != getResources().getInteger(
-				R.integer.prefs_version)) {
-			message = getString(R.string.message_prefs_not_compatible);
-			PreferenceManager.getDefaultSharedPreferences(this).edit().clear()
-					.commit();
-			PreferenceManager.setDefaultValues(this, R.xml.settings, true);
-		}
-
-		if (message.length() > 0) {
-			message += getString(R.string.message_recommend_calibration);
-			final AlertDialog.Builder dialog = new AlertDialog.Builder(
-					HomeActivity.this)
-					.setMessage(message)
-					.setCancelable(false)
-					.setPositiveButton(getString(R.string.calibrate),
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									startActivity(new Intent(HomeActivity.this,
-											CalibrationWizardActivity.class));
-								}
-							})
-					.setNeutralButton(getString(R.string.manual),
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									startActivity(new Intent(HomeActivity.this,
-											SettingsActivity.class));
-								}
-							})
-					.setNegativeButton(getString(R.string.cancel),
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									dialog.cancel();
-								}
-							});
-			dialog.show();
-		} else if (service != null && activity != null) {
-			startService(service);
-			startActivity(activity);
-		}
-	}
 
 	@Override
 	protected int getContentAreaLayoutId() {
@@ -132,7 +77,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 			startActivity(new Intent(this, WelcomeTutorialWizardActivity.class)
 					.putExtra("required", true));
 		} else {
-			enforceCalibrationBeforeStartingSleep(null, null);
+			StartSleepReceiver.enforceCalibrationBeforeStartingSleep(this, null, null);
 		}
 	}
 
@@ -164,7 +109,21 @@ public class HomeActivity extends CustomTitlebarActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		addChartView();
+		try {
+			addChartView();
+		} catch (StreamCorruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -175,67 +134,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 	public void onSleepClick(final View v) throws Exception {
 
-		final SharedPreferences userPrefs = PreferenceManager
-				.getDefaultSharedPreferences(HomeActivity.this);
-		final double alarmTriggerSensitivity = userPrefs.getFloat(
-				getString(R.string.pref_alarm_trigger_sensitivity), -1);
-		final int sensorDelay = Integer.parseInt(userPrefs.getString(
-				getString(R.string.pref_sensor_delay), ""
-						+ SensorManager.SENSOR_DELAY_NORMAL));
-		final boolean useAlarm = userPrefs.getBoolean(
-				getString(R.string.pref_use_alarm), false);
-		final int alarmWindow = Integer.parseInt(userPrefs.getString(
-				getString(R.string.pref_alarm_window), "-1"));
-		final boolean airplaneMode = userPrefs.getBoolean(
-				getString(R.string.pref_airplane_mode), false);
-
-		if (alarmTriggerSensitivity < 0 || useAlarm && alarmWindow < 0) {
-			final AlertDialog.Builder dialog = new AlertDialog.Builder(
-					HomeActivity.this)
-					.setMessage(getString(R.string.invalid_settings))
-					.setCancelable(false)
-					.setPositiveButton("Calibrate",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									startActivity(new Intent(HomeActivity.this,
-											CalibrationWizardActivity.class));
-								}
-							})
-					.setNeutralButton("Manual",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									startActivity(new Intent(HomeActivity.this,
-											SettingsActivity.class));
-								}
-							})
-					.setNegativeButton("Cancel",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									dialog.cancel();
-								}
-							});
-			dialog.show();
-			return;
-		}
-
-		final Intent serviceIntent = new Intent(HomeActivity.this,
-				SleepAccelerometerService.class);
-		serviceIntent.putExtra("alarm", alarmTriggerSensitivity);
-		serviceIntent.putExtra("sensorDelay", sensorDelay);
-		serviceIntent.putExtra("useAlarm", useAlarm);
-		serviceIntent.putExtra("alarmWindow", alarmWindow);
-		serviceIntent.putExtra("airplaneMode", airplaneMode);
-		enforceCalibrationBeforeStartingSleep(serviceIntent, new Intent(
-				HomeActivity.this, SleepActivity.class));
+		sendBroadcast(new Intent(StartSleepReceiver.START_SLEEP));
 	}
 
 	public void onTitleButton1Click(final View v) {

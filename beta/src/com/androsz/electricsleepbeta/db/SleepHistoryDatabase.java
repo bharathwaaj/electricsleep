@@ -40,22 +40,29 @@ import android.provider.BaseColumns;
  * dictionary table when it needs to be created.
  */
 public class SleepHistoryDatabase {
+	private static final String DATABASE_NAME = "sleephistory";
+	private static final int DATABASE_VERSION = 3;
+
+	public static final String FTS_VIRTUAL_TABLE = "FTSsleephistory";
+	/*
+	 * Note that FTS3 does not support column constraints and thus, you
+	 * cannot declare a primary key. However, "rowid" is automatically used
+	 * as a unique identifier, so when making requests, we will use "_id" as
+	 * an alias for "rowid"
+	 */
+	public static final String FTS_TABLE_CREATE = "CREATE VIRTUAL TABLE "
+			+ FTS_VIRTUAL_TABLE + " USING fts3 ("
+			+ SleepRecord.KEY_SLEEP_DATE_TIME + ", "
+			+ SleepRecord.KEY_SLEEP_DATA_X + ", "
+			+ SleepRecord.KEY_SLEEP_DATA_Y + ", "
+			+ SleepRecord.KEY_SLEEP_DATA_MIN + ", "
+			+ SleepRecord.KEY_SLEEP_DATA_ALARM + ", "
+			+ SleepRecord.KEY_SLEEP_DATA_RATING + ");";
 	/**
 	 * This creates/opens the database.
 	 */
 	private static class SleepHistoryDBOpenHelper extends SQLiteOpenHelper {
 
-		/*
-		 * Note that FTS3 does not support column constraints and thus, you
-		 * cannot declare a primary key. However, "rowid" is automatically used
-		 * as a unique identifier, so when making requests, we will use "_id" as
-		 * an alias for "rowid"
-		 */
-		private static final String FTS_TABLE_CREATE = "CREATE VIRTUAL TABLE "
-				+ FTS_VIRTUAL_TABLE + " USING fts3 (" + KEY_SLEEP_DATE_TIME
-				+ ", " + KEY_SLEEP_DATA_X + ", " + KEY_SLEEP_DATA_Y + ", "
-				+ KEY_SLEEP_DATA_MIN + ", " + KEY_SLEEP_DATA_ALARM + ", "
-				+ KEY_SLEEP_DATA_RATING + ");";
 
 		SleepHistoryDBOpenHelper(final Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -67,29 +74,12 @@ public class SleepHistoryDatabase {
 		 * @return rowId or -1 if failed
 		 * @throws IOException
 		 */
-		public long addSleep(final String sleepDateTime,
-				final List<Double> sleepChartDataX,
-				final List<Double> sleepChartDataY, final double min,
-				final double alarm, final int rating) throws IOException {
+		public long addSleep(SleepRecord sleepRecord) throws IOException {
 
 			final SQLiteDatabase db = getWritableDatabase();
 
-			long insertResult = -1;
-			final ContentValues initialValues = new ContentValues();
-			initialValues.put(KEY_SLEEP_DATE_TIME, sleepDateTime);
+			return sleepRecord.insertIntoDb(db);
 
-			initialValues.put(KEY_SLEEP_DATA_X,
-					objectToByteArray(sleepChartDataX));
-			initialValues.put(KEY_SLEEP_DATA_Y,
-					objectToByteArray(sleepChartDataY));
-
-			initialValues.put(KEY_SLEEP_DATA_MIN, min);
-			initialValues.put(KEY_SLEEP_DATA_ALARM, alarm);
-			initialValues.put(KEY_SLEEP_DATA_RATING, rating);
-
-			insertResult = db.insert(FTS_VIRTUAL_TABLE, null, initialValues);
-			db.close();
-			return insertResult;
 		}
 
 		@Override
@@ -105,64 +95,7 @@ public class SleepHistoryDatabase {
 		}
 	}
 
-	// The columns we'll include in the dictionary table
-	public static final String KEY_SLEEP_DATE_TIME = SearchManager.SUGGEST_COLUMN_TEXT_1;
-	public static final String KEY_SLEEP_DATA_X = "sleep_data_x";
-	public static final String KEY_SLEEP_DATA_Y = "sleep_data_y";
-	public static final String KEY_SLEEP_DATA_MIN = "sleep_data_min";
-	public static final String KEY_SLEEP_DATA_ALARM = "sleep_data_alarm";
-	public static final String KEY_SLEEP_DATA_RATING = "sleep_data_rating";
-
-	private static final String DATABASE_NAME = "sleephistory";
-	private static final String FTS_VIRTUAL_TABLE = "FTSsleephistory";
-
-	private static final int DATABASE_VERSION = 3;
-
-	public static Object byteArrayToObject(final byte[] bytes)
-			throws StreamCorruptedException, IOException,
-			ClassNotFoundException {
-		final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-		final ObjectInputStream ois = new ObjectInputStream(bais);
-
-		return ois.readObject();
-	}
-
-	private static byte[] objectToByteArray(final Object obj)
-			throws IOException {
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		final ObjectOutputStream oos = new ObjectOutputStream(baos);
-		oos.writeObject(obj);
-
-		return baos.toByteArray();
-	}
-
 	private final SleepHistoryDBOpenHelper databaseOpenHelper;
-
-	private static final HashMap<String, String> columnMap = buildColumnMap();
-
-	/**
-	 * Builds a map for all columns that may be requested, which will be given
-	 * to the SQLiteQueryBuilder. This is a good way to define aliases for
-	 * column names, but must include all columns, even if the value is the key.
-	 * This allows the ContentProvider to request columns w/o the need to know
-	 * real column names and create the alias itself.
-	 */
-	private static HashMap<String, String> buildColumnMap() {
-		final HashMap<String, String> map = new HashMap<String, String>();
-		map.put(KEY_SLEEP_DATE_TIME, KEY_SLEEP_DATE_TIME);
-		map.put(KEY_SLEEP_DATA_X, KEY_SLEEP_DATA_X);
-		map.put(KEY_SLEEP_DATA_Y, KEY_SLEEP_DATA_Y);
-		map.put(KEY_SLEEP_DATA_MIN, KEY_SLEEP_DATA_MIN);
-		map.put(KEY_SLEEP_DATA_ALARM, KEY_SLEEP_DATA_ALARM);
-		map.put(KEY_SLEEP_DATA_RATING, KEY_SLEEP_DATA_RATING);
-
-		map.put(BaseColumns._ID, "rowid AS " + BaseColumns._ID);
-		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, "rowid AS "
-				+ SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
-		map.put(SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, "rowid AS "
-				+ SearchManager.SUGGEST_COLUMN_SHORTCUT_ID);
-		return map;
-	}
 
 	/**
 	 * Constructor
@@ -180,12 +113,8 @@ public class SleepHistoryDatabase {
 	 * @return rowId or -1 if failed
 	 * @throws IOException
 	 */
-	public void addSleep(final Context context, final String sleepDateTime,
-			final List<Double> sleepChartDataX,
-			final List<Double> sleepChartDataY, final double min,
-			final double alarm, final int rating) throws IOException {
-		databaseOpenHelper.addSleep(sleepDateTime, sleepChartDataX,
-				sleepChartDataY, min, alarm, rating);
+	public void addSleep(final Context context, SleepRecord sleepRecord) throws IOException {
+		databaseOpenHelper.addSleep(sleepRecord);
 	}
 
 	public void close() {
@@ -194,8 +123,8 @@ public class SleepHistoryDatabase {
 
 	public boolean deleteRow(final long id) {
 		final SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
-		final boolean value = db.delete(FTS_VIRTUAL_TABLE, "rowid=?",
-				new String[] { Long.toString(id) }) > 0;
+		final boolean value = db.delete(FTS_VIRTUAL_TABLE,
+				"rowid=?", new String[] { Long.toString(id) }) > 0;
 		db.close();
 		return value;
 	}
@@ -208,13 +137,16 @@ public class SleepHistoryDatabase {
 	 * @param columns
 	 *            The columns to include, if null then all are included
 	 * @return Cursor positioned to matching word, or null if not found.
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws StreamCorruptedException
 	 */
-	public Cursor getSleep(final String rowId, final String[] columns) {
+	public Cursor getSleep(final String rowId, final String[] columns){
 		final String selection = "rowid = ?";
 		final String[] selectionArgs = new String[] { rowId };
 
 		return query(selection, selectionArgs, columns);
-
 		/*
 		 * This builds a query that looks like: SELECT <columns> FROM <table>
 		 * WHERE rowid = <rowId>
@@ -231,7 +163,7 @@ public class SleepHistoryDatabase {
 	 * @return Cursor over all words that match, or null if none found.
 	 */
 	public Cursor getSleepMatches(final String query, final String[] columns) {
-		final String selection = KEY_SLEEP_DATE_TIME + " MATCH ?";
+		final String selection = SleepRecord.KEY_SLEEP_DATE_TIME + " MATCH ?";
 		final String[] selectionArgs = new String[] { query + "*" };
 
 		return query(selection, selectionArgs, columns);
@@ -274,7 +206,7 @@ public class SleepHistoryDatabase {
 		 */
 		final SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 		builder.setTables(FTS_VIRTUAL_TABLE);
-		builder.setProjectionMap(columnMap);
+		builder.setProjectionMap(SleepRecord.COLUMN_MAP);
 		final SQLiteDatabase db = databaseOpenHelper.getReadableDatabase();
 		final Cursor cursor = builder.query(db, columns, selection,
 				selectionArgs, null, null, null);

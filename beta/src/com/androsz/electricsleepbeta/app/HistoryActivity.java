@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
+import com.androsz.electricsleepbeta.db.SleepRecord;
 import com.androsz.electricsleepbeta.util.DeviceUtil;
 import com.androsz.electricsleepbeta.widget.SleepHistoryCursorAdapter;
 
@@ -100,7 +101,7 @@ public class HistoryActivity extends CustomTitlebarActivity {
 
 		final Cursor cursor = managedQuery(SleepContentProvider.CONTENT_URI,
 				null, null, new String[] { query },
-				SleepHistoryDatabase.KEY_SLEEP_DATE_TIME + " DESC");
+				SleepRecord.KEY_SLEEP_DATE_TIME + " DESC");
 
 		if (cursor == null) {
 			// There are no results

@@ -22,7 +22,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
-import android.util.Log;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.Alarm;
@@ -245,7 +244,7 @@ public class SleepAccelerometerService extends Service implements
 		final double curY = event.values[1];
 		final double curZ = event.values[2];
 
-		if (mAccelLast == Double.POSITIVE_INFINITY) {
+		if (Double.isInfinite(mAccelLast)) {
 			mAccelCurrent = Math.sqrt((curX * curX) + (curY * curY)
 					+ (curZ * curZ));
 			mAccelLast = mAccelCurrent;

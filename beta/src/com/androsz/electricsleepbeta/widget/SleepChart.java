@@ -24,6 +24,7 @@ import com.androsz.electricsleepbeta.achartengine.model.XYSeries;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
+import com.androsz.electricsleepbeta.db.SleepRecord;
 
 public class SleepChart extends ChartView implements Serializable {
 
@@ -37,21 +38,14 @@ public class SleepChart extends ChartView implements Serializable {
 
 	public XYSeriesRenderer xySeriesMovementRenderer;
 
-	SerializableProgressBar progressBar = new SerializableProgressBar(
-			getContext());
-
 	public int rating;
 
 	public SleepChart(final Context context) {
 		super(context);
-		progressBar.setIndeterminate(true);
-		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	public SleepChart(final Context context, final AttributeSet as) {
 		super(context, as);
-		progressBar.setIndeterminate(true);
-		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -77,9 +71,9 @@ public class SleepChart extends ChartView implements Serializable {
 			xyMultipleSeriesRenderer.setShowLegend(false);
 			xyMultipleSeriesRenderer.setAxisTitleTextSize(17);
 			xyMultipleSeriesRenderer.setLabelsTextSize(17);
-			
+
 			xyMultipleSeriesRenderer.setXLabels(7);
-			xyMultipleSeriesRenderer.setYLabels(2);
+			xyMultipleSeriesRenderer.setYLabels(0);
 			xyMultipleSeriesRenderer.setYTitle(super.getContext().getString(
 					R.string.movement_level_during_sleep));
 			xyMultipleSeriesRenderer.setShowGrid(true);
@@ -123,19 +117,6 @@ public class SleepChart extends ChartView implements Serializable {
 				dStarOff.draw(canvas);
 			}
 		}
-		if (!makesSenseToDisplay()) {
-			final Drawable dProgress = progressBar.getIndeterminateDrawable()
-					.getCurrent();
-			dProgress.setBounds(canvas.getWidth() / 2 - 24,
-					canvas.getHeight() / 2 - 24, canvas.getWidth() / 2 + 24,
-					canvas.getHeight() / 2 + 24);
-			progressBar.draw(canvas);
-			//if(!progressBar.setAnimation(new Animation()).getAnimation().hasStarted())
-			//{
-			//	progressBar.getAnimation().start();
-			//}
-			//dProgress.draw(canvas);
-		}
 	}
 
 	public void redraw(final double min, final double alarm) {
@@ -159,44 +140,20 @@ public class SleepChart extends ChartView implements Serializable {
 		redraw(min, alarm);
 	}
 
-	@SuppressWarnings("unchecked")
-	public void syncWithCursor(final Cursor cursor) {
-		final String name = cursor
-				.getString(cursor
-						.getColumnIndexOrThrow(SleepHistoryDatabase.KEY_SLEEP_DATE_TIME));
+	public void syncWithCursor(final Cursor cursor)
+			throws StreamCorruptedException, IllegalArgumentException,
+			IOException, ClassNotFoundException {
+		syncWithRecord(new SleepRecord(cursor));
+	}
 
-		try {
+	public void syncWithRecord(final SleepRecord sleepRecord) {
+		xySeriesMovement.mX = sleepRecord.chartDataX;
 
-			xySeriesMovement.mX = (List<Double>) SleepHistoryDatabase
-					.byteArrayToObject(cursor.getBlob(cursor
-							.getColumnIndexOrThrow(SleepHistoryDatabase.KEY_SLEEP_DATA_X)));
+		xySeriesMovement.mY = sleepRecord.chartDataY;
 
-			xySeriesMovement.mY = (List<Double>) SleepHistoryDatabase
-					.byteArrayToObject(cursor.getBlob(cursor
-							.getColumnIndexOrThrow(SleepHistoryDatabase.KEY_SLEEP_DATA_Y)));
+		rating = sleepRecord.rating;
 
-		} catch (final StreamCorruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		final double min = cursor
-				.getDouble(cursor
-						.getColumnIndexOrThrow(SleepHistoryDatabase.KEY_SLEEP_DATA_MIN));
-		final double alarm = cursor
-				.getDouble(cursor
-						.getColumnIndexOrThrow(SleepHistoryDatabase.KEY_SLEEP_DATA_ALARM));
-		rating = cursor
-				.getInt(cursor
-						.getColumnIndexOrThrow(SleepHistoryDatabase.KEY_SLEEP_DATA_RATING));
-
-		xyMultipleSeriesRenderer.setChartTitle(name);
-		redraw(min, alarm);
+		xyMultipleSeriesRenderer.setChartTitle(sleepRecord.title);
+		redraw(sleepRecord.min, sleepRecord.alarm);
 	}
 }

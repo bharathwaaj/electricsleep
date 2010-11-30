@@ -1,5 +1,8 @@
 package com.androsz.electricsleepbeta.app;
 
+import java.io.IOException;
+import java.io.StreamCorruptedException;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -13,6 +16,7 @@ import android.widget.Toast;
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
+import com.androsz.electricsleepbeta.db.SleepRecord;
 import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class ReviewSleepActivity extends CustomTitlebarActivity {
@@ -50,7 +54,7 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 
 	private long rowId;
 
-	private void addChartView() {
+	private void addChartView() throws StreamCorruptedException, IllegalArgumentException, IOException, ClassNotFoundException {
 		sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
 
 		final Uri uri = getIntent().getData();
@@ -59,7 +63,7 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 			final long uriEnding = getIntent().getLongExtra("position", -1);
 			cursor = managedQuery(SleepContentProvider.CONTENT_URI, null, null,
 					new String[] { getString(R.string.to) },
-					SleepHistoryDatabase.KEY_SLEEP_DATE_TIME + " DESC");
+					SleepRecord.KEY_SLEEP_DATE_TIME + " DESC");
 			if (cursor == null) {
 				finish();
 			} else {
@@ -110,7 +114,21 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		addChartView();
+		try {
+			addChartView();
+		} catch (StreamCorruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
