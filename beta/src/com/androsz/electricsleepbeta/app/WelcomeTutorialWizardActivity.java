@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
 import com.androsz.electricsleepbeta.R;
@@ -74,16 +73,6 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 			finish();
 		}
 	}
-	
-	@Override
-	protected void setupNavigationButtons()
-	{
-		super.setupNavigationButtons();
-		final Button leftButton = (Button) findViewById(R.id.leftButton);
-		if (viewFlipper.getDisplayedChild() == 0) {
-			leftButton.setText(R.string.skip_tutorial);
-		}
-	}
 
 	@Override
 	protected int getWizardLayoutId() {
@@ -144,5 +133,14 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 	protected boolean onWizardActivity() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	protected void setupNavigationButtons() {
+		super.setupNavigationButtons();
+		final Button leftButton = (Button) findViewById(R.id.leftButton);
+		if (viewFlipper.getDisplayedChild() == 0) {
+			leftButton.setText(R.string.skip_tutorial);
+		}
 	}
 }

@@ -30,17 +30,17 @@ public class SleepHistoryCursorAdapter extends ResourceCursorAdapter {
 				.findViewById(R.id.sleep_history_list_item_sleepchartview);
 
 		try {
-			sleepChart.syncWithCursor(cursor);
-		} catch (StreamCorruptedException e) {
+			sleepChart.sync(cursor);
+		} catch (final StreamCorruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (final ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

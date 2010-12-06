@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.Toast;
@@ -26,6 +27,8 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 
 	ProgressDialog progress;
 
+	EditText noteEdit;
+
 	private final BroadcastReceiver saveCompletedReceiver = new BroadcastReceiver() {
 
 		@Override
@@ -33,7 +36,15 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 
 			final Intent reviewSleepIntent = new Intent(context,
 					ReviewSleepActivity.class);
-
+			if (!intent.getBooleanExtra("success", false)) {
+				Toast.makeText(
+						context,
+						R.string.could_not_save_this_sleep_properly_it_was_likely_too_brief_to_analyze_,
+						Toast.LENGTH_LONG).show();
+				progress.dismiss();
+				finish();
+				return;
+			}
 			final String rowId = intent.getStringExtra("rowId");
 			if (rowId != null) {
 				final Uri uri = Uri.withAppendedPath(
@@ -61,6 +72,7 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 		super.onCreate(savedInstanceState);
 		((RatingBar) findViewById(R.id.save_sleep_rating_bar))
 				.setOnRatingBarChangeListener(this);
+		noteEdit = (EditText) findViewById(R.id.save_sleep_note_edit);
 	}
 
 	public void onDiscardClick(final View v) {
@@ -87,7 +99,6 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 	protected void onRestoreInstanceState(final Bundle savedState) {
 		super.onRestoreInstanceState(savedState);
 		rating = savedState.getFloat("rating");
-
 	}
 
 	@Override
@@ -105,10 +116,11 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 			return;
 		}
 
-		getIntent().putExtra("rating", (int) rating);
-
 		final Intent saveIntent = new Intent(SaveSleepActivity.SAVE_SLEEP);
-		saveIntent.putExtras(getIntent().getExtras());
+		saveIntent.putExtra("note", noteEdit.getText().toString());
+		saveIntent.putExtra("rating", (int) rating);
+		saveIntent.putExtras(getIntent().getExtras()); // add the sleep history
+														// data
 
 		v.setEnabled(false);
 		progress = new ProgressDialog(this);

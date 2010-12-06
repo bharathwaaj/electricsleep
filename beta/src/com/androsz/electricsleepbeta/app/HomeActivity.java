@@ -4,25 +4,19 @@ import java.io.IOException;
 import java.io.StreamCorruptedException;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
-import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 import com.androsz.electricsleepbeta.db.SleepRecord;
 import com.androsz.electricsleepbeta.receiver.StartSleepReceiver;
-import com.androsz.electricsleepbeta.service.SleepAccelerometerService;
 import com.androsz.electricsleepbeta.widget.SleepChart;
 
 /**
@@ -33,12 +27,13 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 	private SleepChart sleepChart;
 
-	private void addChartView() throws StreamCorruptedException, IllegalArgumentException, IOException, ClassNotFoundException {
+	private void addChartView() throws StreamCorruptedException,
+			IllegalArgumentException, IOException, ClassNotFoundException {
 		sleepChart = (SleepChart) findViewById(R.id.home_sleep_chart);
 
 		final Cursor cursor = managedQuery(SleepContentProvider.CONTENT_URI,
 				null, null, new String[] { getString(R.string.to) },
-				SleepRecord.KEY_SLEEP_DATE_TIME + " DESC");
+				SleepRecord.KEY_TITLE);
 		final TextView reviewTitleText = (TextView) findViewById(R.id.home_review_title_text);
 		if (cursor == null) {
 			sleepChart.setVisibility(View.GONE);
@@ -47,11 +42,10 @@ public class HomeActivity extends CustomTitlebarActivity {
 		} else {
 			cursor.moveToLast();
 			sleepChart.setVisibility(View.VISIBLE);
-			sleepChart.syncWithCursor(cursor);
+			sleepChart.sync(cursor);
 			reviewTitleText.setText(getString(R.string.home_review_title_text));
 		}
 	}
-
 
 	@Override
 	protected int getContentAreaLayoutId() {
@@ -65,7 +59,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 		super.onCreate(savedInstanceState);
 
-		showTitleButton1(R.drawable.ic_title_share);
+		// showTitleButton1(R.drawable.ic_title_share);
 		// showTitleButton2(R.drawable.ic_title_refresh);
 		setHomeButtonAsLogo();
 
@@ -77,7 +71,8 @@ public class HomeActivity extends CustomTitlebarActivity {
 			startActivity(new Intent(this, WelcomeTutorialWizardActivity.class)
 					.putExtra("required", true));
 		} else {
-			StartSleepReceiver.enforceCalibrationBeforeStartingSleep(this, null, null);
+			StartSleepReceiver.enforceCalibrationBeforeStartingSleep(this,
+					null, null);
 		}
 	}
 
@@ -102,8 +97,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 			super.onRestoreInstanceState(savedState);
 		} catch (final RuntimeException re) {
 		}
-		sleepChart = (SleepChart) savedState
-				.getSerializable("sleepChart");
+		sleepChart = (SleepChart) savedState.getSerializable("sleepChart");
 	}
 
 	@Override
@@ -111,16 +105,16 @@ public class HomeActivity extends CustomTitlebarActivity {
 		super.onResume();
 		try {
 			addChartView();
-		} catch (StreamCorruptedException e) {
+		} catch (final StreamCorruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (final ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -135,11 +129,5 @@ public class HomeActivity extends CustomTitlebarActivity {
 	public void onSleepClick(final View v) throws Exception {
 
 		sendBroadcast(new Intent(StartSleepReceiver.START_SLEEP));
-	}
-
-	public void onTitleButton1Click(final View v) {
-		Toast.makeText(this,
-				"this will be used to share the app with friends later...",
-				Toast.LENGTH_SHORT).show();
 	}
 }

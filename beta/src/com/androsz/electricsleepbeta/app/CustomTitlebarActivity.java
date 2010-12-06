@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
@@ -90,12 +89,10 @@ public abstract class CustomTitlebarActivity extends Activity {
 			startActivity(new Intent(this, WelcomeTutorialWizardActivity.class));
 			break;
 		case R.id.menuItemAbout:
-			Toast.makeText(
-					this,
-					"this will be used later to show changelogs, dev/support info :P",
-					Toast.LENGTH_SHORT).show();
+			startActivity(new Intent(this, AboutActivity.class));
 			break;
 		case R.id.menuItemDonate:
+			analytics.trackPageView("donate");
 			final Uri marketUri = Uri
 					.parse("market://details?id=com.androsz.electricsleepdonate");
 			final Intent marketIntent = new Intent(Intent.ACTION_VIEW,

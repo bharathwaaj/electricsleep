@@ -12,6 +12,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
@@ -53,11 +55,10 @@ public class SleepActivity extends CustomTitlebarActivity {
 		public void onReceive(final Context context, final Intent intent) {
 
 			if (sleepChart != null) {
-				sleepChart.syncByAdding(intent.getDoubleExtra("x", 0),
-						intent.getDoubleExtra("y", 0),
-						intent.getDoubleExtra("min",
-								SettingsActivity.DEFAULT_MIN_SENSITIVITY),
-						intent.getDoubleExtra("alarm",
+				sleepChart.sync(intent.getDoubleExtra("x", 0), intent
+						.getDoubleExtra("y", 0), intent.getDoubleExtra("min",
+						SettingsActivity.DEFAULT_MIN_SENSITIVITY), intent
+						.getDoubleExtra("alarm",
 								SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 
 				if (sleepChart.makesSenseToDisplay()
@@ -89,6 +90,10 @@ public class SleepActivity extends CustomTitlebarActivity {
 					.getDoubleExtra("alarm",
 							SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 			final boolean useAlarm = intent.getBooleanExtra("useAlarm", false);
+			final boolean forceScreenOn = intent.getBooleanExtra(
+					"forceScreenOn", false);
+
+			// Shows the bound to alarm toast if useAlarm is enabled
 			if (useAlarm) {
 				try {
 					final Alarm alarm = Alarms.calculateNextAlert(context);
@@ -114,8 +119,20 @@ public class SleepActivity extends CustomTitlebarActivity {
 						Toast.LENGTH_LONG).show();
 			}
 
-			if (sleepChart.makesSenseToDisplay()
-					&& waitForSeriesData != null) {
+			// dims the screen while in this activity and forceScreenOn is
+			// enabled
+			if (forceScreenOn) {
+				final Window win = getWindow();
+				final WindowManager.LayoutParams winParams = win
+						.getAttributes();
+
+				winParams.screenBrightness = 0.01f;
+				winParams.buttonBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF;
+
+				win.setAttributes(winParams);
+			}
+
+			if (sleepChart.makesSenseToDisplay() && waitForSeriesData != null) {
 				waitForSeriesData.dismiss();
 				waitForSeriesData = null;
 			} else {
@@ -173,8 +190,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 			// sendBroadcast(new
 			// Intent(SleepAccelerometerService.POKE_SYNC_CHART));
 		}
-		sleepChart = (SleepChart) savedState
-				.getSerializable("sleepChart");
+		sleepChart = (SleepChart) savedState.getSerializable("sleepChart");
 
 	}
 

@@ -17,52 +17,24 @@
 
 package com.androsz.electricsleepbeta.db;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
-import java.util.HashMap;
-import java.util.List;
 
-import android.app.SearchManager;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.provider.BaseColumns;
 
 /**
  * Contains logic to return specific words from the dictionary, and load the
  * dictionary table when it needs to be created.
  */
 public class SleepHistoryDatabase {
-	private static final String DATABASE_NAME = "sleephistory";
-	private static final int DATABASE_VERSION = 3;
-
-	public static final String FTS_VIRTUAL_TABLE = "FTSsleephistory";
-	/*
-	 * Note that FTS3 does not support column constraints and thus, you
-	 * cannot declare a primary key. However, "rowid" is automatically used
-	 * as a unique identifier, so when making requests, we will use "_id" as
-	 * an alias for "rowid"
-	 */
-	public static final String FTS_TABLE_CREATE = "CREATE VIRTUAL TABLE "
-			+ FTS_VIRTUAL_TABLE + " USING fts3 ("
-			+ SleepRecord.KEY_SLEEP_DATE_TIME + ", "
-			+ SleepRecord.KEY_SLEEP_DATA_X + ", "
-			+ SleepRecord.KEY_SLEEP_DATA_Y + ", "
-			+ SleepRecord.KEY_SLEEP_DATA_MIN + ", "
-			+ SleepRecord.KEY_SLEEP_DATA_ALARM + ", "
-			+ SleepRecord.KEY_SLEEP_DATA_RATING + ");";
 	/**
 	 * This creates/opens the database.
 	 */
 	private static class SleepHistoryDBOpenHelper extends SQLiteOpenHelper {
-
 
 		SleepHistoryDBOpenHelper(final Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -74,7 +46,7 @@ public class SleepHistoryDatabase {
 		 * @return rowId or -1 if failed
 		 * @throws IOException
 		 */
-		public long addSleep(SleepRecord sleepRecord) throws IOException {
+		public long addSleep(final SleepRecord sleepRecord) throws IOException {
 
 			final SQLiteDatabase db = getWritableDatabase();
 
@@ -90,10 +62,48 @@ public class SleepHistoryDatabase {
 		@Override
 		public void onUpgrade(final SQLiteDatabase db, final int oldVersion,
 				final int newVersion) {
-			db.execSQL("DROP TABLE IF EXISTS " + FTS_VIRTUAL_TABLE);
-			onCreate(db);
+			/*
+			 * if (db.needUpgrade(newVersion)) { // db.beginTransaction(); final
+			 * List<String> columns = DBUtils.GetColumns(db, FTS_VIRTUAL_TABLE);
+			 * db.execSQL(String.format("ALTER table %s RENAME TO _%s",
+			 * FTS_VIRTUAL_TABLE, FTS_VIRTUAL_TABLE));
+			 * 
+			 * onCreate(db);
+			 * 
+			 * columns.retainAll(DBUtils.GetColumns(db, FTS_VIRTUAL_TABLE));
+			 * final String cols = DBUtils.join(columns, ",");
+			 * 
+			 * db.execSQL(String.format(
+			 * "INSERT INTO %s (%s) SELECT %s from _%s", FTS_VIRTUAL_TABLE,
+			 * cols, cols, FTS_VIRTUAL_TABLE));
+			 * 
+			 * db.execSQL("DROP TABLE IF EXISTS _" + FTS_VIRTUAL_TABLE); //
+			 * db.setTransactionSuccessful(); } else
+			 */{
+				db.execSQL("DROP TABLE IF EXISTS " + FTS_VIRTUAL_TABLE);
+				onCreate(db);
+			}
 		}
 	}
+
+	private static final String DATABASE_NAME = "sleephistory";
+
+	private static final int DATABASE_VERSION = 4;
+	public static final String FTS_VIRTUAL_TABLE = "FTSsleephistory";
+
+	/*
+	 * Note that FTS3 does not support column constraints and thus, you cannot
+	 * declare a primary key. However, "rowid" is automatically used as a unique
+	 * identifier, so when making requests, we will use "_id" as an alias for
+	 * "rowid"
+	 */
+	public static final String FTS_TABLE_CREATE = "CREATE VIRTUAL TABLE "
+			+ FTS_VIRTUAL_TABLE + " USING fts3 (" + SleepRecord.KEY_TITLE
+			+ ", " + SleepRecord.KEY_X + ", " + SleepRecord.KEY_Y + ", "
+			+ SleepRecord.KEY_MIN + ", " + SleepRecord.KEY_ALARM + ", "
+			+ SleepRecord.KEY_RATING + ", " + SleepRecord.KEY_DURATION + ", "
+			+ SleepRecord.KEY_SPIKES + ", " + SleepRecord.KEY_TIME_FELL_ASLEEP
+			+ ", " + SleepRecord.KEY_NOTE + ");";
 
 	private final SleepHistoryDBOpenHelper databaseOpenHelper;
 
@@ -113,7 +123,8 @@ public class SleepHistoryDatabase {
 	 * @return rowId or -1 if failed
 	 * @throws IOException
 	 */
-	public void addSleep(final Context context, SleepRecord sleepRecord) throws IOException {
+	public void addSleep(final Context context, final SleepRecord sleepRecord)
+			throws IOException {
 		databaseOpenHelper.addSleep(sleepRecord);
 	}
 
@@ -123,14 +134,14 @@ public class SleepHistoryDatabase {
 
 	public boolean deleteRow(final long id) {
 		final SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
-		final boolean value = db.delete(FTS_VIRTUAL_TABLE,
-				"rowid=?", new String[] { Long.toString(id) }) > 0;
+		final boolean value = db.delete(FTS_VIRTUAL_TABLE, "rowid=?",
+				new String[] { Long.toString(id) }) > 0;
 		db.close();
 		return value;
 	}
 
 	/**
-	 * Returns a Cursor positioned at the word specified by rowId
+	 * Returns a Cursor positioned at the record specified by rowId
 	 * 
 	 * @param rowId
 	 *            id of word to retrieve
@@ -142,7 +153,7 @@ public class SleepHistoryDatabase {
 	 * @throws IllegalArgumentException
 	 * @throws StreamCorruptedException
 	 */
-	public Cursor getSleep(final String rowId, final String[] columns){
+	public Cursor getSleep(final String rowId, final String[] columns) {
 		final String selection = "rowid = ?";
 		final String[] selectionArgs = new String[] { rowId };
 
@@ -154,7 +165,7 @@ public class SleepHistoryDatabase {
 	}
 
 	/**
-	 * Returns a Cursor over all words that match the given query
+	 * Returns a Cursor over all records that match the given query
 	 * 
 	 * @param query
 	 *            The string to search for
@@ -163,7 +174,7 @@ public class SleepHistoryDatabase {
 	 * @return Cursor over all words that match, or null if none found.
 	 */
 	public Cursor getSleepMatches(final String query, final String[] columns) {
-		final String selection = SleepRecord.KEY_SLEEP_DATE_TIME + " MATCH ?";
+		final String selection = SleepRecord.KEY_TITLE + " MATCH ?";
 		final String[] selectionArgs = new String[] { query + "*" };
 
 		return query(selection, selectionArgs, columns);

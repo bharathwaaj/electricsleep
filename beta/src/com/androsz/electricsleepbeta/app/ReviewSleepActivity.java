@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
@@ -19,7 +20,7 @@ import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 import com.androsz.electricsleepbeta.db.SleepRecord;
 import com.androsz.electricsleepbeta.widget.SleepChart;
 
-public class ReviewSleepActivity extends CustomTitlebarActivity {
+public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 
 	private class DeleteSleepTask extends AsyncTask<Void, Void, Void> {
 		ProgressDialog progress;
@@ -54,7 +55,8 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 
 	private long rowId;
 
-	private void addChartView() throws StreamCorruptedException, IllegalArgumentException, IOException, ClassNotFoundException {
+	private void addChartView() throws StreamCorruptedException,
+			IllegalArgumentException, IOException, ClassNotFoundException {
 		sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
 
 		final Uri uri = getIntent().getData();
@@ -63,49 +65,63 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 			final long uriEnding = getIntent().getLongExtra("position", -1);
 			cursor = managedQuery(SleepContentProvider.CONTENT_URI, null, null,
 					new String[] { getString(R.string.to) },
-					SleepRecord.KEY_SLEEP_DATE_TIME + " DESC");
+					SleepRecord.KEY_TITLE);
 			if (cursor == null) {
 				finish();
+				return;
 			} else {
 				cursor.moveToPosition((int) uriEnding);
 				rowId = cursor.getPosition();
-				sleepChart.syncWithCursor(cursor);
+
 			}
 		} else {
 			cursor = managedQuery(uri, null, null, null, null);
 
 			if (cursor == null) {
 				finish();
+				return;
 			} else {
 				rowId = Long.parseLong(uri.getLastPathSegment());
 				showTitleButton1(android.R.drawable.ic_menu_delete);
 				cursor.moveToFirst();
-				sleepChart.syncWithCursor(cursor);
 			}
 		}
+		final SleepRecord sleepRecord = new SleepRecord(cursor);
+
+		((TextView) findViewById(R.id.value_score_text)).setText(sleepRecord
+				.getSleepScore() + "%");
+		((TextView) findViewById(R.id.value_duration_text)).setText(sleepRecord
+				.getDurationText(getResources()));
+		((TextView) findViewById(R.id.value_spikes_text))
+				.setText(sleepRecord.spikes + "");
+		((TextView) findViewById(R.id.value_fell_asleep_text))
+				.setText(sleepRecord.getFellAsleepText(getResources()));
+		((TextView) findViewById(R.id.value_note_text))
+				.setText(sleepRecord.note);
+
+		sleepChart.sync(sleepRecord);
 	}
 
 	@Override
 	protected int getContentAreaLayoutId() {
-		return R.layout.activity_sleep;
+		return R.layout.activity_review_sleep;
 	}
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
+		addTab(findViewById(R.id.sleep_movement_chart), R.string.sleep_chart);
+		addTab(findViewById(R.id.sleep_analysis_table), R.string.analysis);
+		tabHost.setCurrentTab(1);
+		tabHost.setCurrentTab(0);
 	}
 
 	@Override
 	protected void onRestoreInstanceState(final Bundle savedState) {
 		try {
 			super.onRestoreInstanceState(savedState);
-			sleepChart = (SleepChart) savedState
-					.getSerializable("sleepChart");
+			sleepChart = (SleepChart) savedState.getSerializable("sleepChart");
 		} catch (final RuntimeException re) {
 
 		}
@@ -116,16 +132,16 @@ public class ReviewSleepActivity extends CustomTitlebarActivity {
 		super.onResume();
 		try {
 			addChartView();
-		} catch (StreamCorruptedException e) {
+		} catch (final StreamCorruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (final ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

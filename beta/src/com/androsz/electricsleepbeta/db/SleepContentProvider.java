@@ -17,9 +17,6 @@
 
 package com.androsz.electricsleepbeta.db;
 
-import java.io.IOException;
-import java.io.StreamCorruptedException;
-
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -91,13 +88,11 @@ public class SleepContentProvider extends ContentProvider {
 
 	private Cursor getSleep(final Uri uri) {
 		final String rowId = uri.getLastPathSegment();
-		final String[] columns = new String[] {
-				SleepRecord.KEY_SLEEP_DATE_TIME,
-				SleepRecord.KEY_SLEEP_DATA_X,
-				SleepRecord.KEY_SLEEP_DATA_Y,
-				SleepRecord.KEY_SLEEP_DATA_MIN,
-				SleepRecord.KEY_SLEEP_DATA_ALARM,
-				SleepRecord.KEY_SLEEP_DATA_RATING };
+		final String[] columns = new String[] { SleepRecord.KEY_TITLE,
+				SleepRecord.KEY_X, SleepRecord.KEY_Y, SleepRecord.KEY_MIN,
+				SleepRecord.KEY_ALARM, SleepRecord.KEY_RATING,
+				SleepRecord.KEY_DURATION, SleepRecord.KEY_SPIKES,
+				SleepRecord.KEY_TIME_FELL_ASLEEP, SleepRecord.KEY_NOTE };
 
 		return sleepHistoryDatabase.getSleep(rowId, columns);
 	}
@@ -105,7 +100,7 @@ public class SleepContentProvider extends ContentProvider {
 	private Cursor getSuggestions(String query) {
 		query = query.toLowerCase();
 		final String[] columns = new String[] { BaseColumns._ID,
-				SleepRecord.KEY_SLEEP_DATE_TIME,
+				SleepRecord.KEY_TITLE,
 				/*
 				 * SearchManager.SUGGEST_COLUMN_SHORTCUT_ID, (only if you want
 				 * to refresh shortcuts)
@@ -188,25 +183,25 @@ public class SleepContentProvider extends ContentProvider {
 
 	// Other required implementations...
 
-    private Cursor refreshShortcut(final Uri uri) {
-            /*
-             * This won't be called with the current implementation, but if we
-             * include {@link SearchManager#SUGGEST_COLUMN_SHORTCUT_ID} as a column
-             * in our suggestions table, we could expect to receive refresh queries
-             * when a shortcutted suggestion is displayed in Quick Search Box. In
-             * which case, this method will query the table for the specific word,
-             * using the given item Uri and provide all the columns originally
-             * provided with the suggestion query.
-             */
-            final String rowId = uri.getLastPathSegment();
-            final String[] columns = new String[] { BaseColumns._ID,
-                            SleepRecord.KEY_SLEEP_DATE_TIME,
-                            SearchManager.SUGGEST_COLUMN_SHORTCUT_ID,
-                            SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID };
+	private Cursor refreshShortcut(final Uri uri) {
+		/*
+		 * This won't be called with the current implementation, but if we
+		 * include {@link SearchManager#SUGGEST_COLUMN_SHORTCUT_ID} as a column
+		 * in our suggestions table, we could expect to receive refresh queries
+		 * when a shortcutted suggestion is displayed in Quick Search Box. In
+		 * which case, this method will query the table for the specific word,
+		 * using the given item Uri and provide all the columns originally
+		 * provided with the suggestion query.
+		 */
+		final String rowId = uri.getLastPathSegment();
+		final String[] columns = new String[] { BaseColumns._ID,
+				SleepRecord.KEY_TITLE,
+				SearchManager.SUGGEST_COLUMN_SHORTCUT_ID,
+				SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID };
 
-            return sleepHistoryDatabase.getSleep(rowId, columns);
-    }
-	
+		return sleepHistoryDatabase.getSleep(rowId, columns);
+	}
+
 	private Cursor search(String query) {
 		query = query.toLowerCase();
 		// final String[] columns = new String[] { BaseColumns._ID,

@@ -7,7 +7,8 @@
 		android:layout_weight="1" android:layout_height="match_parent"
 		android:layout_width="match_parent" android:layout_margin="8dip"></ViewStub>
 	<RelativeLayout android:layout_height="wrap_content"
-		android:layout_gravity="bottom" android:layout_width="match_parent" android:background="@color/background_transparent_lighten">
+		android:layout_gravity="bottom" android:layout_width="match_parent"
+		android:background="@color/background_transparent_lighten">
 		<Button android:layout_height="wrap_content" android:id="@+id/leftButton"
 			android:onClick="onLeftButtonClick" android:drawableLeft="@drawable/arrow_left"
 			android:layout_alignParentLeft="true" android:layout_width="160dip"></Button>

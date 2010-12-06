@@ -14,6 +14,9 @@
 		</activity>
 		<activity android:name=".app.SleepActivity" android:label="@string/title_sleep" />
 
+		<activity android:name=".app.AboutActivity"
+			android:label="@string/about" />
+			
 		<activity android:name=".app.CalibrationWizardActivity"
 			android:label="@string/title_calibrate" />
 

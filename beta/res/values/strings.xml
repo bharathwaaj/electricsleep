@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+	<string name="list">List</string>
+	<string name="chart_view">Sleep Score Over Time</string>
+	<string
+		name="changes_made_to_these_settings_except_alarms_will_not_take_effect_until_the_next_time_you_start_sleep">Changes made to these settings (except alarm times) will not take
+		effect until the next time you start sleep.</string>
+	<string name="gfx_designers">Graphic Designers</string>
+	<string name="project_lead">Project Lead</string>
+	<string name="developers">Developers</string>
+	<string name="querying_sleep_database">Querying sleep database...</string>
+	<string name="share_electricsleep">Share ElectricSleep</string>
+	<string name="title_sleep_switches">Sleep Switches</string>
+	<string name="fell_asleep">Time to Fall Asleep</string>
+	<string name="note">Note</string>
+	<string name="spikes">Spikes</string>
+	<string name="duration">Duration</string>
+	<string name="analysis">Analysis</string>
+	<string name="sleep_score">Sleep Score</string>
+	<string name="sleep_chart">Sleep Chart</string>
+	<string
+		name="could_not_save_this_sleep_properly_it_was_likely_too_brief_to_analyze_">Could not save this sleep properly. It was likely too brief to
+		analyze.</string>
+	<string name="note_title">Add notes about your sleep (dreams, disruptions,
+		caffeine etc.)</string>
 	<string name="summary_pref_sensor_delay">Try changing this if you\'re having problems with
 		sleep movement collection.</string>
 	<string name="title_pref_sensor_delay">Sensor Delay</string>
@@ -9,7 +32,8 @@
 		records.</string>
 	<string name="how_wake">Wake up! (With help of smart alarm or naturally.)</string>
 	<string name="how_sleep">
-		Place your Android device near you on your bed and press sleep.
+		Place your Android device within a foot or two of you on your bed and
+		press sleep.
 		<br />
 		<br />
 		Go to sleep!
@@ -33,8 +57,8 @@
 	<string name="electricsleep_about">How ElectricSleep Works</string>
 	<string name="electricsleep_description">
 		\tElectricSleep is a new way to sleep. After you
-		place your Android device near you on your
-		bed/placeofslumber,
+		place your Android device within a foot or two of you on your
+		bed,
 		ElectricSleep
 		will record data from your device\'s
 		accelerometer all
@@ -59,6 +83,14 @@
 	<string name="delete_sleep_record">Sleep record will be deleted.</string>
 	<string name="about">About</string>
 	<string name="welcome_tutorial">Welcome Tutorial</string>
+	<string name="summary_pref_force_screen_off">Screen will be allowed to turn off during sleep. If
+		you are having problems recording sleep throughout the night, enable
+		this.</string>
+	<string name="summary_pref_force_screen_on">Screen will be forced on and dimmed during sleep.
+		If you are having problems recording sleep throughout the night,
+		enable this.</string>
+	<string name="title_pref_force_screen">Force Screen On</string>
+	<string name="pref_force_screen">forceScreenOn</string>
 	<string name="summary_pref_airplane_mode_off">Airplane mode will not be automatically enabled
 		when sleeping</string>
 	<string name="summary_pref_airplane_mode_on">Airplane mode will be automatically enabled when
@@ -78,13 +110,13 @@
 	<string name="title_pref_calibration">Calibration Wizard</string>
 	<string name="pref_calibration">calibrationWizard</string>
 	<string name="pref_last_sleep_row">lastSavedSleepRow</string>
-	<string name="summary_pref_alarms">Manage ElectricSleep\'s built-in alarms -
-		ElectricSleep will try to wake you up during light sleep before the
-		next enabled alarm if Light Sleep Pre-Alarm is enabled.</string>
+	<string name="summary_pref_alarms">Manage ElectricSleep\'s built-in alarms - these are
+		persistent even if Light Sleep Pre-Alarm is disabled.</string>
 	<string name="preset">Preset:</string>
-	<string name="summary_pref_use_alarm_off">ElectricSleep will not wake you up in sleep mode
-		(recording only)</string>
-	<string name="summary_pref_use_alarm_on">ElectricSleep is set to wake you before the next
+	<string name="summary_pref_use_alarm_off">ElectricSleep will not try to wake you up *before*
+		the next enabled alarm in sleep mode</string>
+	<string name="summary_pref_use_alarm_on">ElectricSleep is set to try to wake you up *before*
+		the next
 		enabled alarm in sleep mode</string>
 	<string name="title_pref_use_alarm">Light Sleep Pre-Alarm</string>
 	<string name="pref_use_alarm">useAlarm</string>
@@ -143,8 +175,8 @@
 		night.\n\n
 		<li>
 			<b>DO</b>
-			place your device on your bed, couch, etc. where it will absorb
-			vibrations from your pillow, mattress...
+			place your device on within a foot or two of your body on your bed,
+			couch, etc. where it will absorb vibrations as you move...
 		</li>
 		\n
 		<li>
@@ -307,7 +339,8 @@
 	</string-array>
 
 	<string name="title_pref_alarm_window">Pre-Alarm Window</string>
-	<string name="summary_pref_alarm_window">The window of time before your alarm is set to go
+	<string name="summary_pref_alarm_window">The window of time before the next enabled alarm is
+		set to go
 		off during which ElectricSleep will try to wake you.</string>
 	<string name="pref_alarm_window">alarmWindow</string>
 	<string name="stop">Stop</string>
@@ -621,5 +654,12 @@
 
 	<string name="menu_item_dock_settings" msgid="9161438664257429372">Dock settings</string>
 	<!-- alarmclock end -->
-
+	<plurals name="hour">
+		<item quantity="one">%d hour</item>
+		<item quantity="other">%d hours</item>
+	</plurals>
+	<plurals name="minute">
+		<item quantity="one">%d minute</item>
+		<item quantity="other">%d minutes</item>
+	</plurals>
 </resources>

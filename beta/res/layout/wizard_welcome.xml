@@ -9,7 +9,9 @@
 			android:layout_alignParentTop="true" android:layout_centerHorizontal="true"
 			android:id="@+id/welcomeTitle"></TextView>
 		<TextView android:layout_height="wrap_content" style="@style/TextBody"
-			android:layout_width="wrap_content" android:text="@string/electricsleep_description" android:layout_below="@+id/welcomeTitle" android:layout_centerHorizontal="true"></TextView>
+			android:layout_width="wrap_content" android:text="@string/electricsleep_description"
+			android:layout_below="@+id/welcomeTitle"
+			android:layout_centerHorizontal="true"></TextView>
 	</RelativeLayout>
 	<ScrollView android:layout_width="wrap_content"
 		android:layout_height="wrap_content">

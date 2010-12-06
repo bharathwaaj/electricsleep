@@ -12,6 +12,8 @@
 			android:dependency="@string/pref_use_alarm"></ListPreference>
 		<Preference android:summary="@string/summary_pref_alarms"
 			android:title="@string/title_pref_alarms" android:key="@string/pref_alarms"></Preference>
+		<Preference android:title="@string/alarmclock_settings"
+			android:key="@string/alarmclock_settings"></Preference>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/title_calibrate">
 		<Preference android:title="@string/title_pref_calibration"
@@ -28,14 +30,23 @@
 			android:entryValues="@array/array_prefs_sensor_delay_values"
 			android:defaultValue="3"></ListPreference>
 	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/title_misc">
+	<PreferenceCategory android:title="@string/title_sleep_switches">
 		<CheckBoxPreference android:key="@string/pref_airplane_mode"
 			android:title="@string/title_pref_airplane_mode" android:summaryOn="@string/summary_pref_airplane_mode_on"
 			android:summaryOff="@string/summary_pref_airplane_mode_off" />
+		<CheckBoxPreference android:key="@string/pref_force_screen"
+			android:title="@string/title_pref_force_screen" android:summaryOn="@string/summary_pref_force_screen_on"
+			android:summaryOff="@string/summary_pref_force_screen_off" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/title_misc">
+
+
 
 		<CheckBoxPreference android:key="@string/pref_analytics"
 			android:title="@string/title_pref_analytics" android:defaultValue="true"
 			android:summaryOff="@string/summary_pref_analytics_off"
 			android:summaryOn="@string/summary_pref_analytics_on"></CheckBoxPreference>
+
 	</PreferenceCategory>
+
 </PreferenceScreen>

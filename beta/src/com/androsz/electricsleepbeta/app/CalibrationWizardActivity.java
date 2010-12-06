@@ -187,9 +187,8 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 			sb.append(" | Power: " + accelerometer.getPower());
 			sb.append(" | Resolution: " + accelerometer.getResolution());
 			sb.append(" | Type: " + accelerometer.getType());
-			analytics.trackEvent("calibration-class",
-					String.format("%.2f", alarmTriggerCalibration),
-					sb.toString(), 0);
+			analytics.trackEvent("calibration-by-hardware", sb.toString(),
+					String.format("%.2f", alarmTriggerCalibration), 0);
 		} else {
 			analytics.trackEvent("calibration-null-accelerometer", "alarm",
 					String.format("%.2f", alarmTriggerCalibration), 0);

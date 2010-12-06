@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/tabhost"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent" android:layout_height="match_parent">
+	<TableLayout android:layout_height="match_parent"
+		android:layout_width="match_parent" android:id="@+id/sleep_analysis_table">
+		<TableRow android:layout_height="wrap_content"
+			android:layout_width="match_parent">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" style="@style/TextHeader"
+				android:layout_gravity="left|center_vertical" android:id="@+id/header_score_text"
+				android:layout_weight="1" android:text="@string/chart_view"></TextView>
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:padding="5dp">
-
-        <FrameLayout
-            android:id="@android:id/tabcontent"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:layout_weight="1"/>
-
-        <TabWidget
-            android:id="@android:id/tabs"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"/>
-
-    </LinearLayout>
-
-</TabHost>
+			<Spinner android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/sleep_history_chart_type_spinner"
+				android:layout_gravity="top|right" android:layout_weight="1"
+				android:visibility="invisible"></Spinner>
+		</TableRow>
+		<com.androsz.electricsleepbeta.achartengine.AbstractChart
+			android:id="@+id/chart" android:layout_width="match_parent"
+			android:layout_height="match_parent" android:padding="4dip"
+			android:layout_gravity="bottom" />
+	</TableLayout>
+</RelativeLayout>

@@ -14,6 +14,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -79,6 +80,7 @@ public class SleepAccelerometerService extends Service implements
 			i.putExtra("min", minNetForce);
 			i.putExtra("alarm", alarmTriggerSensitivity);
 			i.putExtra("useAlarm", useAlarm);
+			i.putExtra("forceScreenOn", forceScreenOn);
 			sendBroadcast(i);
 		}
 	};
@@ -100,6 +102,8 @@ public class SleepAccelerometerService extends Service implements
 	private int updateInterval = CalibrationWizardActivity.ALARM_CALIBRATION_TIME;
 
 	private boolean useAlarm = false;
+
+	private boolean forceScreenOn = false;
 
 	private Intent addExtrasToSaveSleepIntent(final Intent saveIntent) {
 		saveIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -210,7 +214,7 @@ public class SleepAccelerometerService extends Service implements
 				Alarms.ALARM_DONE_ACTION));
 
 		dateStarted = new Date();
-		startForeground(NOTIFICATION_ID, createServiceNotification());
+
 	}
 
 	@Override
@@ -232,62 +236,83 @@ public class SleepAccelerometerService extends Service implements
 
 		stopForeground(true);
 
+		final SharedPreferences.Editor ed = getSharedPreferences(
+				"serviceIsRunning", Context.MODE_PRIVATE).edit();
+		ed.putBoolean("serviceIsRunning", false);
+		ed.commit();
+
 		super.onDestroy();
 	}
 
 	@Override
-	public void onSensorChanged(final SensorEvent event) {
-		final long currentTime = System.currentTimeMillis();
-		final long timeSinceLastChartUpdate = currentTime - lastChartUpdateTime;
+	public synchronized void onSensorChanged(final SensorEvent event) {
+		new Thread(new Runnable() {
 
-		final double curX = event.values[0];
-		final double curY = event.values[1];
-		final double curZ = event.values[2];
+			@Override
+			public void run() {
+				final long currentTime = System.currentTimeMillis();
 
-		if (Double.isInfinite(mAccelLast)) {
-			mAccelCurrent = Math.sqrt((curX * curX) + (curY * curY)
-					+ (curZ * curZ));
-			mAccelLast = mAccelCurrent;
-			return;
-		} else {
-			mAccelLast = mAccelCurrent;
-			mAccelCurrent = Math.sqrt((curX * curX) + (curY * curY)
-					+ (curZ * curZ));
-			double delta = mAccelCurrent - mAccelLast;
-			mAccel = (mAccel * 0.9f) + delta; // perform low-cut filter
-			double absAccel = Math.abs(mAccel);
-			maxNetForce = absAccel > maxNetForce ? absAccel : maxNetForce;
-			// lastOnSensorChangedTime = currentTime;
+				final double curX = event.values[0];
+				final double curY = event.values[1];
+				final double curZ = event.values[2];
 
-			if (timeSinceLastChartUpdate >= updateInterval) {
-				if (maxNetForce < minNetForce) {
-					minNetForce = maxNetForce;
+				if (Double.isInfinite(mAccelLast)) {
+					mAccelCurrent = Math.sqrt(curX * curX + curY * curY + curZ
+							* curZ);
+					mAccelLast = mAccelCurrent;
+					lastChartUpdateTime = currentTime;
+					return;
 				}
 
-				final double x = currentTime;
-				final double y = java.lang.Math.max(minNetForce, java.lang.Math
-						.min(alarmTriggerSensitivity, maxNetForce));
+				mAccelLast = mAccelCurrent;
+				mAccelCurrent = Math.sqrt(curX * curX + curY * curY + curZ
+						* curZ);
+				final double delta = mAccelCurrent - mAccelLast;
+				mAccel = mAccel * 0.9f + delta; // perform low-cut filter
+				final double absAccel = Math.abs(mAccel);
+				maxNetForce = absAccel > maxNetForce ? absAccel : maxNetForce;
+				// lastOnSensorChangedTime = currentTime;
 
-				currentSeriesX.add(x);
-				currentSeriesY.add(y);
+				if (currentTime - lastChartUpdateTime >= updateInterval) {
+					if (maxNetForce < minNetForce) {
+						minNetForce = maxNetForce;
+					}
 
-				final Intent i = new Intent(SleepActivity.UPDATE_CHART);
-				i.putExtra("x", x);
-				i.putExtra("y", y);
-				i.putExtra("min", minNetForce);
-				i.putExtra("alarm", alarmTriggerSensitivity);
-				sendBroadcast(i);
+					final double x = currentTime;
+					final double y = java.lang.Math.min(
+							alarmTriggerSensitivity, maxNetForce);
 
-				// totalTimeBetweenSensorChanges = 0;
+					currentSeriesX.add(x);
+					currentSeriesY.add(y);
 
-				lastChartUpdateTime = currentTime;
-				maxNetForce = 0;
+					final Intent i = new Intent(SleepActivity.UPDATE_CHART);
+					i.putExtra("x", x);
+					i.putExtra("y", y);
+					i.putExtra("min", minNetForce);
+					i.putExtra("alarm", alarmTriggerSensitivity);
+					sendBroadcast(i);
 
-				if (triggerAlarmIfNecessary(currentTime, y)) {
-					unregisterAccelerometerListener();
+					// totalTimeBetweenSensorChanges = 0;
+
+					lastChartUpdateTime = currentTime;
+					maxNetForce = 0;
+
+					if (triggerAlarmIfNecessary(currentTime, y)) {
+						unregisterAccelerometerListener();
+					} else if (forceScreenOn) {
+						final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+						final WakeLock forceScreenOnWakeLock = powerManager
+								.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
+										| PowerManager.ON_AFTER_RELEASE
+										| PowerManager.ACQUIRE_CAUSES_WAKEUP,
+										LOCK_TAG);
+						forceScreenOnWakeLock.acquire();
+						forceScreenOnWakeLock.release();
+					}
 				}
 			}
-		}
+		}).start();
 	}
 
 	@Override
@@ -297,10 +322,10 @@ public class SleepAccelerometerService extends Service implements
 			testModeRate = intent
 					.getIntExtra("testModeRate", Integer.MIN_VALUE);
 
-			updateInterval = (testModeRate == Integer.MIN_VALUE ? intent
+			updateInterval = testModeRate == Integer.MIN_VALUE ? intent
 					.getIntExtra("interval",
 							CalibrationWizardActivity.ALARM_CALIBRATION_TIME)
-					: testModeRate);
+					: testModeRate;
 
 			sensorDelay = intent.getIntExtra("sensorDelay",
 					SensorManager.SENSOR_DELAY_NORMAL);
@@ -311,9 +336,18 @@ public class SleepAccelerometerService extends Service implements
 			alarmWindow = intent.getIntExtra("alarmWindow", 0);
 			airplaneMode = intent.getBooleanExtra("airplaneMode", false);
 
+			forceScreenOn = intent.getBooleanExtra("forceScreenOn", false);
+
 			obtainWakeLock();
 			registerAccelerometerListener();
 			toggleAirplaneMode(true);
+
+			startForeground(NOTIFICATION_ID, createServiceNotification());
+
+			final SharedPreferences.Editor ed = getSharedPreferences(
+					"serviceIsRunning", Context.MODE_PRIVATE).edit();
+			ed.putBoolean("serviceIsRunning", true);
+			ed.commit();
 		}
 		return startId;
 	}
@@ -330,7 +364,6 @@ public class SleepAccelerometerService extends Service implements
 		if (airplaneMode) {
 			Settings.System.putInt(getContentResolver(),
 					Settings.System.AIRPLANE_MODE_ON, enabling ? 1 : 0);
-
 			final Intent intent = new Intent(
 					Intent.ACTION_AIRPLANE_MODE_CHANGED);
 			intent.putExtra("state", enabling);
@@ -341,8 +374,6 @@ public class SleepAccelerometerService extends Service implements
 	private boolean triggerAlarmIfNecessary(final long currentTime,
 			final double y) {
 		if (useAlarm) {
-			// final AlarmDatabase adb = new
-			// AlarmDatabase(getContentResolver());
 			final Alarm alarm = Alarms.calculateNextAlert(this);// adb.getNearestEnabledAlarm();
 			if (alarm != null) {
 				final Calendar alarmTime = Calendar.getInstance();

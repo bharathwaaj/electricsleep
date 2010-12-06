@@ -36,11 +36,13 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 				final String name = intent.getStringExtra("name");
 				final int rating = intent.getIntExtra("rating", 5);
+				final String note = intent.getStringExtra("note");
 
 				List<Double> mX = (List<Double>) intent
 						.getSerializableExtra("currentSeriesX");
 				List<Double> mY = (List<Double>) intent
 						.getSerializableExtra("currentSeriesY");
+
 				final int count = mY.size();
 
 				int numberOfDesiredGroupedPoints = 200;
@@ -58,6 +60,9 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 						int numberOfPointsInThisGroup = pointsPerGroup;
 						double maxYForThisGroup;
 						double totalForThisGroup;
+						int numberOfSpikes = 0;
+						int numberOfConsecutiveNonSpikes = 0;
+						long timeOfFirstSleep = 0;
 						for (int i = 0; i < numberOfDesiredGroupedPoints; i++) {
 							maxYForThisGroup = 0;
 							totalForThisGroup = 0;
@@ -91,6 +96,18 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 							} else {
 								if (maxYForThisGroup < alarm) {
 									maxYForThisGroup = averageForThisGroup;
+									if (timeOfFirstSleep == 0
+											&& ++numberOfConsecutiveNonSpikes > 4) {
+										final int lastIndex = lessDetailedX
+												.size() - 1;
+
+										timeOfFirstSleep = Math
+												.round(lessDetailedX
+														.get(lastIndex));
+									}
+								} else {
+									numberOfConsecutiveNonSpikes = 0;
+									numberOfSpikes++;
 								}
 								if (maxYForThisGroup < min) {
 									min = maxYForThisGroup;
@@ -100,21 +117,28 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 								lessDetailedY.add(maxYForThisGroup);
 							}
 						}
+
+						final long endTime = Math.round(lessDetailedX
+								.get(lessDetailedX.size() - 1));
+						final long startTime = Math.round(lessDetailedX.get(0));
+
 						shdb.addSleep(context, new SleepRecord(name,
 								lessDetailedX, lessDetailedY, min, alarm,
-								rating));
+								rating, endTime - startTime, numberOfSpikes,
+								timeOfFirstSleep, note));
 					} else {
-						min = intent.getDoubleExtra("min", Double.MAX_VALUE);
-						shdb.addSleep(context, new SleepRecord(name, mX, mY, min, alarm, rating));
+						shdb.close();
+						context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
+						return;
 					}
+
 				} catch (final IOException e) {
 					context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
 					return;
 				}
 
 				final Cursor c = shdb.getSleepMatches(name, new String[] {
-						BaseColumns._ID,
-						SleepRecord.KEY_SLEEP_DATE_TIME });
+						BaseColumns._ID, SleepRecord.KEY_TITLE });
 
 				if (c == null) {
 					/*
@@ -141,8 +165,10 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 				// context.startActivity(reviewSleepIntent);
 				shdb.close();
+
 				final Intent saveSleepCompletedIntent = new Intent(
 						SAVE_SLEEP_COMPLETED);
+				saveSleepCompletedIntent.putExtra("success", true);
 				saveSleepCompletedIntent.putExtra("rowId",
 						String.valueOf(rowId));
 				context.sendBroadcast(saveSleepCompletedIntent);

@@ -10,7 +10,7 @@ public class SerializableProgressBar extends ProgressBar implements
 
 	private static final long serialVersionUID = -2755645944654374920L;
 
-	public SerializableProgressBar(Context context) {
+	public SerializableProgressBar(final Context context) {
 		super(context);
 	}
 
