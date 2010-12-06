@@ -270,11 +270,6 @@
 
 	<string name="search_instructions">Tap search to search for previous sleep results</string>
 
-	<plurals name="search_results">
-		<item quantity="one">%d result for \"%s\": </item>
-		<item quantity="other">%d results for \"%s\": </item>
-	</plurals>
-
 	<string name="no_results">There is no saved sleep.</string>
 	<string-array name="array_prefs_sensor_delay_friendly">
 		<item>Normal</item>
