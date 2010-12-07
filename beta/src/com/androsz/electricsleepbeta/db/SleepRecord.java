@@ -158,8 +158,8 @@ public class SleepRecord {
 
 	public int getSleepScore() {
 		int score = 0;
-		final float ratingPct = rating / 5f;
-		final float deepPct = Math.min(1, 20f / spikes);
+		final float ratingPct = (rating-1) / 4f;
+		final float deepPct = Math.min(1, 15f / spikes);
 		final float diffFrom8HoursPct = 1 - Math
 				.abs((duration - 28800000) / 28800000f);
 		final float timeToFallAsleepPct = 1000 * 60 * 15f / Math.max(fellAsleep
