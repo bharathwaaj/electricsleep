@@ -1,4 +1,4 @@
-package com.androsz.electricsleepbeta.service;
+package com.androsz.electricsleepbeta.app;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -27,10 +27,6 @@ import android.provider.Settings;
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.Alarm;
 import com.androsz.electricsleepbeta.alarmclock.Alarms;
-import com.androsz.electricsleepbeta.app.CalibrationWizardActivity;
-import com.androsz.electricsleepbeta.app.SaveSleepActivity;
-import com.androsz.electricsleepbeta.app.SettingsActivity;
-import com.androsz.electricsleepbeta.app.SleepActivity;
 
 public class SleepAccelerometerService extends Service implements
 		SensorEventListener {

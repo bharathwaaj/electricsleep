@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.androsz.electricsleepbeta.R;
-import com.androsz.electricsleepbeta.receiver.StartSleepReceiver;
+import com.androsz.electricsleepbeta.content.StartSleepReceiver;
 
 public class SleepWidget extends AppWidgetProvider {
 	@Override

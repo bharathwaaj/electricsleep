@@ -18,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
-import com.androsz.electricsleepbeta.service.SleepAccelerometerService;
 import com.androsz.electricsleepbeta.util.DeviceUtil;
 
 public class CalibrationWizardActivity extends CustomTitlebarWizardActivity

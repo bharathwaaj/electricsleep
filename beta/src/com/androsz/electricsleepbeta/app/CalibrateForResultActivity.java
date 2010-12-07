@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.view.WindowManager;
 
 import com.androsz.electricsleepbeta.R;
-import com.androsz.electricsleepbeta.service.SleepAccelerometerService;
 
 public class CalibrateForResultActivity extends Activity {
 

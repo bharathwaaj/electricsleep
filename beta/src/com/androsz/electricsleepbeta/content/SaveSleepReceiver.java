@@ -1,4 +1,4 @@
-package com.androsz.electricsleepbeta.receiver;
+package com.androsz.electricsleepbeta.content;
 
 import java.io.IOException;
 import java.util.ArrayList;

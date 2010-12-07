@@ -14,9 +14,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.content.StartSleepReceiver;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepRecord;
-import com.androsz.electricsleepbeta.receiver.StartSleepReceiver;
 import com.androsz.electricsleepbeta.widget.SleepChart;
 
 /**

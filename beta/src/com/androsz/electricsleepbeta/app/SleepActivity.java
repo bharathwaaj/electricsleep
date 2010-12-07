@@ -20,7 +20,6 @@ import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.Alarm;
 import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
 import com.androsz.electricsleepbeta.alarmclock.Alarms;
-import com.androsz.electricsleepbeta.service.SleepAccelerometerService;
 import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class SleepActivity extends CustomTitlebarActivity {

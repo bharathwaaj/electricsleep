@@ -1,4 +1,4 @@
-package com.androsz.electricsleepbeta.receiver;
+package com.androsz.electricsleepbeta.content;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -12,8 +12,8 @@ import android.preference.PreferenceManager;
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.app.CalibrationWizardActivity;
 import com.androsz.electricsleepbeta.app.SettingsActivity;
+import com.androsz.electricsleepbeta.app.SleepAccelerometerService;
 import com.androsz.electricsleepbeta.app.SleepActivity;
-import com.androsz.electricsleepbeta.service.SleepAccelerometerService;
 
 public class StartSleepReceiver extends BroadcastReceiver {
 
