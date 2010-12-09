@@ -3,12 +3,14 @@ package com.androsz.electricsleepbeta.widget;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
+import java.util.List;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.util.AttributeSet;
 
 import com.androsz.electricsleepbeta.R;
@@ -19,6 +21,7 @@ import com.androsz.electricsleepbeta.achartengine.model.XYMultipleSeriesDataset;
 import com.androsz.electricsleepbeta.achartengine.model.XYSeries;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
+import com.androsz.electricsleepbeta.app.SettingsActivity;
 import com.androsz.electricsleepbeta.db.SleepRecord;
 
 public class SleepChart extends ChartView implements Serializable {
@@ -35,6 +38,9 @@ public class SleepChart extends ChartView implements Serializable {
 
 	public int rating;
 
+	protected double firstX = 0;
+	protected double lastX = 0;
+
 	public SleepChart(final Context context) {
 		super(context);
 	}
@@ -44,7 +50,7 @@ public class SleepChart extends ChartView implements Serializable {
 	}
 
 	@Override
-	public AbstractChart buildChart() {
+	protected AbstractChart buildChart() {
 		if (xySeriesMovement == null) {
 			// set up sleep movement series/renderer
 			xySeriesMovement = new XYSeries("sleep");
@@ -52,7 +58,8 @@ public class SleepChart extends ChartView implements Serializable {
 			xySeriesMovementRenderer.setFillBelowLine(true);
 			xySeriesMovementRenderer.setFillBelowLineColor(getResources()
 					.getColor(R.color.primary1_transparent));
-			xySeriesMovementRenderer.setColor(Color.TRANSPARENT);
+			xySeriesMovementRenderer.setColor(getResources().getColor(
+					R.color.primary1_transparent));
 
 			// add series to the dataset
 			xyMultipleSeriesDataset = new XYMultipleSeriesDataset();
@@ -114,17 +121,15 @@ public class SleepChart extends ChartView implements Serializable {
 		}
 	}
 
-	public void redraw(final double min, final double alarm) {
+	public void reconfigure(final double min, final double alarm) {
 		if (makesSenseToDisplay()) {
-			final double firstX = xySeriesMovement.mX.get(0);
-			final double lastX = xySeriesMovement.mX.get(xySeriesMovement.mX
-					.size() - 1);
+			firstX = xySeriesMovement.mX.get(0);
+			lastX = xySeriesMovement.mX.get(xySeriesMovement.mX.size() - 1);
 			xyMultipleSeriesRenderer.setXAxisMin(firstX);
 			xyMultipleSeriesRenderer.setXAxisMax(lastX);
 
 			xyMultipleSeriesRenderer.setYAxisMin(min);
 			xyMultipleSeriesRenderer.setYAxisMax(alarm);
-			repaint();
 		}
 	}
 
@@ -137,7 +142,8 @@ public class SleepChart extends ChartView implements Serializable {
 			final double alarm) {
 		xySeriesMovement.mX.add(x);
 		xySeriesMovement.mY.add(y);
-		redraw(min, alarm);
+		reconfigure(min, alarm);
+		repaint();
 	}
 
 	public void sync(final SleepRecord sleepRecord) {
@@ -148,6 +154,7 @@ public class SleepChart extends ChartView implements Serializable {
 		rating = sleepRecord.rating;
 
 		xyMultipleSeriesRenderer.setChartTitle(sleepRecord.title);
-		redraw(sleepRecord.min, sleepRecord.alarm);
+		reconfigure(sleepRecord.min, sleepRecord.alarm);
+		repaint();
 	}
 }

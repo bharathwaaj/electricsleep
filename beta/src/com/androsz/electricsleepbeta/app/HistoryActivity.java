@@ -220,7 +220,7 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 
 		mTextView = (TextView) findViewById(R.id.text);
 		mListView = (ListView) findViewById(R.id.list);
-		((Spinner) findViewById(R.id.sleep_history_chart_type_spinner))
+		((Spinner) findViewById(R.id.sleep_history_analysis_x_axis_spinner))
 				.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 					@Override
@@ -255,7 +255,7 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 		}
 
 		addTab(findViewById(R.id.sleep_history_list), R.string.list);
-		addTab(findViewById(R.id.sleep_history_charts), R.string.analysis);
+		addTab(findViewById(R.id.sleep_history_analysis), R.string.analysis);
 		tabHost.setCurrentTab(1);
 		tabHost.setCurrentTab(0);
 	}

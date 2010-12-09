@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+	<string name="analysis_y_axis_values">Y Axis Values</string>
+	<string name="analysis_x_axis_values">X Axis Values</string>
 	<string name="list">List</string>
 	<string name="chart_view">Sleep Score Over Time</string>
 	<string
@@ -18,8 +20,8 @@
 	<string name="analysis">Analysis</string>
 	<string name="sleep_score">Sleep Score</string>
 	<string name="sleep_chart">Sleep Chart</string>
-	<string
-		name="could_not_save_this_sleep_properly_it_was_likely_too_brief_to_analyze_">Could not save this sleep properly. It was likely too brief to
+	<string name="could_not_save_sleep">Could not save this sleep:</string>
+	<string name="sleep_too_brief_to_analyze">It was too brief to
 		analyze.</string>
 	<string name="note_title">Add notes about your sleep (dreams, disruptions,
 		caffeine etc.)</string>
@@ -657,4 +659,13 @@
 		<item quantity="one">%d minute</item>
 		<item quantity="other">%d minutes</item>
 	</plurals>
+	<string-array name="analysis_axis">
+		<item>Date</item>
+		<item>Duration</item>
+		<item>Sleep Score</item>
+		<item>Spikes</item>
+		<item>Time it took to fall asleep</item>
+		<item>Went to sleep time</item>
+		<item>Wake up time</item>
+	</string-array>
 </resources>

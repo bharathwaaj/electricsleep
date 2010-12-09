@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
@@ -69,9 +70,9 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 	private static AsyncTask<Void, Void, Void> currentTask;
 	private static final int TEST_TTS_INSTALLED = 0x1337;
 
-	public static final int ALARM_CALIBRATION_TIME = 5000;
+	public static final int ALARM_CALIBRATION_TIME = 500;
 
-	private static final int DELAYED_START_TIME = 5000;
+	private static final int DELAYED_START_TIME = 0;
 
 	private void checkTextToSpeechInstalled() {
 		final Intent checkIntent = new Intent();
@@ -178,14 +179,9 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity
 				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		if (accelerometer != null) {
 			final StringBuffer sb = new StringBuffer();
-			sb.append("Hardware: " + DeviceUtil.getHardwareName());
-			sb.append(" | Name: " + accelerometer.getName());
-			sb.append(" | Vendor: " + accelerometer.getVendor());
-			sb.append(" | Version: " + accelerometer.getVersion());
-			sb.append(" | Range: " + accelerometer.getMaximumRange());
-			sb.append(" | Power: " + accelerometer.getPower());
-			sb.append(" | Resolution: " + accelerometer.getResolution());
-			sb.append(" | Type: " + accelerometer.getType());
+			sb.append(Build.MODEL);
+			sb.append("|" + Build.BOARD);
+			sb.append("|" + accelerometer.getName());
 			analytics.trackEvent("calibration-by-hardware", sb.toString(),
 					String.format("%.2f", alarmTriggerCalibration), 0);
 		} else {

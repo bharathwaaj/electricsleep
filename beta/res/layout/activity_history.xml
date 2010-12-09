@@ -23,18 +23,32 @@
 					android:cacheColorHint="#00000000" android:padding="4dip" />
 			</LinearLayout>
 			<TableLayout android:layout_height="match_parent"
-				android:layout_width="match_parent" android:id="@+id/sleep_history_charts">
+				android:layout_width="match_parent" android:id="@+id/sleep_history_analysis">
 				<TableRow android:layout_height="wrap_content"
 					android:layout_width="match_parent">
 					<TextView android:layout_width="wrap_content"
 						android:layout_height="wrap_content" style="@style/TextHeader"
-						android:layout_gravity="left|center_vertical" android:id="@+id/header_score_text"
-						android:layout_weight="1" android:text="@string/chart_view"></TextView>
+						android:layout_gravity="left|center_vertical"
+						android:layout_weight="1" android:text="@string/analysis_x_axis_values"></TextView>
 
 					<Spinner android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:id="@+id/sleep_history_chart_type_spinner"
-						android:layout_gravity="top|right" android:layout_weight="1"
-						android:visibility="invisible"></Spinner>
+						android:layout_height="wrap_content" android:layout_gravity="top|right"
+						android:layout_weight="1" android:visibility="visible"
+						android:id="@+id/sleep_history_analysis_x_axis_spinner"
+						android:entries="@array/analysis_axis"></Spinner>
+				</TableRow>
+				<TableRow android:layout_height="wrap_content"
+					android:layout_width="match_parent">
+					<TextView android:layout_width="wrap_content"
+						android:layout_height="wrap_content" style="@style/TextHeader"
+						android:layout_gravity="left|center_vertical"
+						android:layout_weight="1" android:text="@string/analysis_y_axis_values"></TextView>
+
+					<Spinner android:layout_width="wrap_content"
+						android:layout_height="wrap_content" android:layout_gravity="top|right"
+						android:layout_weight="1" android:visibility="visible"
+						android:id="@+id/sleep_history_analysis_y_axis_spinner"
+						android:entries="@array/analysis_axis"></Spinner>
 				</TableRow>
 				<com.androsz.electricsleepbeta.widget.DailySleepComparisonChart
 					android:id="@+id/chart" android:layout_width="match_parent"

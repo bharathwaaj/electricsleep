@@ -13,14 +13,13 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.androsz.electricsleepbeta.app.SettingsActivity;
+import com.androsz.electricsleepbeta.widget.DecimalSeekBar;
 
 public class SeekBarPreference extends DialogPreference {
 
 	private final Context context;
-	private SeekBar seekBar;
+	private DecimalSeekBar seekBar;
 	private TextView textView;
-
-	private final static float PRECISION = 100f;
 
 	private static java.text.NumberFormat nf = java.text.NumberFormat
 			.getInstance();
@@ -28,10 +27,10 @@ public class SeekBarPreference extends DialogPreference {
 	static {
 		nf.setGroupingUsed(false);
 		nf.setMinimumFractionDigits(0);
-		nf.setMaximumFractionDigits(("" + (int) Math.pow(PRECISION, 0.5))
-				.length());
-		nf.setMinimumFractionDigits(("" + (int) Math.pow(PRECISION, 0.5))
-				.length());
+		nf.setMaximumFractionDigits(("" + (int) Math.pow(
+				DecimalSeekBar.PRECISION, 0.5)).length());
+		nf.setMinimumFractionDigits(("" + (int) Math.pow(
+				DecimalSeekBar.PRECISION, 0.5)).length());
 	}
 
 	public SeekBarPreference(final Context context, final AttributeSet attrs) {
@@ -42,7 +41,7 @@ public class SeekBarPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(final boolean positiveResult) {
 		if (positiveResult) {
-			persistFloat(seekBar.getProgress() / PRECISION);
+			persistFloat(seekBar.getFloatProgress());
 		}
 	}
 
@@ -70,19 +69,19 @@ public class SeekBarPreference extends DialogPreference {
 		textView.setPadding(5, 5, 5, 5);
 		layout.addView(textView);
 
-		seekBar = new SeekBar(context);
-		seekBar.setMax((int) (SettingsActivity.MAX_ALARM_SENSITIVITY * PRECISION));
+		seekBar = new DecimalSeekBar(context);
+		seekBar.setMax(Math.round(SettingsActivity.MAX_ALARM_SENSITIVITY));
 		seekBar.setLayoutParams(new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT));
 
-		seekBar.setProgress(Math.round((getPersistedFloat(0) * PRECISION)));
+		seekBar.setProgress((getPersistedFloat(0)));
 		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
 			public void onProgressChanged(final SeekBar seekBar,
 					final int progress, final boolean fromUser) {
-				syncTextViewText(progress / PRECISION);
+				syncTextViewText(progress / DecimalSeekBar.PRECISION);
 			}
 
 			@Override

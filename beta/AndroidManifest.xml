@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.androsz.electricsleepbeta" android:versionCode="10"
-	android:versionName="0.4.2 beta" android:installLocation="internalOnly">
+	package="com.androsz.electricsleepbeta" android:versionCode="11"
+	android:versionName="0.5.0 beta" android:installLocation="internalOnly">
 
 	<application android:icon="@drawable/icon" android:label="@string/app_name"
-		android:theme="@style/Theme.electricsleep" android:debuggable="false" >
+		android:theme="@style/Theme.electricsleep" android:debuggable="false">
 
 		<activity android:name=".app.HomeActivity" android:label="@string/app_name">
 			<intent-filter>
@@ -12,11 +12,11 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
+
 		<activity android:name=".app.SleepActivity" android:label="@string/title_sleep" />
 
-		<activity android:name=".app.AboutActivity"
-			android:label="@string/about" />
-			
+		<activity android:name=".app.AboutActivity" android:label="@string/about" />
+
 		<activity android:name=".app.CalibrationWizardActivity"
 			android:label="@string/title_calibrate" />
 
@@ -107,21 +107,21 @@
 			</intent-filter>
 		</receiver>
 
-		<receiver android:name=".receiver.SaveSleepReceiver"
+		<receiver android:name=".content.SaveSleepReceiver"
 			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="com.androsz.electricsleepbeta.SAVE_SLEEP" />
 			</intent-filter>
 		</receiver>
-		
-		<receiver android:name=".receiver.StartSleepReceiver"
+
+		<receiver android:name=".content.StartSleepReceiver"
 			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="com.androsz.electricsleepbeta.START_SLEEP" />
 			</intent-filter>
 		</receiver>
 
-		<service android:name=".service.SleepAccelerometerService"
+		<service android:name=".app.SleepAccelerometerService"
 			android:icon="@drawable/icon" android:label="@string/app_name" />
 
 		<provider android:name=".db.SleepContentProvider"
@@ -129,11 +129,9 @@
 
 		<provider android:name=".alarmclock.AlarmProvider"
 			android:authorities="com.androsz.electricsleepbeta.alarmclock" />
-
-
 	</application>
 
-	<uses-sdk android:minSdkVersion="8" />
+	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="9" />
 
 	<uses-feature android:name="android.hardware.sensor.accelerometer"
 		android:required="true" />

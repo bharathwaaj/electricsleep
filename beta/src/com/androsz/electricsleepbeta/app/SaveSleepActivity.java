@@ -37,10 +37,14 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 			final Intent reviewSleepIntent = new Intent(context,
 					ReviewSleepActivity.class);
 			if (!intent.getBooleanExtra("success", false)) {
-				Toast.makeText(
-						context,
-						R.string.could_not_save_this_sleep_properly_it_was_likely_too_brief_to_analyze_,
-						Toast.LENGTH_LONG).show();
+				String why = getString(R.string.could_not_save_sleep)+" ";
+				String ioException = intent.getStringExtra("IOException");
+				if (ioException != null) {
+					why += ioException;
+				} else {
+					why += getString(R.string.sleep_too_brief_to_analyze);
+				}
+				Toast.makeText(context, why, Toast.LENGTH_LONG).show();
 				progress.dismiss();
 				finish();
 				return;
