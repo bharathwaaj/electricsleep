@@ -33,6 +33,18 @@
 			android:text="@string/calibrate_directions_alarm"></TextView>
 	</LinearLayout>
 	<LinearLayout android:layout_height="wrap_content"
+		android:orientation="vertical" android:layout_width="match_parent"
+		android:id="@+id/screenTest">
+		<TextView android:layout_height="wrap_content" style="@style/TextHeader"
+			android:layout_width="wrap_content" android:layout_gravity="center_horizontal"
+			android:text="@string/calibrate_title_force_screen_on"></TextView>
+		<TextView android:layout_height="wrap_content" style="@style/TextBody"
+			android:layout_width="match_parent" android:text="@string/calibrate_description_force_screen_on"></TextView>
+		<TextView style="@style/TextBody" android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:paddingTop="12dip"
+			android:text="@string/calibrate_directions_force_screen_on"></TextView>
+	</LinearLayout>
+	<LinearLayout android:layout_height="wrap_content"
 		android:orientation="vertical" android:layout_width="match_parent">
 		<TextView android:layout_height="wrap_content" style="@style/TextHeader"
 			android:layout_width="wrap_content" android:layout_gravity="center_horizontal"
@@ -43,5 +55,11 @@
 		<TextView style="@style/TextBody" android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:paddingTop="12dip"
 			android:id="@+id/alarmResult"></TextView>
+		<TextView android:layout_height="wrap_content"
+			android:layout_width="match_parent" style="@style/TextHeaderTwo"
+			android:text="@string/calibrate_title_force_screen_on"></TextView>
+		<TextView style="@style/TextBody" android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:paddingTop="12dip"
+			android:id="@+id/screenResult"></TextView>
 	</LinearLayout>
 </com.androsz.electricsleepbeta.widget.ViewFlipperBugfix>

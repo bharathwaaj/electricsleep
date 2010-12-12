@@ -75,7 +75,7 @@ public class SeekBarPreference extends DialogPreference {
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT));
 
-		seekBar.setProgress((getPersistedFloat(0)));
+		seekBar.setProgress(getPersistedFloat(0));
 		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override

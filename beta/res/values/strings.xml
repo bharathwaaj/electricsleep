@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+	<string name="go_into_standy">Press your device\'s standby button</string>
+	<string name="calibrate_directions_force_screen_on">
+		<li>
+			A bug exists on some devices that prevents the accelerometer from
+			reporting changes while the screen is off.
+		</li>
+		\n
+		<li>
+			When prompted, put your device in standby and wait up to 10
+			seconds.
+		</li>
+		\n
+		<li>
+			Your screen will be automatically turned back on. Unlock your
+			phone if necessary.
+		</li>
+		\n
+		<li>Press next to begin.</li>
+	</string>
+	<string name="calibrate_description_force_screen_on">
+		<b>Goal:</b>
+		Make sure that Force Screen On is enabled for devices that need it.
+	</string>
+	<string name="calibrate_title_force_screen_on">Force Screen On Calibration</string>
 	<string name="analysis_y_axis_values">Y Axis Values</string>
 	<string name="analysis_x_axis_values">X Axis Values</string>
 	<string name="list">List</string>
@@ -30,8 +54,7 @@
 	<string name="title_pref_sensor_delay">Sensor Delay</string>
 	<string name="pref_sensor_delay">sensorDelay</string>
 	<string name="how_review">Your sleep movement graph is saved for later
-		review. Statistics will be available for individual as well as all
-		records.</string>
+		review. Analysis of sleep will be available for all records.</string>
 	<string name="how_wake">Wake up! (With help of smart alarm or naturally.)</string>
 	<string name="how_sleep">
 		Place your Android device within a foot or two of you on your bed and
@@ -61,12 +84,14 @@
 		\tElectricSleep is a new way to sleep. After you
 		place your Android device within a foot or two of you on your
 		bed,
+		press sleep and
 		ElectricSleep
 		will record data from your device\'s
 		accelerometer all
 		night.\n\n
-		\tThe movements it records help signify
-		sleep stages. Aside
+		\tThe movements it records signify
+		sleep
+		cycles. Aside
 		from
 		providing analysis and insight into your sleep
 		patterns, you can
@@ -145,23 +170,30 @@
 	<string name="calibrate_title_results">Calibration Results</string>
 	<string name="calibrate_directions_alarm">
 		<li>
-			The calibration test will begin after a
-			<b>5 second delay.</b>
+			A window will appear with a
+			<b>graph that
+				shows your movement</b>
+			, and a
+			<b>slider that controls a white threshold line</b>
+			.
 		</li>
 		\n
 		<li>
-			It will last exactly
-			<b>5 seconds.</b>
+			Adjust the slider so that when you
+			<b>move gently</b>
+			, the
+			<b>green line goes just above the white line</b>
+			.
 		</li>
 		\n
 		<li>
-			<b>Gently move ONCE
-				then remain still</b>
-			until you are instructed that the test is
-			over.
+			Also ensure that when you
+			<b>are still</b>
+			, the
+			<b>green line is significantly below the white line.</b>
 		</li>
 		\n
-		<li>Press next when you are ready.</li>
+		<li>Press next to begin.</li>
 	</string>
 	<string name="calibrate_description_alarm">
 		<b>Goal:</b>

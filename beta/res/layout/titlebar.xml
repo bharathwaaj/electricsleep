@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/titlebar_container" android:layout_height="match_parent"
-	android:layout_width="match_parent" android:background="@drawable/titlebar_bg">
+	android:id="@+id/titlebar_container" android:layout_width="match_parent"
+	android:background="@drawable/titlebar_bg" android:layout_height="40dip">
 
 	<ImageButton android:id="@+id/title_home_button"
 		android:layout_width="@dimen/title_height" android:layout_height="match_parent"

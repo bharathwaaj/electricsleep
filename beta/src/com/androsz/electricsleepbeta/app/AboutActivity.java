@@ -14,7 +14,8 @@ public class AboutActivity extends CustomTitlebarActivity {
 		return R.layout.activity_about;
 	}
 
-	protected void onCreate(Bundle savedInstanceState) {
+	@Override
+	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		try {
@@ -22,7 +23,7 @@ public class AboutActivity extends CustomTitlebarActivity {
 					.setText(getPackageManager()
 							.getPackageInfo(this.getPackageName(),
 									PackageManager.GET_META_DATA).versionName);
-		} catch (NameNotFoundException e) {
+		} catch (final NameNotFoundException e) {
 			e.printStackTrace();
 		}
 	}

@@ -5,6 +5,7 @@
 
 	<Button style="@style/AppwidgetButton" android:id="@+id/appwidget_btn_sleep"
 		android:drawableTop="@drawable/home_btn_sleep" android:text="@string/title_sleep"
-		android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/titlebar_bg"/>
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:background="@drawable/titlebar_bg" />
 
 </LinearLayout>

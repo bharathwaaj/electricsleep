@@ -19,35 +19,35 @@ public class DecimalSeekBar extends SeekBar {
 		nf.setMinimumFractionDigits(("" + (int) Math.pow(PRECISION, 0.5))
 				.length());
 	}
-	
-	public DecimalSeekBar(Context context, AttributeSet as) {
+
+	public DecimalSeekBar(final Context context) {
+		super(context);
+	}
+
+	public DecimalSeekBar(final Context context, final AttributeSet as) {
 		super(context, as);
 		setMax(Math.round((10 * PRECISION)));
 	}
 
-	public DecimalSeekBar(Context context) {
-		super(context);
-	}
-	
 	public float getFloatProgress() {
 		return super.getProgress() / PRECISION;
 	}
 
-	public void setMax(int max)
-	{
+	public void setMax(final float max) {
 		super.setMax(Math.round((max * PRECISION)));
 	}
-	
-	public void setProgress(int progress) {
+
+	@Override
+	public void setMax(final int max) {
+		super.setMax(Math.round((max * PRECISION)));
+	}
+
+	public void setProgress(final float progress) {
 		super.setProgress(Math.round(progress * PRECISION));
 	}
-	
-	public void setMax(float max)
-	{
-		super.setMax(Math.round((max * PRECISION)));
-	}
-	
-	public void setProgress(float progress) {
+
+	@Override
+	public void setProgress(final int progress) {
 		super.setProgress(Math.round(progress * PRECISION));
 	}
 }

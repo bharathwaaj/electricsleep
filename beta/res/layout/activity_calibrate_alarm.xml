@@ -6,7 +6,7 @@
 	<com.androsz.electricsleepbeta.widget.CalibrationSleepChart
 		android:id="@+id/calibration_sleep_chart" android:layout_margin="4dip"
 		android:layout_gravity="left" android:layout_height="wrap_content"
-		android:layout_width="wrap_content" android:layout_weight="100"/>
+		android:layout_width="wrap_content" android:layout_weight="100" />
 
 	<com.androsz.electricsleepbeta.widget.DecimalSeekBar
 		android:layout_height="wrap_content" android:id="@+id/calibration_level_seekbar"

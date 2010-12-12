@@ -48,13 +48,14 @@ public abstract class CustomTitlebarActivity extends Activity {
 
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		setContentView(getContentAreaLayoutId());
-		
+
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
 				R.layout.titlebar);
 
-		TextView title = (TextView) findViewById(R.id.title_text);
+		final TextView title = (TextView) findViewById(R.id.title_text);
 		title.setText(getTitle());
-		title.getRootView().setBackgroundResource(R.drawable.gradient_background_vert);
+		title.getRootView().setBackgroundResource(
+				R.drawable.gradient_background_vert);
 	}
 
 	@Override

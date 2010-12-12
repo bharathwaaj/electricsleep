@@ -45,9 +45,10 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 				final int numberOfPointsOriginal = mY.size();
 
-				int numberOfDesiredGroupedPoints = 200;
-				//numberOfDesiredGroupedPoints = numberOfPointsOriginal > numberOfDesiredGroupedPoints ? numberOfDesiredGroupedPoints
-				//		: numberOfPointsOriginal;
+				final int numberOfDesiredGroupedPoints = 200;
+				// numberOfDesiredGroupedPoints = numberOfPointsOriginal >
+				// numberOfDesiredGroupedPoints ? numberOfDesiredGroupedPoints
+				// : numberOfPointsOriginal;
 
 				if (numberOfDesiredGroupedPoints <= numberOfPointsOriginal) {
 					final int pointsPerGroup = numberOfPointsOriginal
@@ -117,16 +118,17 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 							.get(lessDetailedX.size() - 1));
 					final long startTime = Math.round(lessDetailedX.get(0));
 
-						try {
-							shdb.addSleep(context, new SleepRecord(name, lessDetailedX,
-									lessDetailedY, min, alarm, rating, endTime
-											- startTime, numberOfSpikes,
-									timeOfFirstSleep, note));
-						} catch (IOException e) {
-							shdb.close();
-							context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED).putExtra("IOException", e.getMessage()));
-							return;
-						}
+					try {
+						shdb.addSleep(context, new SleepRecord(name,
+								lessDetailedX, lessDetailedY, min, alarm,
+								rating, endTime - startTime, numberOfSpikes,
+								timeOfFirstSleep, note));
+					} catch (final IOException e) {
+						shdb.close();
+						context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED)
+								.putExtra("IOException", e.getMessage()));
+						return;
+					}
 				} else {
 					shdb.close();
 					context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));

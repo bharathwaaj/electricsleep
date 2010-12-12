@@ -1,5 +1,8 @@
 package com.androsz.electricsleepbeta.widget;
 
+import android.content.Context;
+import android.util.AttributeSet;
+
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.achartengine.chart.AbstractChart;
 import com.androsz.electricsleepbeta.achartengine.chart.TimeChart;
@@ -7,11 +10,6 @@ import com.androsz.electricsleepbeta.achartengine.model.XYMultipleSeriesDataset;
 import com.androsz.electricsleepbeta.achartengine.model.XYSeries;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
-import com.androsz.electricsleepbeta.app.SettingsActivity;
-
-import android.content.Context;
-import android.graphics.Color;
-import android.util.AttributeSet;
 
 public class CalibrationSleepChart extends SleepChart {
 
@@ -19,24 +17,17 @@ public class CalibrationSleepChart extends SleepChart {
 	public XYSeries xySeriesCalibration;
 	public XYSeriesRenderer xySeriesCalibrationRenderer;
 
-	public double getCalibrationLevel() {
-		return calibrationLevel;
-	}
-
-	public void setCalibrationLevel(double calibrationLevel) {
-		this.calibrationLevel = calibrationLevel;
-	}
-
 	private double calibrationLevel = 0.5d;
 
-	public CalibrationSleepChart(Context context) {
+	public CalibrationSleepChart(final Context context) {
 		super(context);
 	}
 
-	public CalibrationSleepChart(Context context, AttributeSet as) {
+	public CalibrationSleepChart(final Context context, final AttributeSet as) {
 		super(context, as);
 	}
 
+	@Override
 	protected AbstractChart buildChart() {
 		if (xySeriesMovement == null) {
 			// set up sleep movement series/renderer
@@ -53,8 +44,8 @@ public class CalibrationSleepChart extends SleepChart {
 			xySeriesCalibrationRenderer.setFillBelowLine(true);
 			xySeriesCalibrationRenderer.setFillBelowLineColor(getResources()
 					.getColor(R.color.background_transparent_lighten));
-			xySeriesCalibrationRenderer.setColor(getResources()
-					.getColor(R.color.white));
+			xySeriesCalibrationRenderer.setColor(getResources().getColor(
+					R.color.white));
 
 			// add series to the dataset
 			xyMultipleSeriesDataset = new XYMultipleSeriesDataset();
@@ -75,8 +66,8 @@ public class CalibrationSleepChart extends SleepChart {
 
 			xyMultipleSeriesRenderer.setXLabels(0);
 			xyMultipleSeriesRenderer.setYLabels(4);
-			//xyMultipleSeriesRenderer.setYTitle(super.getContext().getString(
-			//		R.string.movement_level_during_sleep));
+			// xyMultipleSeriesRenderer.setYTitle(super.getContext().getString(
+			// R.string.movement_level_during_sleep));
 			xyMultipleSeriesRenderer.setShowGrid(true);
 			xyMultipleSeriesRenderer.setAxesColor(getResources().getColor(
 					R.color.text));
@@ -90,6 +81,11 @@ public class CalibrationSleepChart extends SleepChart {
 		return null;
 	}
 
+	public double getCalibrationLevel() {
+		return calibrationLevel;
+	}
+
+	@Override
 	public void reconfigure(final double min, final double alarm) {
 		super.reconfigure(0d, 2d);
 		if (makesSenseToDisplay()) {
@@ -99,5 +95,9 @@ public class CalibrationSleepChart extends SleepChart {
 			xySeriesCalibration.add(firstX, calibrationLevel);
 			xySeriesCalibration.add(lastX, calibrationLevel);
 		}
+	}
+
+	public void setCalibrationLevel(final double calibrationLevel) {
+		this.calibrationLevel = calibrationLevel;
 	}
 }

@@ -74,8 +74,8 @@ public class SleepActivity extends CustomTitlebarActivity {
 		public void onReceive(final Context context, final Intent intent) {
 
 			sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
-			
-			//inlined for efficiency
+
+			// inlined for efficiency
 			sleepChart.xySeriesMovement.mX = (List<Double>) intent
 					.getSerializableExtra("currentSeriesX");
 			sleepChart.xySeriesMovement.mY = (List<Double>) intent
@@ -85,7 +85,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 					.getDoubleExtra("alarm",
 							SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 			sleepChart.repaint();
-			
+
 			final boolean useAlarm = intent.getBooleanExtra("useAlarm", false);
 			final boolean forceScreenOn = intent.getBooleanExtra(
 					"forceScreenOn", false);

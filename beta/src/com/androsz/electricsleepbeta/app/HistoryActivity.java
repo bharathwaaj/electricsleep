@@ -227,6 +227,27 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 					public void onItemSelected(final AdapterView<?> parentView,
 							final View selectedItemView, final int position,
 							final long id) {
+						Toast.makeText(
+								HistoryActivity.this,
+								"Value changing is not implemented yet; this currently only displays sleep score over time.",
+								Toast.LENGTH_LONG).show();
+					}
+
+					@Override
+					public void onNothingSelected(final AdapterView<?> arg0) {
+					}
+				});
+		((Spinner) findViewById(R.id.sleep_history_analysis_y_axis_spinner))
+				.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+					@Override
+					public void onItemSelected(final AdapterView<?> parentView,
+							final View selectedItemView, final int position,
+							final long id) {
+						Toast.makeText(
+								HistoryActivity.this,
+								"Value changing is not implemented yet; this currently only displays sleep score over time.",
+								Toast.LENGTH_LONG).show();
 					}
 
 					@Override

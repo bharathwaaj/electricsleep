@@ -2,9 +2,21 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent" android:layout_height="match_parent">
 
-	<TableRow android:layout_height="wrap_content" android:layout_width="match_parent"><TextView android:layout_width="wrap_content" android:layout_weight="1" android:layout_gravity="left|center_vertical" android:layout_height="wrap_content" style="@style/TextHeader" android:text="@string/app_name"></TextView>
-</TableRow><TableRow android:gravity="right" android:layout_height="wrap_content" android:layout_width="match_parent"><TextView android:layout_width="match_parent" android:autoLink="email" android:layout_gravity="right" android:gravity="right" android:layout_height="wrap_content" android:id="@+id/about_version_text"></TextView>
-</TableRow><TableRow android:layout_height="wrap_content"
+	<TableRow android:layout_height="wrap_content"
+		android:layout_width="match_parent">
+		<TextView android:layout_width="wrap_content"
+			android:layout_weight="1" android:layout_gravity="left|center_vertical"
+			android:layout_height="wrap_content" style="@style/TextHeader"
+			android:text="@string/app_name"></TextView>
+	</TableRow>
+	<TableRow android:gravity="right" android:layout_height="wrap_content"
+		android:layout_width="match_parent">
+		<TextView android:layout_width="match_parent"
+			android:autoLink="email" android:layout_gravity="right"
+			android:gravity="right" android:layout_height="wrap_content"
+			android:id="@+id/about_version_text"></TextView>
+	</TableRow>
+	<TableRow android:layout_height="wrap_content"
 		android:layout_width="match_parent">
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:layout_weight="1"

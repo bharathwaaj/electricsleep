@@ -30,7 +30,7 @@ import com.androsz.electricsleepbeta.alarmclock.Alarms;
 
 public class SleepAccelerometerService extends Service implements
 		SensorEventListener {
-	private static String LOCK_TAG = "com.androsz.electricsleepbeta.service.SleepAccelerometerService";
+	private static final String LOCK_TAG = "com.androsz.electricsleepbeta.app.SleepAccelerometerService";
 	private static final int NOTIFICATION_ID = 0x1337a;
 	public static final String POKE_SYNC_CHART = "com.androsz.electricsleepbeta.POKE_SYNC_CHART";
 
@@ -102,6 +102,12 @@ public class SleepAccelerometerService extends Service implements
 	private boolean useAlarm = false;
 
 	private boolean forceScreenOn = false;
+
+	private double averageForce = 0;
+
+	private int numberOfSamples = 0;
+
+	private final float[] gravity = { 0, 0, 0 };
 
 	private Intent addExtrasToSaveSleepIntent(final Intent saveIntent) {
 		saveIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -200,6 +206,9 @@ public class SleepAccelerometerService extends Service implements
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		startForeground(NOTIFICATION_ID, createServiceNotification());
+
 		lastChartUpdateTime = System.currentTimeMillis();
 
 		registerReceiver(pokeSyncChartReceiver, new IntentFilter(
@@ -219,7 +228,7 @@ public class SleepAccelerometerService extends Service implements
 	public void onDestroy() {
 		unregisterAccelerometerListener();
 
-		if (partialWakeLock.isHeld()) {
+		if (partialWakeLock != null && partialWakeLock.isHeld()) {
 			partialWakeLock.release();
 		}
 
@@ -241,10 +250,6 @@ public class SleepAccelerometerService extends Service implements
 
 		super.onDestroy();
 	}
-
-	private double averageForce = 0;
-	private int numberOfSamples = 0;
-	private float[] gravity = { 0, 0, 0 };
 
 	@Override
 	public synchronized void onSensorChanged(final SensorEvent event) {
@@ -288,10 +293,16 @@ public class SleepAccelerometerService extends Service implements
 					averageForce /= numberOfSamples;
 
 					final double x = currentTime;
-					final double y = java.lang.Math
-							.min(alarmTriggerSensitivity,maxNetForce);/*
-									(maxNetForce >= alarmTriggerSensitivity) ? maxNetForce
-											: averageForce);*/
+					final double y = java.lang.Math.min(
+							alarmTriggerSensitivity, maxNetForce);/*
+																 * (maxNetForce
+																 * >=
+																 * alarmTriggerSensitivity
+																 * ) ?
+																 * maxNetForce :
+																 * averageForce
+																 * );
+																 */
 					if (y < minNetForce) {
 						minNetForce = y;
 					}
@@ -354,8 +365,6 @@ public class SleepAccelerometerService extends Service implements
 			obtainWakeLock();
 			registerAccelerometerListener();
 			toggleAirplaneMode(true);
-
-			startForeground(NOTIFICATION_ID, createServiceNotification());
 
 			final SharedPreferences.Editor ed = getSharedPreferences(
 					"serviceIsRunning", Context.MODE_PRIVATE).edit();

@@ -3,14 +3,11 @@ package com.androsz.electricsleepbeta.widget;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
-import java.util.List;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.util.AttributeSet;
 
 import com.androsz.electricsleepbeta.R;
@@ -21,7 +18,6 @@ import com.androsz.electricsleepbeta.achartengine.model.XYMultipleSeriesDataset;
 import com.androsz.electricsleepbeta.achartengine.model.XYSeries;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
-import com.androsz.electricsleepbeta.app.SettingsActivity;
 import com.androsz.electricsleepbeta.db.SleepRecord;
 
 public class SleepChart extends ChartView implements Serializable {

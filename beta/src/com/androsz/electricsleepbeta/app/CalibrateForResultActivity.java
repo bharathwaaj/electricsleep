@@ -1,75 +1,15 @@
 package com.androsz.electricsleepbeta.app;
 
-import java.util.Calendar;
-import java.util.List;
-
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.os.Bundle;
-import android.text.format.DateFormat;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.SeekBar;
-import android.widget.Toast;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
-import com.androsz.electricsleepbeta.R;
-import com.androsz.electricsleepbeta.alarmclock.Alarm;
-import com.androsz.electricsleepbeta.alarmclock.Alarms;
-import com.androsz.electricsleepbeta.widget.CalibrationSleepChart;
-import com.androsz.electricsleepbeta.widget.DecimalSeekBar;
-import com.androsz.electricsleepbeta.widget.SleepChart;
-
-public class CalibrateForResultActivity extends Activity {
-
+public abstract class CalibrateForResultActivity extends Activity {
 	public static final int CALIBRATION_FAILED = -0x1337;
 
-	CalibrationSleepChart sleepChart;
+	public static final int CALIBRATION_SUCCEEDED = 1;
 
-	private final BroadcastReceiver updateChartReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(final Context context, final Intent intent) {
-			CalibrateForResultActivity.this.setResult(1, new Intent().putExtra(
-					"y", sleepChart.getCalibrationLevel()));
-			if (sleepChart != null) {
-				DecimalSeekBar seekBar = (DecimalSeekBar) findViewById(R.id.calibration_level_seekbar);
-				seekBar.setProgress((float) sleepChart.getCalibrationLevel());
-				sleepChart.sync(intent.getDoubleExtra("x", 0), intent
-						.getDoubleExtra("y", 0), intent.getDoubleExtra("min",
-						SettingsActivity.DEFAULT_MIN_SENSITIVITY), sleepChart
-						.getCalibrationLevel());
-			}
-		}
-	};
-
-	private final BroadcastReceiver syncChartReceiver = new BroadcastReceiver() {
-		@SuppressWarnings("unchecked")
-		@Override
-		public void onReceive(final Context context, final Intent intent) {
-
-			sleepChart = (CalibrationSleepChart) findViewById(R.id.calibration_sleep_chart);
-
-			// inlined for efficiency
-			sleepChart.xySeriesMovement.mX = (List<Double>) intent
-					.getSerializableExtra("currentSeriesX");
-			sleepChart.xySeriesMovement.mY = (List<Double>) intent
-					.getSerializableExtra("currentSeriesY");
-			sleepChart.reconfigure(intent.getDoubleExtra("min",
-					SettingsActivity.DEFAULT_MIN_SENSITIVITY), intent
-					.getDoubleExtra("alarm",
-							SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
-			sleepChart.repaint();
-		}
-	};
-
-	public void onDoneClick(View v) {
-		finish();
-	}
+	protected abstract Intent getAssociatedServiceIntent();
 
 	@Override
 	public void onBackPressed() {
@@ -83,78 +23,9 @@ public class CalibrateForResultActivity extends Activity {
 		// subsequent failure of the test
 	}
 
-	@Override
-	protected void onRestoreInstanceState(final Bundle savedState) {
-
-		try {
-			super.onRestoreInstanceState(savedState);
-		} catch (final java.lang.RuntimeException rte) {
-			// sendBroadcast(new
-			// Intent(SleepAccelerometerService.POKE_SYNC_CHART));
-		}
-		sleepChart = (CalibrationSleepChart) savedState
-				.getSerializable("sleepChart");
-	}
-
-	@Override
-	protected void onSaveInstanceState(final Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putSerializable("sleepChart", sleepChart);
-	}
-
-	@Override
-	public void onCreate(final Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		setContentView(R.layout.activity_calibrate_for_result);
-
-		sleepChart = (CalibrationSleepChart) findViewById(R.id.calibration_sleep_chart);
-
-		DecimalSeekBar seekBar = (DecimalSeekBar) findViewById(R.id.calibration_level_seekbar);
-		seekBar.setMax((int) SettingsActivity.MAX_ALARM_SENSITIVITY);
-		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-			@Override
-			public void onProgressChanged(final SeekBar seekBar,
-					final int progress, final boolean fromUser) {
-				if (fromUser) {
-					sleepChart.setCalibrationLevel(progress
-							/ DecimalSeekBar.PRECISION);
-				}
-			}
-
-			@Override
-			public void onStartTrackingTouch(final SeekBar seekBar) {
-			}
-
-			@Override
-			public void onStopTrackingTouch(final SeekBar seekBar) {
-			}
-		});
-
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		unregisterReceiver(updateChartReceiver);
-		unregisterReceiver(syncChartReceiver);
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		registerReceiver(updateChartReceiver, new IntentFilter(
-				SleepActivity.UPDATE_CHART));
-		registerReceiver(syncChartReceiver, new IntentFilter(
-				SleepActivity.SYNC_CHART));
-		sendBroadcast(new Intent(SleepAccelerometerService.POKE_SYNC_CHART));
-	}
-
 	private void setFailed() {
 		this.setResult(CALIBRATION_FAILED);
-		stopService(new Intent(this, SleepAccelerometerService.class));
+		stopService(getAssociatedServiceIntent());
 		finish();
 	}
 }
