@@ -56,11 +56,11 @@ public class SleepAccelerometerService extends Service implements
 
 	private long lastChartUpdateTime = 0;
 
-	private double mAccel = 0;
+	//private double mAccel = 0;
 
-	private double mAccelCurrent = 0;
+	//private double mAccelCurrent = 0;
 
-	private double mAccelLast = Double.POSITIVE_INFINITY;
+	//private double mAccelLast = Double.POSITIVE_INFINITY;
 
 	private double maxNetForce = 0;
 
@@ -103,9 +103,9 @@ public class SleepAccelerometerService extends Service implements
 
 	private boolean forceScreenOn = false;
 
-	private double averageForce = 0;
+	//private double averageForce = 0;
 
-	private int numberOfSamples = 0;
+	//private int numberOfSamples = 0;
 
 	private final float[] gravity = { 0, 0, 0 };
 
@@ -258,7 +258,26 @@ public class SleepAccelerometerService extends Service implements
 			@Override
 			public void run() {
 				final long currentTime = System.currentTimeMillis();
-				final float alpha = 0.8f;
+				final float alpha = 0.5f;
+
+				/*if (Double.isInfinite(mAccelLast)) {
+
+					gravity[0] = alpha * gravity[0] + (1 - alpha)
+							* event.values[0];
+					gravity[1] = alpha * gravity[1] + (1 - alpha)
+							* event.values[1];
+					gravity[2] = alpha * gravity[2] + (1 - alpha)
+							* event.values[2];
+
+					final double curX = event.values[0] - gravity[0];
+					final double curY = event.values[1] - gravity[1];
+					final double curZ = event.values[2] - gravity[2];
+					mAccelCurrent = Math.sqrt(curX * curX + curY * curY + curZ
+							* curZ);
+					mAccelLast = mAccelCurrent;
+					lastChartUpdateTime = currentTime;
+					return;
+				}*/
 
 				gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
 				gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
@@ -268,41 +287,27 @@ public class SleepAccelerometerService extends Service implements
 				final double curY = event.values[1] - gravity[1];
 				final double curZ = event.values[2] - gravity[2];
 
-				if (Double.isInfinite(mAccelLast)) {
-					mAccelCurrent = Math.sqrt(curX * curX + curY * curY + curZ
-							* curZ);
-					mAccelLast = mAccelCurrent;
-					lastChartUpdateTime = currentTime;
-					return;
-				}
-
-				mAccelLast = mAccelCurrent;
-				mAccelCurrent = Math.sqrt(curX * curX + curY * curY + curZ
+				//mAccelLast = mAccelCurrent;
+				final double mAccelCurrent = Math.sqrt(curX * curX + curY * curY + curZ
 						* curZ);
-				final double delta = mAccelCurrent - mAccelLast;
-				mAccel = mAccel * 0.1f + delta; // perform low-cut filter
-				final double absAccel = Math.abs(mAccel);
+				// final double delta = mAccelCurrent - mAccelLast;
+				// mAccel = mAccel * 0.1f + delta; // perform low-cut filter
+				final double absAccel = Math.abs(mAccelCurrent);
 				maxNetForce = absAccel > maxNetForce ? absAccel : maxNetForce;
-				averageForce += absAccel;
-				numberOfSamples++;
+				//averageForce += absAccel;
+				//numberOfSamples++;
 
 				// lastOnSensorChangedTime = currentTime;
 
 				if (currentTime - lastChartUpdateTime >= updateInterval) {
 
-					averageForce /= numberOfSamples;
+					//averageForce /= numberOfSamples;
 
 					final double x = currentTime;
-					final double y = java.lang.Math.min(
-							alarmTriggerSensitivity, maxNetForce);/*
-																 * (maxNetForce
-																 * >=
-																 * alarmTriggerSensitivity
-																 * ) ?
-																 * maxNetForce :
-																 * averageForce
-																 * );
-																 */
+					final double y = java.lang.Math
+							.min(alarmTriggerSensitivity, maxNetForce);
+									/*(maxNetForce >= alarmTriggerSensitivity) ? maxNetForce
+											: averageForce);*/
 					if (y < minNetForce) {
 						minNetForce = y;
 					}
@@ -320,8 +325,8 @@ public class SleepAccelerometerService extends Service implements
 
 					lastChartUpdateTime = currentTime;
 					maxNetForce = 0;
-					averageForce = 0;
-					numberOfSamples = 0;
+					//averageForce = 0;
+					//numberOfSamples = 0;
 
 					if (triggerAlarmIfNecessary(currentTime, y)) {
 						unregisterAccelerometerListener();
@@ -332,9 +337,8 @@ public class SleepAccelerometerService extends Service implements
 								.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
 										| PowerManager.ON_AFTER_RELEASE
 										| PowerManager.ACQUIRE_CAUSES_WAKEUP,
-										LOCK_TAG);
-						forceScreenOnWakeLock.acquire();
-						forceScreenOnWakeLock.release();
+										LOCK_TAG+"1");
+						forceScreenOnWakeLock.acquire(3000);
 					}
 				}
 			}

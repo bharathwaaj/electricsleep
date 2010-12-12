@@ -47,8 +47,8 @@
 	<string name="could_not_save_sleep">Could not save this sleep:</string>
 	<string name="sleep_too_brief_to_analyze">It was too brief to
 		analyze.</string>
-	<string name="note_title">Add notes about your sleep (dreams, disruptions,
-		caffeine etc.)</string>
+	<string name="note_title">Comment [optional] (dreams, disruptions,
+		caffeine, etc.)</string>
 	<string name="summary_pref_sensor_delay">Try changing this if you\'re having problems with
 		sleep movement collection.</string>
 	<string name="title_pref_sensor_delay">Sensor Delay</string>
