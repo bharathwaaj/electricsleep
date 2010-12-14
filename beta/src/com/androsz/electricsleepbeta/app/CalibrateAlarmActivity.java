@@ -23,11 +23,11 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 	private final BroadcastReceiver updateChartReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
-			CalibrateAlarmActivity.this
+			/*CalibrateAlarmActivity.this
 					.setResult(
 							CALIBRATION_SUCCEEDED,
 							new Intent().putExtra("y",
-									sleepChart.getCalibrationLevel()));
+									sleepChart.getCalibrationLevel()));*/
 			if (sleepChart != null) {
 				final DecimalSeekBar seekBar = (DecimalSeekBar) findViewById(R.id.calibration_level_seekbar);
 				seekBar.setProgress((float) sleepChart.getCalibrationLevel());
@@ -98,6 +98,11 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 	}
 
 	public void onDoneClick(final View v) {
+		CalibrateAlarmActivity.this
+		.setResult(
+				CALIBRATION_SUCCEEDED,
+				new Intent().putExtra("y",
+						sleepChart.getCalibrationLevel()));
 		finish();
 	}
 

@@ -8,13 +8,13 @@
 	the specific language governing permissions and limitations under the License. -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/base_layout" android:layout_width="match_parent"
-	android:layout_height="match_parent" android:orientation="vertical">
+	android:id="@+id/base_layout" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:orientation="vertical">
 
 	<LinearLayout android:id="@+id/add_alarm"
 		android:clickable="true" android:focusable="true"
 		android:background="@android:drawable/list_selector_background"
-		android:layout_width="match_parent" android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:orientation="horizontal">
 
 		<ImageView style="@style/alarm_list_left_column"
@@ -30,21 +30,21 @@
 
 	</LinearLayout>
 
-	<ImageView android:layout_width="match_parent"
+	<ImageView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:scaleType="fitXY"
 		android:gravity="fill_horizontal" android:src="@android:drawable/divider_horizontal_dark" />
 
-	<ListView android:id="@+id/alarms_list" android:layout_width="match_parent"
+	<ListView android:id="@+id/alarms_list" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:layout_weight="1" />
 
-	<LinearLayout android:layout_width="match_parent"
+	<LinearLayout android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:orientation="horizontal">
 
 		<com.androsz.electricsleepbeta.alarmclock.DigitalClock
-			style="@style/ButtonStripRight" android:layout_width="match_parent"
-			android:layout_height="match_parent">
+			style="@style/ButtonStripRight" android:layout_width="fill_parent"
+			android:layout_height="fill_parent">
 
-			<LinearLayout android:layout_width="match_parent"
+			<LinearLayout android:layout_width="fill_parent"
 				android:layout_height="wrap_content" android:baselineAligned="true">
 
 				<TextView android:id="@+id/timeDisplay"

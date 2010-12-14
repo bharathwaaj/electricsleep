@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout android:layout_width="match_parent"
-	android:layout_height="match_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout android:layout_width="fill_parent"
+	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/save_sleep_layout">
 
 	db.execSQL("DROP TABLE IF EXISTS " + FTS_VIRTUAL_TABLE);
@@ -16,7 +16,7 @@
 		android:layout_height="wrap_content" android:layout_below="@+id/save_sleep_rating_bar"
 		android:id="@+id/save_sleep_note_txt" android:text="@string/note_title"></TextView>
 	<EditText android:layout_below="@+id/save_sleep_note_txt"
-		android:layout_height="wrap_content" android:layout_width="match_parent"
+		android:layout_height="wrap_content" android:layout_width="fill_parent"
 		android:id="@+id/save_sleep_note_edit"></EditText>
 	<Button android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true" android:id="@+id/save_sleep_btn_save"

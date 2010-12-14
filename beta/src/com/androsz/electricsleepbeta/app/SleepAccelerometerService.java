@@ -39,7 +39,7 @@ public class SleepAccelerometerService extends Service implements
 	public static final String STOP_AND_SAVE_SLEEP = "com.androsz.electricsleepbeta.STOP_AND_SAVE_SLEEP";
 	private boolean airplaneMode = false;
 
-	private final BroadcastReceiver alarmDoneReceiver = new BroadcastReceiver() {
+	private final BroadcastReceiver alarmDismissedByUserReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 			createSaveSleepNotification();
@@ -56,11 +56,11 @@ public class SleepAccelerometerService extends Service implements
 
 	private long lastChartUpdateTime = 0;
 
-	//private double mAccel = 0;
+	// private double mAccel = 0;
 
-	//private double mAccelCurrent = 0;
+	// private double mAccelCurrent = 0;
 
-	//private double mAccelLast = Double.POSITIVE_INFINITY;
+	// private double mAccelLast = Double.POSITIVE_INFINITY;
 
 	private double maxNetForce = 0;
 
@@ -103,9 +103,9 @@ public class SleepAccelerometerService extends Service implements
 
 	private boolean forceScreenOn = false;
 
-	//private double averageForce = 0;
+	// private double averageForce = 0;
 
-	//private int numberOfSamples = 0;
+	// private int numberOfSamples = 0;
 
 	private final float[] gravity = { 0, 0, 0 };
 
@@ -212,13 +212,14 @@ public class SleepAccelerometerService extends Service implements
 		lastChartUpdateTime = System.currentTimeMillis();
 
 		registerReceiver(pokeSyncChartReceiver, new IntentFilter(
-				POKE_SYNC_CHART));
+				POKE_SYNC_CHART));	
 
 		registerReceiver(stopAndSaveSleepReceiver, new IntentFilter(
 				STOP_AND_SAVE_SLEEP));
-
-		registerReceiver(alarmDoneReceiver, new IntentFilter(
-				Alarms.ALARM_DONE_ACTION));
+		
+		IntentFilter filter = new IntentFilter(Alarms.ALARM_DISMISSED_BY_USER_ACTION);
+		//filter.addAction(Alarms.ALARM_DISMISS_ACTION);
+		registerReceiver(alarmDismissedByUserReceiver, filter);
 
 		dateStarted = new Date();
 
@@ -234,7 +235,7 @@ public class SleepAccelerometerService extends Service implements
 
 		unregisterReceiver(pokeSyncChartReceiver);
 		unregisterReceiver(stopAndSaveSleepReceiver);
-		unregisterReceiver(alarmDoneReceiver);
+		unregisterReceiver(alarmDismissedByUserReceiver);
 
 		// tell monitoring activities that sleep has ended
 		sendBroadcast(new Intent(SLEEP_STOPPED));
@@ -260,24 +261,20 @@ public class SleepAccelerometerService extends Service implements
 				final long currentTime = System.currentTimeMillis();
 				final float alpha = 0.5f;
 
-				/*if (Double.isInfinite(mAccelLast)) {
-
-					gravity[0] = alpha * gravity[0] + (1 - alpha)
-							* event.values[0];
-					gravity[1] = alpha * gravity[1] + (1 - alpha)
-							* event.values[1];
-					gravity[2] = alpha * gravity[2] + (1 - alpha)
-							* event.values[2];
-
-					final double curX = event.values[0] - gravity[0];
-					final double curY = event.values[1] - gravity[1];
-					final double curZ = event.values[2] - gravity[2];
-					mAccelCurrent = Math.sqrt(curX * curX + curY * curY + curZ
-							* curZ);
-					mAccelLast = mAccelCurrent;
-					lastChartUpdateTime = currentTime;
-					return;
-				}*/
+				/*
+				 * if (Double.isInfinite(mAccelLast)) {
+				 * 
+				 * gravity[0] = alpha * gravity[0] + (1 - alpha)
+				 * event.values[0]; gravity[1] = alpha * gravity[1] + (1 -
+				 * alpha) event.values[1]; gravity[2] = alpha * gravity[2] + (1
+				 * - alpha) event.values[2];
+				 * 
+				 * final double curX = event.values[0] - gravity[0]; final
+				 * double curY = event.values[1] - gravity[1]; final double curZ
+				 * = event.values[2] - gravity[2]; mAccelCurrent =
+				 * Math.sqrt(curX * curX + curY * curY + curZ curZ); mAccelLast
+				 * = mAccelCurrent; lastChartUpdateTime = currentTime; return; }
+				 */
 
 				gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
 				gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
@@ -287,27 +284,29 @@ public class SleepAccelerometerService extends Service implements
 				final double curY = event.values[1] - gravity[1];
 				final double curZ = event.values[2] - gravity[2];
 
-				//mAccelLast = mAccelCurrent;
-				final double mAccelCurrent = Math.sqrt(curX * curX + curY * curY + curZ
-						* curZ);
+				// mAccelLast = mAccelCurrent;
+				final double mAccelCurrent = Math.sqrt(curX * curX + curY
+						* curY + curZ * curZ);
 				// final double delta = mAccelCurrent - mAccelLast;
 				// mAccel = mAccel * 0.1f + delta; // perform low-cut filter
 				final double absAccel = Math.abs(mAccelCurrent);
 				maxNetForce = absAccel > maxNetForce ? absAccel : maxNetForce;
-				//averageForce += absAccel;
-				//numberOfSamples++;
+				// averageForce += absAccel;
+				// numberOfSamples++;
 
 				// lastOnSensorChangedTime = currentTime;
 
 				if (currentTime - lastChartUpdateTime >= updateInterval) {
 
-					//averageForce /= numberOfSamples;
+					// averageForce /= numberOfSamples;
 
 					final double x = currentTime;
-					final double y = java.lang.Math
-							.min(alarmTriggerSensitivity, maxNetForce);
-									/*(maxNetForce >= alarmTriggerSensitivity) ? maxNetForce
-											: averageForce);*/
+					final double y = java.lang.Math.min(
+							alarmTriggerSensitivity, maxNetForce);
+					/*
+					 * (maxNetForce >= alarmTriggerSensitivity) ? maxNetForce :
+					 * averageForce);
+					 */
 					if (y < minNetForce) {
 						minNetForce = y;
 					}
@@ -325,11 +324,11 @@ public class SleepAccelerometerService extends Service implements
 
 					lastChartUpdateTime = currentTime;
 					maxNetForce = 0;
-					//averageForce = 0;
-					//numberOfSamples = 0;
+					// averageForce = 0;
+					// numberOfSamples = 0;
 
 					if (triggerAlarmIfNecessary(currentTime, y)) {
-						unregisterAccelerometerListener();
+						//unregisterAccelerometerListener();
 					} else if (forceScreenOn) {
 						final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
@@ -337,7 +336,7 @@ public class SleepAccelerometerService extends Service implements
 								.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
 										| PowerManager.ON_AFTER_RELEASE
 										| PowerManager.ACQUIRE_CAUSES_WAKEUP,
-										LOCK_TAG+"1");
+										LOCK_TAG + "1");
 						forceScreenOnWakeLock.acquire(3000);
 					}
 				}

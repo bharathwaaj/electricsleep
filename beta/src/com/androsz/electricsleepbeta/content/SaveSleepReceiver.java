@@ -130,9 +130,41 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 						return;
 					}
 				} else {
-					shdb.close();
-					context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
-					return;
+
+					final long endTime = Math.round(mX
+							.get(mX.size() - 1));
+					final long startTime = Math.round(mX.get(0));
+
+					int numberOfSpikes = 0;
+					int numberOfConsecutiveNonSpikes = 0;
+					long timeOfFirstSleep = endTime;
+					int size = mX.size();
+					for (int i = 0; i < size; i++) {
+						if(mY.get(i) < alarm)
+						{
+							if (timeOfFirstSleep == endTime
+									&& ++numberOfConsecutiveNonSpikes > 4) {
+								final int lastIndex = mX.size() - 1;
+
+								timeOfFirstSleep = Math.round(mX
+										.get(lastIndex));
+							}
+						} else {
+							numberOfConsecutiveNonSpikes = 0;
+							numberOfSpikes++;
+						}
+					}
+					try {
+						shdb.addSleep(context, new SleepRecord(name,
+								mX, mY, min, alarm,
+								rating, endTime - startTime, numberOfSpikes,
+								timeOfFirstSleep, note));
+					} catch (IOException e) {
+						shdb.close();
+						context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED)
+								.putExtra("IOException", e.getMessage()));
+						return;
+					}
 				}
 
 				final Cursor c = shdb.getSleepMatches(name, new String[] {

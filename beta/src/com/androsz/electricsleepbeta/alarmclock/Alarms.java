@@ -61,6 +61,10 @@ public class Alarms {
 	// ALARM_DONE_ACTION).
 	public static final String ALARM_DISMISS_ACTION = "com.androsz.electricsleepbeta.alarmclock.ALARM_DISMISS";
 
+	// A public action that is broadcasted when the user dismisses an alarm.
+	// Other applications may listen for this to.
+	public static final String ALARM_DISMISSED_BY_USER_ACTION = "com.androsz.electricsleepbeta.alarmclock.ALARM_DISMISSED_BY_USER";
+
 	// This is a private action used by the AlarmKlaxon to update the UI to
 	// show the alarm has been killed.
 	public static final String ALARM_KILLED = "com.androsz.electricsleepbeta.alarmclock.alarm_killed";
