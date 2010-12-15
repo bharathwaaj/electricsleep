@@ -26,6 +26,7 @@ import android.provider.Settings;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.Alarm;
+import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
 import com.androsz.electricsleepbeta.alarmclock.Alarms;
 
 public class SleepAccelerometerService extends Service implements
@@ -170,7 +171,7 @@ public class SleepAccelerometerService extends Service implements
 
 		notification.flags = Notification.FLAG_ONGOING_EVENT;
 
-		final Context context = getApplicationContext();
+		// final Context context = getApplicationContext();
 		final CharSequence contentTitle = getText(R.string.notification_sleep_title);
 		final CharSequence contentText = getText(R.string.notification_sleep_text);
 		final Intent notificationIntent = new Intent(this, SleepActivity.class);
@@ -179,7 +180,7 @@ public class SleepAccelerometerService extends Service implements
 		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 				notificationIntent, 0);
 
-		notification.setLatestEventInfo(context, contentTitle, contentText,
+		notification.setLatestEventInfo(this, contentTitle, contentText,
 				contentIntent);
 
 		return notification;
@@ -212,13 +213,14 @@ public class SleepAccelerometerService extends Service implements
 		lastChartUpdateTime = System.currentTimeMillis();
 
 		registerReceiver(pokeSyncChartReceiver, new IntentFilter(
-				POKE_SYNC_CHART));	
+				POKE_SYNC_CHART));
 
 		registerReceiver(stopAndSaveSleepReceiver, new IntentFilter(
 				STOP_AND_SAVE_SLEEP));
-		
-		IntentFilter filter = new IntentFilter(Alarms.ALARM_DISMISSED_BY_USER_ACTION);
-		//filter.addAction(Alarms.ALARM_DISMISS_ACTION);
+
+		final IntentFilter filter = new IntentFilter(
+				Alarms.ALARM_DISMISSED_BY_USER_ACTION);
+		filter.addAction(Alarms.ALARM_SNOOZE_CANCELED_BY_USER_ACTION);
 		registerReceiver(alarmDismissedByUserReceiver, filter);
 
 		dateStarted = new Date();
@@ -319,7 +321,6 @@ public class SleepAccelerometerService extends Service implements
 					i.putExtra("min", minNetForce);
 					i.putExtra("alarm", alarmTriggerSensitivity);
 					sendBroadcast(i);
-
 					// totalTimeBetweenSensorChanges = 0;
 
 					lastChartUpdateTime = currentTime;
@@ -328,7 +329,7 @@ public class SleepAccelerometerService extends Service implements
 					// numberOfSamples = 0;
 
 					if (triggerAlarmIfNecessary(currentTime, y)) {
-						//unregisterAccelerometerListener();
+						// unregisterAccelerometerListener();
 					} else if (forceScreenOn) {
 						final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
@@ -407,9 +408,15 @@ public class SleepAccelerometerService extends Service implements
 				final long alarmMillis = alarmTime.getTimeInMillis();
 				if (currentTime >= alarmMillis && y >= alarmTriggerSensitivity) {
 					// alarm.time = currentTime;
-					partialWakeLock.release();
-					Alarms.enableAlert(this, alarm, currentTime);
-
+					final SharedPreferences alarmPrefs = getSharedPreferences(
+							AlarmClock.PREFERENCES, 0);
+					final int id = alarmPrefs.getInt(Alarms.PREF_SNOOZE_ID, -1);
+					// if not already snoozing off the same alarm, trigger the
+					// alarm
+					if (id != alarm.id) {
+						partialWakeLock.release();
+						Alarms.enableAlert(this, alarm, currentTime);
+					}
 					return true;
 				}
 			}

@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -75,8 +74,9 @@ public class HomeActivity extends CustomTitlebarActivity {
 		} else {
 			try {
 				analytics.trackEvent("version", getPackageManager()
-								.getPackageInfo(this.getPackageName(),0).versionName, "", 0);
-			} catch (NameNotFoundException e) {
+						.getPackageInfo(this.getPackageName(), 0).versionName,
+						"", 0);
+			} catch (final NameNotFoundException e) {
 				analytics.trackEvent("version", "???", "", 0);
 			}
 			StartSleepReceiver.enforceCalibrationBeforeStartingSleep(this,

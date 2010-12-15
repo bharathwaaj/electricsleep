@@ -57,6 +57,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 					intent.getIntExtra(Alarms.ALARM_KILLED_TIMEOUT, -1));
 			return;
 		} else if (Alarms.CANCEL_SNOOZE.equals(intent.getAction())) {
+			context.sendBroadcast(new Intent(
+					Alarms.ALARM_SNOOZE_CANCELED_BY_USER_ACTION));
 			Alarms.saveSnoozeAlert(context, -1, -1);
 			return;
 		}

@@ -131,7 +131,7 @@ public class AlarmClock extends
 		}
 	}
 
-	static final String PREFERENCES = "AlarmClock";
+	public static final String PREFERENCES = "AlarmClock";
 
 	/**
 	 * This must be false for production. If true, turns on logging, test code,

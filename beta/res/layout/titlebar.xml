@@ -33,12 +33,14 @@
 		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
 		android:src="@drawable/ic_title_refresh" android:background="@drawable/title_button"
 		android:onClick="onTitleButton1Click" android:visibility="gone"
-		android:tint="@android:color/white" android:maxHeight="@dimen/title_height" android:maxWidth="@dimen/title_height"/>
+		android:tint="@android:color/white" android:maxHeight="@dimen/title_height"
+		android:maxWidth="@dimen/title_height" />
 
 	<ProgressBar android:id="@+id/title_progress_1"
 		android:indeterminate="true" android:layout_toLeftOf="@dimen/title_height"
 		android:layout_width="@dimen/title_height" android:layout_height="@dimen/title_height"
-		android:visibility="gone" android:layout_alignParentRight="true" android:maxHeight="@dimen/title_height" android:maxWidth="@dimen/title_height"/>
+		android:visibility="gone" android:layout_alignParentRight="true"
+		android:maxHeight="@dimen/title_height" android:maxWidth="@dimen/title_height" />
 
 	<ImageView android:id="@+id/title_sep_2"
 		android:layout_width="1px" android:layout_height="fill_parent"
@@ -53,6 +55,6 @@
 		android:layout_alignParentBottom="true" android:src="@drawable/ic_title_search"
 		android:background="@drawable/title_button" android:onClick="onTitleButton2Click"
 		android:visibility="gone" android:tint="@android:color/white"
-		android:maxHeight="@dimen/title_height" android:maxWidth="@dimen/title_height"/>
+		android:maxHeight="@dimen/title_height" android:maxWidth="@dimen/title_height" />
 
 </RelativeLayout>

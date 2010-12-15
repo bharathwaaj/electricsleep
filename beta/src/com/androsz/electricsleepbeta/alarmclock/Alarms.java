@@ -55,6 +55,10 @@ public class Alarms {
 	// ALARM_DONE_ACTION).
 	public static final String ALARM_SNOOZE_ACTION = "com.androsz.electricsleepbeta.alarmclock.ALARM_SNOOZE";
 
+	// A public action that is broadcasted when the user cancels snoozing
+	// Other applications may listen for this.
+	public static final String ALARM_SNOOZE_CANCELED_BY_USER_ACTION = "com.androsz.electricsleepbeta.alarmclock.ALARM_SNOOZE_CANCELED_BY_USER";
+
 	// AlarmAlertFullScreen listens for this broadcast intent, so that other
 	// applications
 	// can dismiss the alarm (after ALARM_ALERT_ACTION and before
@@ -92,7 +96,7 @@ public class Alarms {
 	// list of alarms.
 	public static final String ALARM_ID = "alarm_id";
 
-	final static String PREF_SNOOZE_ID = "snooze_id";
+	public final static String PREF_SNOOZE_ID = "snooze_id";
 	final static String PREF_SNOOZE_TIME = "snooze_time";
 
 	private final static String DM12 = "E h:mm aa";

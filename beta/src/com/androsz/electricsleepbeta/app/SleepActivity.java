@@ -124,7 +124,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 						.getAttributes();
 
 				winParams.screenBrightness = 0.01f;
-				//winParams.buttonBrightness = WindowManager.LayoutParams.;
+				// winParams.buttonBrightness = WindowManager.LayoutParams.;
 
 				win.setAttributes(winParams);
 			}
