@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.app.CalibrationWizardActivity;
@@ -41,42 +42,7 @@ public class StartSleepReceiver extends BroadcastReceiver {
 		if (message.length() > 0) {
 			message += context
 					.getString(R.string.message_recommend_calibration);
-			final AlertDialog.Builder dialog = new AlertDialog.Builder(context)
-					.setMessage(message)
-					.setCancelable(false)
-					.setPositiveButton(context.getString(R.string.calibrate),
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									context.startActivity(new Intent(context,
-											CalibrationWizardActivity.class));
-								}
-							})
-					.setNeutralButton(context.getString(R.string.manual),
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									context.startActivity(new Intent(context,
-											SettingsActivity.class));
-								}
-							})
-					.setNegativeButton(context.getString(R.string.cancel),
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									dialog.cancel();
-								}
-							});
-			try {
-				dialog.show();
-			} catch (final Exception e) {
-			}
+			Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 		} else if (service != null && activity != null) {
 			context.startService(service);
 			context.startActivity(activity);
@@ -100,46 +66,6 @@ public class StartSleepReceiver extends BroadcastReceiver {
 				context.getString(R.string.pref_airplane_mode), false);
 		final boolean forceScreenOn = userPrefs.getBoolean(
 				context.getString(R.string.pref_force_screen), false);
-
-		if (alarmTriggerSensitivity < 0 || useAlarm && alarmWindow < 0) {
-			final AlertDialog.Builder dialog = new AlertDialog.Builder(context)
-					.setMessage(context.getString(R.string.invalid_settings))
-					.setCancelable(false)
-					.setPositiveButton("Calibrate",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									context.startActivity(new Intent(context,
-											CalibrationWizardActivity.class));
-								}
-							})
-					.setNeutralButton("Manual",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									context.startActivity(new Intent(context,
-											SettingsActivity.class));
-								}
-							})
-					.setNegativeButton("Cancel",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(
-										final DialogInterface dialog,
-										final int id) {
-									dialog.cancel();
-								}
-							});
-			try {
-				dialog.show();
-			} catch (final Exception e) {
-			}
-			return;
-		}
 
 		final Intent serviceIntent = new Intent(context,
 				SleepAccelerometerService.class);

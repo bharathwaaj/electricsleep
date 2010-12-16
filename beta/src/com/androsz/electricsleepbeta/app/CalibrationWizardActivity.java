@@ -147,8 +147,8 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity {
 			analytics.trackEvent("calibration-null-accelerometer", "alarm",
 					String.format("%.2f", alarmTriggerCalibration), 0);
 		}
-		analytics.trackEvent("screen-bug-by-hardware", Build.MODEL, ""
-				+ screenBugPresent, 0);
+		analytics.trackEvent("screen-bug-by-hardware", Build.MODEL + "-"
+				+ Build.VERSION.SDK_INT, "" + screenBugPresent, 0);
 		finish();
 	}
 

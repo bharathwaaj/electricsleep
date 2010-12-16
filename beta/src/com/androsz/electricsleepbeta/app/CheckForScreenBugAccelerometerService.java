@@ -22,14 +22,8 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 			if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-				obtainWakeLock();
-				serviceHandler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						registerAccelerometerListener();
-					}
-				}, 3333);
-				serviceHandler.postDelayed(turnScreenOnFallbackRunnable, 10000);
+				screenIsOff = true;
+				serviceHandler.postDelayed(turnScreenOnFallbackRunnable, 12000);
 			} else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
 				if (bugPresent) {
 					// Sensor change never triggered, so the bug is present
@@ -61,6 +55,7 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 	private WakeLock partialWakeLock;
 
 	private boolean bugPresent = true;
+	private boolean screenIsOff = false;
 
 	private void obtainWakeLock() {
 		final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -88,6 +83,8 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 		filter.addAction(Intent.ACTION_SCREEN_OFF);
 		screenOnOffReceiver = new ScreenReceiver();
 		registerReceiver(screenOnOffReceiver, filter);
+		obtainWakeLock();
+		registerAccelerometerListener();
 	}
 
 	@Override
@@ -108,9 +105,11 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 
 	@Override
 	public void onSensorChanged(final SensorEvent event) {
-		unregisterAccelerometerListener();
-		bugPresent = false;
-		turnScreenOn();
+		if (screenIsOff) {
+			//unregisterAccelerometerListener();
+			bugPresent = false;
+			turnScreenOn();
+		}
 	}
 
 	private void registerAccelerometerListener() {
