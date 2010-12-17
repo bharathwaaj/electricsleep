@@ -2,25 +2,26 @@
 	android:id="@+id/home_container" android:layout_height="fill_parent"
 	android:layout_width="fill_parent">
 
-	<LinearLayout android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:layout_alignParentTop="true"
-		android:layout_centerHorizontal="true" android:id="@+id/home_button_container">
+	<LinearLayout android:layout_height="wrap_content" android:layout_alignParentTop="true"
+		android:id="@+id/home_button_container" android:layout_width="fill_parent">
 		<Button style="@style/HomeButton" android:id="@+id/home_btn_sleep"
 			android:onClick="onSleepClick" android:drawableTop="@drawable/home_btn_sleep"
 			android:text="@string/title_sleep" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:layout_marginRight="40dip" />
+			android:layout_height="wrap_content" android:layout_weight="0.33"/>
 		<Button android:id="@+id/home_btn_history" style="@style/HomeButton"
 			android:onClick="onHistoryClick" android:text="@string/title_history"
 			android:drawableTop="@drawable/home_btn_history"
-			android:layout_width="wrap_content" android:layout_height="fill_parent"
-			android:layout_marginLeft="40dip" />
+			android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="0.33"/>
+		<Button android:id="@+id/home_btn_alarms" style="@style/HomeButton"
+			android:drawableTop="@drawable/home_btn_alarms"
+			android:layout_width="wrap_content" android:text="@string/title_pref_alarms" android:layout_height="wrap_content" android:layout_weight="0.33" android:onClick="onAlarmsClick"/>
 	</LinearLayout>
 
 	<TextView android:layout_height="wrap_content"
 		android:gravity="center" android:layout_below="@+id/home_button_container"
 		android:layout_centerHorizontal="true" android:text="@string/home_review_title_text_empty"
 		android:textAppearance="@style/TextHeader" android:id="@+id/home_review_title_text"
-		android:layout_width="fill_parent" android:background="@color/primary2"></TextView>
+		android:layout_width="fill_parent" android:background="@color/primary2" android:shadowColor="@android:color/white" android:shadowRadius="1" android:shadowDx="1"></TextView>
 	<com.androsz.electricsleepbeta.widget.SleepChart
 		android:id="@+id/home_sleep_chart" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:layout_margin="4dip"

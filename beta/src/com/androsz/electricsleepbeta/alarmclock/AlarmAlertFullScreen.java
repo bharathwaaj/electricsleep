@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.app.SettingsActivity;
 
 /**
  * Alarm Clock alarm alert: pops visible indicator and plays alarm tone. This

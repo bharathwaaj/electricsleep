@@ -44,6 +44,12 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 						.getSerializableExtra("currentSeriesY");
 
 				final int numberOfPointsOriginal = mY.size();
+				
+				if(numberOfPointsOriginal == 0)
+				{
+					context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
+					return;
+				}
 
 				final int numberOfDesiredGroupedPoints = 200;
 				// numberOfDesiredGroupedPoints = numberOfPointsOriginal >
@@ -86,7 +92,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 								/ numberOfPointsInThisGroup;
 						if (numberOfPointsInThisGroup < pointsPerGroup) {
 							// we are done
-							final int lastIndex = mX.size() - 1;
+							final int lastIndex = numberOfPointsOriginal - 1;
 							lessDetailedX.add(mX.get(lastIndex));
 							lessDetailedY.add(mY.get(lastIndex));
 							mX = lessDetailedX;

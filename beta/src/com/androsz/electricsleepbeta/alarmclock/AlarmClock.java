@@ -244,12 +244,6 @@ public class AlarmClock extends
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		getMenuInflater().inflate(R.menu.alarm_list_menu, menu);
-		return true;// super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		ToastMaster.cancelToast();
@@ -262,21 +256,6 @@ public class AlarmClock extends
 		final Intent intent = new Intent(this, SetAlarm.class);
 		intent.putExtra(Alarms.ALARM_ID, (int) id);
 		startActivity(intent);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_item_settings:
-			startActivity(new Intent(this, SettingsActivity.class));
-			return true;
-		case R.id.menu_item_add_alarm:
-			addNewAlarm();
-			return true;
-		default:
-			break;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	private void updateIndicatorAndAlarm(final boolean enabled,

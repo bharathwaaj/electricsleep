@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
 import com.androsz.electricsleepbeta.content.StartSleepReceiver;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepRecord;
@@ -52,6 +53,10 @@ public class HomeActivity extends CustomTitlebarActivity {
 	protected int getContentAreaLayoutId() {
 		return R.layout.activity_home;
 	}
+	
+	public void onAlarmsClick(final View v) {
+		startActivity(new Intent(this, AlarmClock.class));
+	}
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -83,7 +88,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 					null, null);
 		}
 	}
-
+	
 	public void onHistoryClick(final View v) {
 		startActivity(new Intent(this, HistoryActivity.class));
 	}
