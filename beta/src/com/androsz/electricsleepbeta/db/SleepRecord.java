@@ -19,6 +19,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.util.PointD;
 
 public class SleepRecord {
 
@@ -28,8 +29,7 @@ public class SleepRecord {
 	// DATABASE_VERSION = 3
 	public static final String KEY_TITLE = SearchManager.SUGGEST_COLUMN_TEXT_1;
 
-	public static final String KEY_X = "sleep_data_x";
-	public static final String KEY_Y = "sleep_data_y";
+	public static final String KEY_SLEEP_DATA = "sleep_data";
 	public static final String KEY_MIN = "sleep_data_min";
 	public static final String KEY_ALARM = "sleep_data_alarm";
 	public static final String KEY_RATING = "sleep_data_rating";
@@ -50,8 +50,7 @@ public class SleepRecord {
 
 		final HashMap<String, String> map = new HashMap<String, String>();
 		map.put(KEY_TITLE, KEY_TITLE);
-		map.put(KEY_X, KEY_X);
-		map.put(KEY_Y, KEY_Y);
+		map.put(KEY_SLEEP_DATA, KEY_SLEEP_DATA);
 		map.put(KEY_MIN, KEY_MIN);
 		map.put(KEY_ALARM, KEY_ALARM);
 		map.put(KEY_RATING, KEY_RATING);
@@ -79,8 +78,7 @@ public class SleepRecord {
 
 	//
 
-	private static byte[] objectToByteArray(final Object obj)
-			throws IOException {
+	public static byte[] objectToByteArray(final Object obj) throws IOException {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		final ObjectOutputStream oos = new ObjectOutputStream(baos);
 		oos.writeObject(obj);
@@ -89,8 +87,7 @@ public class SleepRecord {
 	}
 
 	public final String title;
-	public final List<Double> chartDataX;
-	public final List<Double> chartDataY;
+	public final List<PointD> chartData;
 	public final double min;
 	public final double alarm;
 	public final int rating;
@@ -106,11 +103,8 @@ public class SleepRecord {
 
 		title = cursor.getString(cursor.getColumnIndexOrThrow(KEY_TITLE));
 
-		chartDataX = (List<Double>) byteArrayToObject(cursor.getBlob(cursor
-				.getColumnIndexOrThrow(KEY_X)));
-
-		chartDataY = (List<Double>) byteArrayToObject(cursor.getBlob(cursor
-				.getColumnIndexOrThrow(KEY_Y)));
+		chartData = (List<PointD>) byteArrayToObject(cursor.getBlob(cursor
+				.getColumnIndexOrThrow(KEY_SLEEP_DATA)));
 
 		min = cursor.getDouble(cursor.getColumnIndexOrThrow(KEY_MIN));
 		alarm = cursor.getDouble(cursor.getColumnIndexOrThrow(KEY_ALARM));
@@ -123,13 +117,12 @@ public class SleepRecord {
 		note = cursor.getString(cursor.getColumnIndexOrThrow(KEY_NOTE));
 	}
 
-	public SleepRecord(final String title, final List<Double> chartDataX,
-			final List<Double> chartDataY, final double min,
-			final double alarm, final int rating, final long duration,
-			final int spikes, final long fellAsleep, final String note) {
+	public SleepRecord(final String title, final List<PointD> chartData,
+			final double min, final double alarm, final int rating,
+			final long duration, final int spikes, final long fellAsleep,
+			final String note) {
 		this.title = title;
-		this.chartDataX = chartDataX;
-		this.chartDataY = chartDataY;
+		this.chartData = chartData;
 		this.min = min;
 		this.alarm = alarm;
 		this.rating = rating;
@@ -160,10 +153,12 @@ public class SleepRecord {
 		int score = 0;
 		final float ratingPct = (rating - 1) / 4f;
 		// final float deepPct = Math.min(1, 15f / spikes);
-		final float diffFrom8HoursPct = 1 - Math
-				.abs((duration - 28800000) / 28800000f);
-		final float timeToFallAsleepPct = 1000 * 60 * 15f / Math.max(fellAsleep
-				- getStartTime(), 1000 * 60 * 15);
+		float fifteenMinutes = 1000 * 60 * 15;
+		float eightHours = 1000 * 60 * 60 * 8;
+		final float diffFrom8HoursPct = 1 - Math.abs((duration - eightHours)
+				/ eightHours);
+		final float timeToFallAsleepPct = fifteenMinutes
+				/ Math.max(fellAsleep - getStartTime(), fifteenMinutes);
 		// ratingPct *= 1;
 		// deepPct *= 1;
 		// diffFrom8HoursPct *= 1.4;
@@ -176,7 +171,7 @@ public class SleepRecord {
 	}
 
 	public long getStartTime() {
-		return Math.round(chartDataX.get(0));
+		return Math.round(chartData.get(0).x);
 	}
 
 	private Calendar getTimeDiffCalendar(final long time) {
@@ -192,8 +187,7 @@ public class SleepRecord {
 		final ContentValues initialValues = new ContentValues();
 		initialValues.put(KEY_TITLE, title);
 
-		initialValues.put(KEY_X, objectToByteArray(chartDataX));
-		initialValues.put(KEY_Y, objectToByteArray(chartDataY));
+		initialValues.put(KEY_SLEEP_DATA, objectToByteArray(chartData));
 
 		initialValues.put(KEY_MIN, min);
 		initialValues.put(KEY_ALARM, alarm);

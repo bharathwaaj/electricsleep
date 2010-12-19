@@ -44,6 +44,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.app.SettingsActivity;
 
 /**
  * AlarmClock application.
@@ -131,8 +132,6 @@ public class AlarmClock extends
 		}
 	}
 
-	public static final String PREFERENCES = "AlarmClock";
-
 	/**
 	 * This must be false for production. If true, turns on logging, test code,
 	 * etc.
@@ -204,7 +203,7 @@ public class AlarmClock extends
 		super.onCreate(icicle);
 
 		mFactory = LayoutInflater.from(this);
-		mPrefs = getSharedPreferences(PREFERENCES, 0);
+		mPrefs = getSharedPreferences(SettingsActivity.PREFERENCES, 0);
 		mCursor = Alarms.getAlarmsCursor(getContentResolver());
 
 		updateLayout();

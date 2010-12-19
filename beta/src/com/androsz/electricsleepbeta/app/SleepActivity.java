@@ -1,6 +1,7 @@
 package com.androsz.electricsleepbeta.app;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.ProgressDialog;
@@ -20,6 +21,7 @@ import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.Alarm;
 import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
 import com.androsz.electricsleepbeta.alarmclock.Alarms;
+import com.androsz.electricsleepbeta.util.PointD;
 import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class SleepActivity extends CustomTitlebarActivity {
@@ -76,10 +78,8 @@ public class SleepActivity extends CustomTitlebarActivity {
 			sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
 
 			// inlined for efficiency
-			sleepChart.xySeriesMovement.mX = (List<Double>) intent
-					.getSerializableExtra("currentSeriesX");
-			sleepChart.xySeriesMovement.mY = (List<Double>) intent
-					.getSerializableExtra("currentSeriesY");
+			sleepChart.xySeriesMovement.xyList = (List<PointD>) intent
+					.getSerializableExtra("sleepData");
 			sleepChart.reconfigure(intent.getDoubleExtra("min",
 					SettingsActivity.DEFAULT_MIN_SENSITIVITY), intent
 					.getDoubleExtra("alarm",

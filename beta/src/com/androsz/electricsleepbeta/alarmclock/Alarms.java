@@ -18,6 +18,8 @@ package com.androsz.electricsleepbeta.alarmclock;
 
 import java.util.Calendar;
 
+import com.androsz.electricsleepbeta.app.SettingsActivity;
+
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -212,7 +214,7 @@ public class Alarms {
 		// If this alarm fires before the next snooze, clear the snooze to
 		// enable this alarm.
 		final SharedPreferences prefs = context.getSharedPreferences(
-				AlarmClock.PREFERENCES, 0);
+				SettingsActivity.PREFERENCES, 0);
 		final long snoozeTime = prefs.getLong(PREF_SNOOZE_TIME, 0);
 		if (alarmTime < snoozeTime) {
 			clearSnoozePreference(context, prefs);
@@ -323,7 +325,7 @@ public class Alarms {
 	 */
 	static void disableSnoozeAlert(final Context context, final int id) {
 		final SharedPreferences prefs = context.getSharedPreferences(
-				AlarmClock.PREFERENCES, 0);
+				SettingsActivity.PREFERENCES, 0);
 		final int snoozeId = prefs.getInt(PREF_SNOOZE_ID, -1);
 		if (snoozeId == -1) {
 			// No snooze set, do nothing.
@@ -437,7 +439,7 @@ public class Alarms {
 	 */
 	private static boolean enableSnoozeAlert(final Context context) {
 		final SharedPreferences prefs = context.getSharedPreferences(
-				AlarmClock.PREFERENCES, 0);
+				SettingsActivity.PREFERENCES, 0);
 
 		final int id = prefs.getInt(PREF_SNOOZE_ID, -1);
 		if (id == -1) {
@@ -537,7 +539,7 @@ public class Alarms {
 	static void saveSnoozeAlert(final Context context, final int id,
 			final long time) {
 		final SharedPreferences prefs = context.getSharedPreferences(
-				AlarmClock.PREFERENCES, 0);
+				SettingsActivity.PREFERENCES, 0);
 		if (id == -1) {
 			clearSnoozePreference(context, prefs);
 		} else {

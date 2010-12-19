@@ -17,12 +17,14 @@ import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
 import com.androsz.electricsleepbeta.preference.CustomTitlebarPreferenceActivity;
 
-public class SettingsActivity extends CustomTitlebarPreferenceActivity implements Preference.OnPreferenceChangeListener {
+public class SettingsActivity extends CustomTitlebarPreferenceActivity
+		implements Preference.OnPreferenceChangeListener {
 
+	public static String PREFERENCES = "ElectricSleepPrefs";
 	public static double DEFAULT_MIN_SENSITIVITY = 0;
 	public static double DEFAULT_ALARM_SENSITIVITY = 0.5;
 	public static double MAX_ALARM_SENSITIVITY = 2;
-	
+
 	private static final int ALARM_STREAM_TYPE_BIT = 1 << AudioManager.STREAM_ALARM;
 
 	private static final String KEY_ALARM_IN_SILENT_MODE = "alarm_in_silent_mode";
@@ -38,30 +40,21 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity implement
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		new Thread(new Runnable() {
+		getPreferenceManager().setSharedPreferencesName(PREFERENCES);
 
-			@Override
-			public void run() {
+		findPreference(getText(R.string.pref_calibration))
+				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-				getPreferenceScreen().findPreference(
-						getText(R.string.pref_calibration))
-						.setOnPreferenceClickListener(
-								new OnPreferenceClickListener() {
-
-									@Override
-									public boolean onPreferenceClick(
-											final Preference preference) {
-										startActivity(new Intent(
-												SettingsActivity.this,
-												CalibrationWizardActivity.class));
-										return true;
-									}
-								});
-			}
-		}).start();
+					@Override
+					public boolean onPreferenceClick(final Preference preference) {
+						startActivity(new Intent(SettingsActivity.this,
+								CalibrationWizardActivity.class));
+						return true;
+					}
+				});
 
 		final SharedPreferences serviceIsRunningPrefs = getSharedPreferences(
-				"serviceIsRunning", Context.MODE_PRIVATE);
+				"sleepService", Context.MODE_PRIVATE);
 		if (serviceIsRunningPrefs.getBoolean("serviceIsRunning", false)) {
 			Toast.makeText(
 					this,
@@ -79,8 +72,7 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity implement
 			@Override
 			public void run() {
 				final SharedPreferences.Editor ed = getSharedPreferences(
-						getString(R.string.prefs_version), Context.MODE_PRIVATE)
-						.edit();
+						"prefsVersion", Context.MODE_PRIVATE).edit();
 				ed.putInt(getString(R.string.prefs_version), getResources()
 						.getInteger(R.integer.prefs_version));
 				ed.commit();
@@ -97,7 +89,7 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity implement
 		listPref.setSummary(listPref.getEntries()[idx]);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onPreferenceTreeClick(
 			final PreferenceScreen preferenceScreen, final Preference preference) {

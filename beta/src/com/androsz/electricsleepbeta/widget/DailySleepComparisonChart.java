@@ -14,6 +14,7 @@ import com.androsz.electricsleepbeta.achartengine.model.XYMultipleSeriesDataset;
 import com.androsz.electricsleepbeta.achartengine.model.XYSeries;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
+import com.androsz.electricsleepbeta.util.PointD;
 
 public class DailySleepComparisonChart extends ChartView implements
 		Serializable {
@@ -85,9 +86,8 @@ public class DailySleepComparisonChart extends ChartView implements
 
 	public void redraw(final double min, final double alarm) {
 		if (makesSenseToDisplay()) {
-			final double firstX = xySeriesMovement.mX.get(0);
-			final double lastX = xySeriesMovement.mX.get(xySeriesMovement.mX
-					.size() - 1);
+			final double firstX = xySeriesMovement.xyList.get(0).x;
+			final double lastX = xySeriesMovement.xyList.get(xySeriesMovement.xyList.size() - 1).x;
 			xyMultipleSeriesRenderer.setXAxisMin(firstX);
 			xyMultipleSeriesRenderer.setXAxisMax(lastX);
 
@@ -99,9 +99,8 @@ public class DailySleepComparisonChart extends ChartView implements
 
 	public void sync(final Double x, final Double y, final double min,
 			final double alarm) {
-		xySeriesMovement.mX.add(x);
-		xySeriesMovement.mY.add(y);
-		xyMultipleSeriesRenderer.setXLabels(xySeriesMovement.mX.size() + 1);
+		xySeriesMovement.xyList.add(new PointD(x, y));
+		xyMultipleSeriesRenderer.setXLabels(xySeriesMovement.xyList.size() + 1);
 		redraw(min, alarm);
 	}
 }

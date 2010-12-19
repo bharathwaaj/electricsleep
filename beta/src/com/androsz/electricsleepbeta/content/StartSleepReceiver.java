@@ -22,10 +22,8 @@ public class StartSleepReceiver extends BroadcastReceiver {
 
 	public static void enforceCalibrationBeforeStartingSleep(
 			final Context context, final Intent service, final Intent activity) {
-		final SharedPreferences userPrefs = context
-				.getSharedPreferences(
-						context.getString(R.string.prefs_version),
-						Context.MODE_PRIVATE);
+		final SharedPreferences userPrefs = context.getSharedPreferences(
+				"prefsVersion", Context.MODE_PRIVATE);
 		final int prefsVersion = userPrefs.getInt(
 				context.getString(R.string.prefs_version), 0);
 		String message = "";
@@ -34,9 +32,10 @@ public class StartSleepReceiver extends BroadcastReceiver {
 		} else if (prefsVersion != context.getResources().getInteger(
 				R.integer.prefs_version)) {
 			message = context.getString(R.string.message_prefs_not_compatible);
-			PreferenceManager.getDefaultSharedPreferences(context).edit()
-					.clear().commit();
-			PreferenceManager.setDefaultValues(context, R.xml.settings, true);
+			context.getSharedPreferences(SettingsActivity.PREFERENCES, 0)
+					.edit().clear().commit();
+			PreferenceManager.setDefaultValues(context,
+					SettingsActivity.PREFERENCES, 0, R.xml.settings, true);
 		}
 
 		if (message.length() > 0) {
@@ -51,8 +50,8 @@ public class StartSleepReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(final Context context, final Intent intent) {
-		final SharedPreferences userPrefs = PreferenceManager
-				.getDefaultSharedPreferences(context);
+		final SharedPreferences userPrefs = context.getSharedPreferences(
+				SettingsActivity.PREFERENCES, 0);
 		final double alarmTriggerSensitivity = userPrefs.getFloat(
 				context.getString(R.string.pref_alarm_trigger_sensitivity), -1);
 		final int sensorDelay = Integer.parseInt(userPrefs.getString(

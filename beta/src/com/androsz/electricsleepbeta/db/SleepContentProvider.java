@@ -89,7 +89,7 @@ public class SleepContentProvider extends ContentProvider {
 	private Cursor getSleep(final Uri uri) {
 		final String rowId = uri.getLastPathSegment();
 		final String[] columns = new String[] { SleepRecord.KEY_TITLE,
-				SleepRecord.KEY_X, SleepRecord.KEY_Y, SleepRecord.KEY_MIN,
+				SleepRecord.KEY_SLEEP_DATA, SleepRecord.KEY_MIN,
 				SleepRecord.KEY_ALARM, SleepRecord.KEY_RATING,
 				SleepRecord.KEY_DURATION, SleepRecord.KEY_SPIKES,
 				SleepRecord.KEY_TIME_FELL_ASLEEP, SleepRecord.KEY_NOTE };

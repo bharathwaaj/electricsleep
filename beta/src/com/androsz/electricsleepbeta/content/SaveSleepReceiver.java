@@ -1,18 +1,25 @@
 package com.androsz.electricsleepbeta.content;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 
 import com.androsz.electricsleepbeta.app.SettingsActivity;
+import com.androsz.electricsleepbeta.app.SleepAccelerometerService;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 import com.androsz.electricsleepbeta.db.SleepRecord;
+import com.androsz.electricsleepbeta.util.PointD;
 
 public class SaveSleepReceiver extends BroadcastReceiver {
 
@@ -38,15 +45,40 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 				final int rating = intent.getIntExtra("rating", 5);
 				final String note = intent.getStringExtra("note");
 
-				List<Double> mX = (List<Double>) intent
-						.getSerializableExtra("currentSeriesX");
-				List<Double> mY = (List<Double>) intent
-						.getSerializableExtra("currentSeriesY");
+				FileInputStream fis;
+				byte[] buffer = new byte[10000000];
+				try {
+					fis = context
+							.openFileInput(SleepAccelerometerService.SLEEP_DATA_FILE);
+					int readNum = fis.read(buffer);
+					readNum++;
+					fis.close();
+				} catch (FileNotFoundException e) {
+				} catch (IOException e) {
+				}
 
-				final int numberOfPointsOriginal = mY.size();
+				List<PointD> originalData = null;
+				try {
+					originalData = (List<PointD>) (SleepRecord
+							.byteArrayToObject(buffer));
+				} catch (StreamCorruptedException e1) {
+				} catch (IOException e1) {
+				} catch (ClassNotFoundException e1) {
+				}
 				
-				if(numberOfPointsOriginal == 0)
+				if(originalData == null) //if something went wrong with reading the file, load from the intent.
 				{
+					originalData = (List<PointD>)(intent.getSerializableExtra("sleepData"));
+				}
+
+				final int numberOfPointsOriginal = originalData.size();
+
+				// List<Double> mX = (List<Double>) intent
+				// .getSerializableExtra("currentSeriesX");
+				// List<Double> mY = (List<Double>) intent
+				// .getSerializableExtra("currentSeriesY");
+
+				if (numberOfPointsOriginal == 0) {
 					context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED));
 					return;
 				}
@@ -59,9 +91,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 				if (numberOfDesiredGroupedPoints <= numberOfPointsOriginal) {
 					final int pointsPerGroup = numberOfPointsOriginal
 							/ numberOfDesiredGroupedPoints + 1;
-					final List<Double> lessDetailedX = new ArrayList<Double>(
-							numberOfDesiredGroupedPoints);
-					final List<Double> lessDetailedY = new ArrayList<Double>(
+					final List<PointD> lessDetailedData = new ArrayList<PointD>(
 							numberOfDesiredGroupedPoints);
 					int numberOfPointsInThisGroup = pointsPerGroup;
 					double maxYForThisGroup;
@@ -75,8 +105,8 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 						final int startIndexForThisGroup = i * pointsPerGroup;
 						for (int j = 0; j < pointsPerGroup; j++) {
 							try {
-								final double currentY = mY
-										.get(startIndexForThisGroup + j);
+								final double currentY = originalData
+										.get(startIndexForThisGroup + j).y;
 								if (currentY > maxYForThisGroup) {
 									maxYForThisGroup = currentY;
 								}
@@ -93,20 +123,19 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 						if (numberOfPointsInThisGroup < pointsPerGroup) {
 							// we are done
 							final int lastIndex = numberOfPointsOriginal - 1;
-							lessDetailedX.add(mX.get(lastIndex));
-							lessDetailedY.add(mY.get(lastIndex));
-							mX = lessDetailedX;
-							mY = lessDetailedY;
+							lessDetailedData.add(originalData.get(lastIndex));
 							break;
 						} else {
 							if (maxYForThisGroup < alarm) {
 								maxYForThisGroup = averageForThisGroup;
 								if (timeOfFirstSleep == 0
 										&& ++numberOfConsecutiveNonSpikes > 4) {
-									final int lastIndex = lessDetailedX.size() - 1;
+									final int lastIndex = lessDetailedData
+											.size() - 1;
 
-									timeOfFirstSleep = Math.round(lessDetailedX
-											.get(lastIndex));
+									timeOfFirstSleep = Math
+											.round(lessDetailedData
+													.get(lastIndex).x);
 								}
 							} else {
 								numberOfConsecutiveNonSpikes = 0;
@@ -115,19 +144,20 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 							if (maxYForThisGroup < min) {
 								min = maxYForThisGroup;
 							}
-							lessDetailedX.add(mX.get(startIndexForThisGroup));
-							lessDetailedY.add(maxYForThisGroup);
+							lessDetailedData.add(new PointD(originalData
+									.get(startIndexForThisGroup).x,
+									maxYForThisGroup));
 						}
 					}
 
-					final long endTime = Math.round(lessDetailedX
-							.get(lessDetailedX.size() - 1));
-					final long startTime = Math.round(lessDetailedX.get(0));
+					final long endTime = Math.round(lessDetailedData
+							.get(lessDetailedData.size() - 1).x);
+					final long startTime = Math.round(lessDetailedData.get(0).x);
 
 					try {
 						shdb.addSleep(context, new SleepRecord(name,
-								lessDetailedX, lessDetailedY, min, alarm,
-								rating, endTime - startTime, numberOfSpikes,
+								lessDetailedData, min, alarm, rating, endTime
+										- startTime, numberOfSpikes,
 								timeOfFirstSleep, note));
 					} catch (final IOException e) {
 						shdb.close();
@@ -137,21 +167,22 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 					}
 				} else {
 
-					final long endTime = Math.round(mX.get(mX.size() - 1));
-					final long startTime = Math.round(mX.get(0));
+					final long endTime = Math.round(originalData
+							.get(numberOfPointsOriginal - 1).x);
+					final long startTime = Math.round(originalData.get(0).x);
 
 					int numberOfSpikes = 0;
 					int numberOfConsecutiveNonSpikes = 0;
 					long timeOfFirstSleep = endTime;
-					final int size = mX.size();
-					for (int i = 0; i < size; i++) {
-						final double currentY = mY.get(i);
+					for (int i = 0; i < numberOfPointsOriginal; i++) {
+						final double currentY = originalData.get(i).y;
 						if (currentY < alarm) {
 							if (timeOfFirstSleep == endTime
 									&& ++numberOfConsecutiveNonSpikes > 4) {
-								final int lastIndex = mX.size() - 1;
+								final int lastIndex = originalData.size() - 1;
 
-								timeOfFirstSleep = Math.round(mX.get(lastIndex));
+								timeOfFirstSleep = Math.round(originalData
+										.get(lastIndex).x);
 							}
 						} else {
 							numberOfConsecutiveNonSpikes = 0;
@@ -162,9 +193,10 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 						}
 					}
 					try {
-						shdb.addSleep(context, new SleepRecord(name, mX, mY,
-								min, alarm, rating, endTime - startTime,
-								numberOfSpikes, timeOfFirstSleep, note));
+						shdb.addSleep(context, new SleepRecord(name,
+								originalData, min, alarm, rating, endTime
+										- startTime, numberOfSpikes,
+								timeOfFirstSleep, note));
 					} catch (final IOException e) {
 						shdb.close();
 						context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED)

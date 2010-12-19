@@ -4,7 +4,7 @@
 		<CheckBoxPreference android:summaryOn="@string/summary_pref_use_alarm_on"
 			android:summaryOff="@string/summary_pref_use_alarm_off" android:key="@string/pref_use_alarm"
 			android:title="@string/title_pref_use_alarm"
-			android:disableDependentsState="false"></CheckBoxPreference>
+			android:disableDependentsState="false" android:defaultValue="true"></CheckBoxPreference>
 		<ListPreference android:entries="@array/array_prefs_alarm_window_friendly"
 			android:entryValues="@array/array_prefs_alarm_window_values"
 			android:title="@string/title_pref_alarm_window" android:summary="@string/summary_pref_alarm_window"
@@ -13,7 +13,7 @@
 		<CheckBoxPreference android:key="alarm_in_silent_mode"
 			android:title="@string/alarm_in_silent_mode_title" android:summary="@string/alarm_in_silent_mode_summary" />
 
-		<VolumePreference android:streamType="alarm" android:dialogTitle="@string/alarm_volume_title" android:persistent="false" android:summary="@string/alarm_volume_summary" android:title="@string/alarm_volume_title"/>
+		<VolumePreference android:persistent="false" android:summary="@string/alarm_volume_summary" android:dialogTitle="@string/alarm_volume_title" android:title="@string/alarm_volume_title" android:streamType="alarm"/>
 
 		<ListPreference android:key="snooze_duration"
 			android:title="@string/snooze_duration_title" android:entries="@array/snooze_duration_entries"
@@ -32,7 +32,7 @@
 		<Preference android:title="@string/title_pref_calibration"
 			android:key="@string/pref_calibration" android:summary="@string/summary_pref_calibration"></Preference>
 		<com.androsz.electricsleepbeta.preference.SeekBarPreference
-			android:defaultValue="0.5" android:key="@string/pref_alarm_trigger_sensitivity" android:title="@string/title_pref_alarm_trigger_sensitivity" android:enabled="true" android:summary="@string/summary_alarm_trigger_sensitivity"/>
+			android:key="@string/pref_alarm_trigger_sensitivity" android:title="@string/title_pref_alarm_trigger_sensitivity" android:defaultValue="0.5" android:summary="@string/summary_alarm_trigger_sensitivity" android:enabled="true"/>
 
 		<ListPreference android:title="@string/title_pref_sensor_delay"
 			android:summary="@string/summary_pref_sensor_delay" android:key="@string/pref_sensor_delay"

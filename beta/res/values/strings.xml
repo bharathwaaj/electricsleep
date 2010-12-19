@@ -53,7 +53,7 @@
 	<string name="summary_pref_sensor_delay">Try changing this if you\'re having problems with
 		sleep movement collection.</string>
 	<string name="title_pref_sensor_delay">Sensor Delay</string>
-	<string name="pref_sensor_delay">sensorDelay</string>
+	
 	<string name="how_review">Your sleep movement graph is saved for later
 		review. Analysis of sleep will be available for all records.</string>
 	<string name="how_wake">Wake up! (With help of smart alarm or naturally.)</string>
@@ -118,13 +118,13 @@
 		If you are having problems recording sleep throughout the night,
 		enable this.</string>
 	<string name="title_pref_force_screen">Force Screen On</string>
-	<string name="pref_force_screen">forceScreenOn</string>
+	
 	<string name="summary_pref_airplane_mode_off">Airplane mode will not be automatically enabled
 		when sleeping</string>
 	<string name="summary_pref_airplane_mode_on">Airplane mode will be automatically enabled when
 		sleeping</string>
 	<string name="title_pref_airplane_mode">Airplane Mode Sleep</string>
-	<string name="pref_airplane_mode">airplaneMode</string>
+	
 	<string name="title_misc">Miscellaneous</string>
 	<string name="rate_title">Rate how easily you awoke and how refreshed you
 		feel:</string>
@@ -137,7 +137,7 @@
 		automatically</string>
 	<string name="title_pref_calibration">Calibration Wizard</string>
 	<string name="pref_calibration">calibrationWizard</string>
-	<string name="pref_last_sleep_row">lastSavedSleepRow</string>
+	
 	<string name="summary_pref_alarms">Manage ElectricSleep\'s built-in alarms - these are
 		persistent even if Light Sleep Pre-Alarm is disabled.</string>
 	<string name="preset">Preset:</string>
@@ -147,7 +147,7 @@
 		the next
 		enabled alarm in sleep mode</string>
 	<string name="title_pref_use_alarm">Light Sleep Pre-Alarm</string>
-	<string name="pref_use_alarm">useAlarm</string>
+	
 	<string name="monitoring_sleep">Monitoring Sleep</string>
 	<string name="movement_level_during_sleep">"&lt;-deep| Sleep |light-&gt;"</string>
 	<string name="search">Search</string>
@@ -269,7 +269,7 @@
 	<string name="dialog_wait_for_sleep_data_message">Have a restful sleep!\n\nThere\'s nothing to
 		display
 		yet, check back later!</string>
-	<string name="pref_alarm_trigger_sensitivity">alarmTriggerSensitivity</string>
+	
 	<string name="title_pref_alarm_trigger_sensitivity">Light Sleep Sensitivity</string>
 	<string name="summary_alarm_trigger_sensitivity">Level of movement that signifies light sleep will
 		trigger alarm
@@ -300,7 +300,7 @@
 		</li>
 	</string>
 	<string name="calibrating">Calibrating...</string>
-	<string name="prefs_version">prefsVersion</string>
+	
 	<string name="settings_description">Sleep results</string>
 
 	<string name="search_instructions">Tap search to search for previous sleep results</string>
@@ -310,10 +310,7 @@
 		<item>Normal</item>
 		<item>UI</item>
 	</string-array>
-	<string-array name="array_prefs_sensor_delay_values">
-		<item>3</item>
-		<item>2</item>
-	</string-array>
+	
 	<string-array name="array_prefs_alarm_window_friendly">
 		<item>5 minutes</item>
 		<item>10 minutes</item>
@@ -341,40 +338,15 @@
 		<item>2 hours</item>
 	</string-array>
 
-	<string-array name="array_prefs_alarm_window_values">
-		<item>5</item>
-		<item>10</item>
-		<item>15</item>
-		<item>20</item>
-		<item>25</item>
-		<item>30</item>
-		<item>35</item>
-		<item>40</item>
-		<item>45</item>
-		<item>50</item>
-		<item>55</item>
-		<item>60</item>
-		<item>65</item>
-		<item>70</item>
-		<item>75</item>
-		<item>80</item>
-		<item>85</item>
-		<item>90</item>
-		<item>95</item>
-		<item>100</item>
-		<item>105</item>
-		<item>110</item>
-		<item>115</item>
-		<item>120</item>
-	</string-array>
+	
 
 	<string name="title_pref_alarm_window">Pre-Alarm Window</string>
 	<string name="summary_pref_alarm_window">The window of time before the next enabled alarm is
 		set to go
 		off during which ElectricSleep will try to wake you.</string>
-	<string name="pref_alarm_window">alarmWindow</string>
+	
 	<string name="stop">Stop</string>
-	<string name="pref_alarms">alarms</string>
+	
 	<string name="donate">Donate</string>
 	<string name="notification_save_sleep_title">Save sleep</string>
 	<string name="notification_save_sleep_text">Tap to save or discard sleep history</string>

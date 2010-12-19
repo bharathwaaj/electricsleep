@@ -19,6 +19,7 @@ import com.androsz.electricsleepbeta.achartengine.model.XYSeries;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
 import com.androsz.electricsleepbeta.db.SleepRecord;
+import com.androsz.electricsleepbeta.util.PointD;
 
 public class SleepChart extends ChartView implements Serializable {
 
@@ -119,8 +120,9 @@ public class SleepChart extends ChartView implements Serializable {
 
 	public void reconfigure(final double min, final double alarm) {
 		if (makesSenseToDisplay()) {
-			firstX = xySeriesMovement.mX.get(0);
-			lastX = xySeriesMovement.mX.get(xySeriesMovement.mX.size() - 1);
+			firstX = xySeriesMovement.xyList.get(0).x;
+			lastX = xySeriesMovement.xyList
+					.get(xySeriesMovement.getItemCount() - 1).x;
 			xyMultipleSeriesRenderer.setXAxisMin(firstX);
 			xyMultipleSeriesRenderer.setXAxisMax(lastX);
 
@@ -136,16 +138,13 @@ public class SleepChart extends ChartView implements Serializable {
 
 	public void sync(final Double x, final Double y, final double min,
 			final double alarm) {
-		xySeriesMovement.mX.add(x);
-		xySeriesMovement.mY.add(y);
+		xySeriesMovement.xyList.add(new PointD(x, y));
 		reconfigure(min, alarm);
 		repaint();
 	}
 
 	public void sync(final SleepRecord sleepRecord) {
-		xySeriesMovement.mX = sleepRecord.chartDataX;
-
-		xySeriesMovement.mY = sleepRecord.chartDataY;
+		xySeriesMovement.xyList = sleepRecord.chartData;
 
 		rating = sleepRecord.rating;
 

@@ -3,8 +3,11 @@ package com.androsz.electricsleepbeta.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.PixelFormat;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
@@ -22,7 +25,7 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public abstract class CustomTitlebarActivity extends Activity {
 
-	protected GoogleAnalyticsTracker analytics;
+	private GoogleAnalyticsTracker analytics;
 
 	protected abstract int getContentAreaLayoutId();
 
@@ -36,6 +39,23 @@ public abstract class CustomTitlebarActivity extends Activity {
 		final ImageButton btn2 = (ImageButton) findViewById(R.id.title_button_2);
 		btn2.setVisibility(View.INVISIBLE);
 		findViewById(R.id.title_sep_2).setVisibility(View.INVISIBLE);
+	}
+
+	protected void trackEvent(String label, int value) {
+		String esVersion = "?";
+		try {
+			esVersion = getPackageManager().getPackageInfo(
+					this.getPackageName(), 0).versionName;
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String phoneAndApiLevel = Build.MODEL + "-" + VERSION.SDK_INT;
+		analytics.trackEvent(esVersion, phoneAndApiLevel, label, value);
+	}
+
+	protected void trackPageView(String pageUrl) {
+		analytics.trackPageView(pageUrl);
 	}
 
 	@Override
@@ -71,8 +91,8 @@ public abstract class CustomTitlebarActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		final SharedPreferences userPrefs = PreferenceManager
-				.getDefaultSharedPreferences(this);
+		final SharedPreferences userPrefs = getSharedPreferences(
+				SettingsActivity.PREFERENCES, 0);
 
 		final boolean analyticsOn = userPrefs.getBoolean(
 				getString(R.string.pref_analytics), true);

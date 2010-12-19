@@ -140,7 +140,7 @@ public class AlarmAlertFullScreen extends Activity {
 		mAlarm = getIntent().getParcelableExtra(Alarms.ALARM_INTENT_EXTRA);
 
 		// Get the volume/camera button behavior setting
-		final String vol = PreferenceManager.getDefaultSharedPreferences(this)
+		final String vol = getSharedPreferences(SettingsActivity.PREFERENCES, 0)
 				.getString(SettingsActivity.KEY_VOLUME_BEHAVIOR,
 						DEFAULT_VOLUME_BEHAVIOR);
 		mVolumeBehavior = Integer.parseInt(vol);
@@ -217,9 +217,9 @@ public class AlarmAlertFullScreen extends Activity {
 			dismiss(false);
 			return;
 		}
-		final String snooze = PreferenceManager.getDefaultSharedPreferences(
-				this).getString(SettingsActivity.KEY_ALARM_SNOOZE,
-				DEFAULT_SNOOZE);
+		final String snooze = getSharedPreferences(
+				SettingsActivity.PREFERENCES, 0).getString(
+				SettingsActivity.KEY_ALARM_SNOOZE, DEFAULT_SNOOZE);
 		final int snoozeMinutes = Integer.parseInt(snooze);
 
 		final long snoozeTime = System.currentTimeMillis() + 1000 * 60

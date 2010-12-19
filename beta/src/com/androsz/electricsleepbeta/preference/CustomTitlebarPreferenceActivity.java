@@ -2,8 +2,11 @@ package com.androsz.electricsleepbeta.preference;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.PixelFormat;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Build.VERSION;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -16,12 +19,30 @@ import android.widget.TextView;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.app.HomeActivity;
+import com.androsz.electricsleepbeta.app.SettingsActivity;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public abstract class CustomTitlebarPreferenceActivity extends
 		PreferenceActivity {
 
-	protected GoogleAnalyticsTracker analytics;
+	private GoogleAnalyticsTracker analytics;
+
+	protected void trackEvent(String label, int value) {
+		String esVersion = "?";
+		try {
+			esVersion = getPackageManager().getPackageInfo(
+					this.getPackageName(), 0).versionName;
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String phoneAndApiLevel = Build.MODEL + "-" + VERSION.SDK_INT;
+		analytics.trackEvent(esVersion, phoneAndApiLevel, label, value);
+	}
+
+	protected void trackPageView(String pageUrl) {
+		analytics.trackPageView(pageUrl);
+	}
 
 	protected abstract int getContentAreaLayoutId();
 
@@ -68,8 +89,8 @@ public abstract class CustomTitlebarPreferenceActivity extends
 	protected void onDestroy() {
 		super.onDestroy();
 
-		final SharedPreferences userPrefs = PreferenceManager
-				.getDefaultSharedPreferences(this);
+		final SharedPreferences userPrefs = getSharedPreferences(
+				SettingsActivity.PREFERENCES, 0);
 
 		final boolean analyticsOn = userPrefs.getBoolean(
 				getString(R.string.pref_analytics), true);

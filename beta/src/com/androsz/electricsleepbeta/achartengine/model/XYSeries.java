@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.androsz.electricsleepbeta.achartengine.util.MathHelper;
+import com.androsz.electricsleepbeta.util.PointD;
 
 /**
  * An XY series encapsulates values for XY charts like line, time, area,
@@ -33,9 +34,7 @@ public class XYSeries implements Serializable {
 	/** The series title. */
 	private String mTitle;
 	/** A list to contain the values for the X axis. */
-	public List<Double> mX = new ArrayList<Double>();
-	/** A list to contain the values for the Y axis. */
-	public List<Double> mY = new ArrayList<Double>();
+	public List<PointD> xyList = new ArrayList<PointD>();
 	/** The minimum value for the X axis. */
 	private double mMinX = MathHelper.NULL_VALUE;
 	/** The maximum value for the X axis. */
@@ -65,8 +64,7 @@ public class XYSeries implements Serializable {
 	 *            the value for the Y axis
 	 */
 	public void add(final double x, final double y) {
-		mX.add(x);
-		mY.add(y);
+		xyList.add(new PointD(x, y));
 		updateRange(x, y);
 	}
 
@@ -74,8 +72,7 @@ public class XYSeries implements Serializable {
 	 * Removes all the existing values from the series.
 	 */
 	public void clear() {
-		mX.clear();
-		mY.clear();
+		xyList.clear();
 		initRange();
 	}
 
@@ -85,7 +82,7 @@ public class XYSeries implements Serializable {
 	 * @return the series item count
 	 */
 	public int getItemCount() {
-		return mX.size();
+		return xyList.size();
 	}
 
 	/**
@@ -141,7 +138,7 @@ public class XYSeries implements Serializable {
 	 * @return the X value
 	 */
 	public double getX(final int index) {
-		return mX.get(index);
+		return xyList.get(index).x;
 	}
 
 	/**
@@ -152,7 +149,7 @@ public class XYSeries implements Serializable {
 	 * @return the Y value
 	 */
 	public double getY(final int index) {
-		return mY.get(index);
+		return xyList.get(index).y;
 	}
 
 	/**
@@ -178,10 +175,9 @@ public class XYSeries implements Serializable {
 	 *            the index in the series of the value to remove
 	 */
 	public void remove(final int index) {
-		final double removedX = mX.remove(index);
-		final double removedY = mY.remove(index);
-		if (removedX == mMinX || removedX == mMaxX || removedY == mMinY
-				|| removedY == mMaxY) {
+		final PointD removedPoint = xyList.remove(index);
+		if (removedPoint.x == mMinX || removedPoint.x == mMaxX || removedPoint.y == mMinY
+				|| removedPoint.y == mMaxY) {
 			initRange();
 		}
 	}

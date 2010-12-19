@@ -88,7 +88,7 @@ public class SleepHistoryDatabase {
 
 	private static final String DATABASE_NAME = "sleephistory";
 
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 	public static final String FTS_VIRTUAL_TABLE = "FTSsleephistory";
 
 	/*
@@ -99,11 +99,11 @@ public class SleepHistoryDatabase {
 	 */
 	public static final String FTS_TABLE_CREATE = "CREATE VIRTUAL TABLE "
 			+ FTS_VIRTUAL_TABLE + " USING fts3 (" + SleepRecord.KEY_TITLE
-			+ ", " + SleepRecord.KEY_X + ", " + SleepRecord.KEY_Y + ", "
-			+ SleepRecord.KEY_MIN + ", " + SleepRecord.KEY_ALARM + ", "
-			+ SleepRecord.KEY_RATING + ", " + SleepRecord.KEY_DURATION + ", "
-			+ SleepRecord.KEY_SPIKES + ", " + SleepRecord.KEY_TIME_FELL_ASLEEP
-			+ ", " + SleepRecord.KEY_NOTE + ");";
+			+ ", " + SleepRecord.KEY_SLEEP_DATA + ", " + SleepRecord.KEY_MIN
+			+ ", " + SleepRecord.KEY_ALARM + ", " + SleepRecord.KEY_RATING
+			+ ", " + SleepRecord.KEY_DURATION + ", " + SleepRecord.KEY_SPIKES
+			+ ", " + SleepRecord.KEY_TIME_FELL_ASLEEP + ", "
+			+ SleepRecord.KEY_NOTE + ");";
 
 	private final SleepHistoryDBOpenHelper databaseOpenHelper;
 

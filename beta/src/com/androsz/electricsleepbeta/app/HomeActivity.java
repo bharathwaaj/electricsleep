@@ -69,21 +69,13 @@ public class HomeActivity extends CustomTitlebarActivity {
 		// showTitleButton2(R.drawable.ic_title_refresh);
 		setHomeButtonAsLogo();
 
-		final SharedPreferences userPrefs = getSharedPreferences(
-				getString(R.string.prefs_version), Context.MODE_PRIVATE);
+		final SharedPreferences userPrefs = getSharedPreferences("prefsVersion", Context.MODE_PRIVATE);
 		final int prefsVersion = userPrefs.getInt(
 				getString(R.string.prefs_version), 0);
 		if (prefsVersion == 0) {
 			startActivity(new Intent(this, WelcomeTutorialWizardActivity.class)
 					.putExtra("required", true));
 		} else {
-			try {
-				analytics.trackEvent("version", getPackageManager()
-						.getPackageInfo(this.getPackageName(), 0).versionName,
-						"", 0);
-			} catch (final NameNotFoundException e) {
-				analytics.trackEvent("version", "???", "", 0);
-			}
 			StartSleepReceiver.enforceCalibrationBeforeStartingSleep(this,
 					null, null);
 		}

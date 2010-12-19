@@ -119,8 +119,7 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity {
 
 	@Override
 	protected void onFinishWizardActivity() {
-		final SharedPreferences.Editor ed = PreferenceManager
-				.getDefaultSharedPreferences(getBaseContext()).edit();
+		final SharedPreferences.Editor ed = getSharedPreferences(SettingsActivity.PREFERENCES, 0).edit();
 		ed.putFloat(getString(R.string.pref_alarm_trigger_sensitivity),
 				(float) alarmTriggerCalibration);
 		ed.putBoolean(getString(R.string.pref_force_screen), screenBugPresent);
@@ -133,22 +132,9 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity {
 		ed2.commit();
 		ed.commit();
 
-		final SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		final Sensor accelerometer = sensorManager
-				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		if (accelerometer != null) {
-			final StringBuffer sb = new StringBuffer();
-			sb.append(Build.MODEL);
-			sb.append("|" + Build.BOARD);
-			sb.append("|" + accelerometer.getName());
-			analytics.trackEvent("calibration-by-hardware", sb.toString(),
-					String.format("%.2f", alarmTriggerCalibration), 0);
-		} else {
-			analytics.trackEvent("calibration-null-accelerometer", "alarm",
-					String.format("%.2f", alarmTriggerCalibration), 0);
-		}
-		analytics.trackEvent("screen-bug-by-hardware", Build.MODEL + "-"
-				+ Build.VERSION.SDK_INT, "" + screenBugPresent, 0);
+		trackEvent("alarm-level",
+				(int) Math.round(alarmTriggerCalibration * 100));
+		trackEvent("screen-bug", screenBugPresent ? 1 : 0);
 		finish();
 	}
 

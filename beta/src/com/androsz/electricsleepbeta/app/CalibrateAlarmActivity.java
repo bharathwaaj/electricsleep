@@ -13,6 +13,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.util.PointD;
 import com.androsz.electricsleepbeta.widget.CalibrationSleepChart;
 import com.androsz.electricsleepbeta.widget.DecimalSeekBar;
 
@@ -46,10 +47,8 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 			sleepChart = (CalibrationSleepChart) findViewById(R.id.calibration_sleep_chart);
 
 			// inlined for efficiency
-			sleepChart.xySeriesMovement.mX = (List<Double>) intent
-					.getSerializableExtra("currentSeriesX");
-			sleepChart.xySeriesMovement.mY = (List<Double>) intent
-					.getSerializableExtra("currentSeriesY");
+			sleepChart.xySeriesMovement.xyList = (List<PointD>) intent
+					.getSerializableExtra("sleepData");
 			sleepChart.reconfigure(intent.getDoubleExtra("min",
 					SettingsActivity.DEFAULT_MIN_SENSITIVITY), intent
 					.getDoubleExtra("alarm",
