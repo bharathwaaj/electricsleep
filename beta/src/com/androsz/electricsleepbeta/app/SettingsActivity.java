@@ -20,10 +20,12 @@ import com.androsz.electricsleepbeta.preference.CustomTitlebarPreferenceActivity
 public class SettingsActivity extends CustomTitlebarPreferenceActivity
 		implements Preference.OnPreferenceChangeListener {
 
-	public static String PREFERENCES = "ElectricSleepPrefs";
 	public static double DEFAULT_MIN_SENSITIVITY = 0;
-	public static double DEFAULT_ALARM_SENSITIVITY = 0.5;
-	public static double MAX_ALARM_SENSITIVITY = 2;
+	public static double DEFAULT_ALARM_SENSITIVITY = 0.33;
+	public static double MAX_ALARM_SENSITIVITY = 1;
+
+	// this is actually what android uses as default..
+	public static String PREFERENCES = "com.androsz.electricsleepbeta_preferences";
 
 	private static final int ALARM_STREAM_TYPE_BIT = 1 << AudioManager.STREAM_ALARM;
 
@@ -33,14 +35,12 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 
 	@Override
 	protected int getContentAreaLayoutId() {
-		// TODO Auto-generated method stub
 		return R.xml.settings;
 	}
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getPreferenceManager().setSharedPreferencesName(PREFERENCES);
 
 		findPreference(getText(R.string.pref_calibration))
 				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -54,7 +54,7 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 				});
 
 		final SharedPreferences serviceIsRunningPrefs = getSharedPreferences(
-				"sleepService", Context.MODE_PRIVATE);
+				"serviceIsRunning", Context.MODE_PRIVATE);
 		if (serviceIsRunningPrefs.getBoolean("serviceIsRunning", false)) {
 			Toast.makeText(
 					this,
@@ -132,5 +132,10 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 		final ListPreference snooze = (ListPreference) findPreference(KEY_ALARM_SNOOZE);
 		snooze.setSummary(snooze.getEntry());
 		snooze.setOnPreferenceChangeListener(this);
+	}
+
+	@Override
+	protected String getPreferencesName() {
+		return PREFERENCES;
 	}
 }

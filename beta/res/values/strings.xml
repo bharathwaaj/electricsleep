@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="warming_up">Warming up sensors, please wait.</string>
 	<string name="go_into_standy">Press your device\'s standby button</string>
 	<string name="calibrate_directions_force_screen_on">
 		<li>

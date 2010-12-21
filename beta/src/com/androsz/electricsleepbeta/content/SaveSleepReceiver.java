@@ -1,9 +1,14 @@
 package com.androsz.electricsleepbeta.content;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +30,6 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 	public static String SAVE_SLEEP_COMPLETED = "com.androsz.electricsleep.SAVE_SLEEP_COMPLETED";
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(final Context context, final Intent intent) {
 
@@ -46,29 +50,25 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 				final String note = intent.getStringExtra("note");
 
 				FileInputStream fis;
-				byte[] buffer = new byte[10000000];
+				List<PointD> originalData = null;
 				try {
 					fis = context
 							.openFileInput(SleepAccelerometerService.SLEEP_DATA_FILE);
-					int readNum = fis.read(buffer);
-					readNum++;
+					final long length = context.getFileStreamPath(
+							SleepAccelerometerService.SLEEP_DATA_FILE).length();
+					final int chunkSize = 16;
+					originalData = new ArrayList<PointD>((int) (length
+							/ chunkSize / 2));
+					byte[] buffer = new byte[(int) length];
+					fis.read(buffer);
 					fis.close();
+					for (int i = 0; i < buffer.length; i += 16) {
+						byte[] chunk = new byte[chunkSize];
+						System.arraycopy(buffer, i, chunk, 0, chunkSize);
+						originalData.add(PointD.fromByteArray(chunk));
+					}
 				} catch (FileNotFoundException e) {
 				} catch (IOException e) {
-				}
-
-				List<PointD> originalData = null;
-				try {
-					originalData = (List<PointD>) (SleepRecord
-							.byteArrayToObject(buffer));
-				} catch (StreamCorruptedException e1) {
-				} catch (IOException e1) {
-				} catch (ClassNotFoundException e1) {
-				}
-				
-				if(originalData == null) //if something went wrong with reading the file, load from the intent.
-				{
-					originalData = (List<PointD>)(intent.getSerializableExtra("sleepData"));
 				}
 
 				final int numberOfPointsOriginal = originalData.size();

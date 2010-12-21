@@ -46,6 +46,8 @@ public abstract class CustomTitlebarPreferenceActivity extends
 
 	protected abstract int getContentAreaLayoutId();
 
+	protected abstract String getPreferencesName();
+
 	public void hideTitleButton1() {
 		final ImageButton btn1 = (ImageButton) findViewById(R.id.title_button_1);
 		btn1.setVisibility(View.INVISIBLE);
@@ -72,6 +74,10 @@ public abstract class CustomTitlebarPreferenceActivity extends
 		lvw.setCacheColorHint(0);
 		lvw.setBackgroundDrawable(getResources().getDrawable(
 				R.drawable.gradient_background_vert));
+		if (getPreferencesName() != null) {
+			getPreferenceManager().setSharedPreferencesName(
+					getPreferencesName());
+		}
 		addPreferencesFromResource(getContentAreaLayoutId());
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
 				R.layout.titlebar);

@@ -31,8 +31,9 @@ import com.androsz.electricsleepbeta.widget.SleepHistoryCursorAdapter;
 
 public class HistoryActivity extends CustomTitlebarTabActivity {
 
+	ProgressDialog progress;
+
 	private class DeleteSleepTask extends AsyncTask<Long, Void, Void> {
-		ProgressDialog progress;
 
 		@Override
 		protected Void doInBackground(final Long... params) {
@@ -50,19 +51,20 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 			Toast.makeText(HistoryActivity.this,
 					getString(R.string.deleted_sleep_record),
 					Toast.LENGTH_SHORT).show();
-			progress.dismiss();
+
+			if (progress != null && progress.isShowing()) {
+				progress.dismiss();
+			}
 		}
 
 		@Override
 		protected void onPreExecute() {
-			progress = new ProgressDialog(HistoryActivity.this);
 			progress.setMessage(getString(R.string.deleting_sleep));
 			progress.show();
 		}
 	}
 
 	private class QuerySleepTask extends AsyncTask<Void, Void, Void> {
-		ProgressDialog progress;
 		Cursor cursor;
 
 		@Override
@@ -172,12 +174,13 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 					}
 				});
 			}
-			progress.dismiss();
+			if (progress != null && progress.isShowing()) {
+				progress.dismiss();
+			}
 		}
 
 		@Override
 		protected void onPreExecute() {
-			progress = new ProgressDialog(HistoryActivity.this);
 			progress.setMessage(getString(R.string.querying_sleep_database));
 			progress.show();
 		}
@@ -217,6 +220,8 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		progress = new ProgressDialog(HistoryActivity.this);
 
 		mTextView = (TextView) findViewById(R.id.text);
 		mListView = (ListView) findViewById(R.id.list);
@@ -267,17 +272,22 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 			reviewIntent.setData(intent.getData());
 			startActivity(reviewIntent);
 			finish();
-		} else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-			// handles a search query
-			// final String query = intent.getStringExtra(SearchManager.QUERY);
-			new QuerySleepTask().execute(null);
 		} else {
 			new QuerySleepTask().execute(null);
 		}
 
-		addTab(findViewById(R.id.sleep_history_list), R.string.list);
-		addTab(findViewById(R.id.sleep_history_analysis), R.string.analysis);
-		tabHost.setCurrentTab(1);
-		tabHost.setCurrentTab(0);
+		addTab(R.id.sleep_history_list, R.string.list);
+		addTab(R.id.sleep_history_analysis, R.string.analysis);
+		// tabHost.setCurrentTab(1);
+		// tabHost.setCurrentTab(0);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		if (progress != null && progress.isShowing()) {
+			progress.dismiss();
+		}
 	}
 }

@@ -22,8 +22,9 @@ import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 
+	ProgressDialog progress;
+
 	private class DeleteSleepTask extends AsyncTask<Void, Void, Void> {
-		ProgressDialog progress;
 
 		@Override
 		protected Void doInBackground(final Void... params) {
@@ -39,13 +40,15 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 			Toast.makeText(ReviewSleepActivity.this,
 					getString(R.string.deleted_sleep_record),
 					Toast.LENGTH_SHORT).show();
-			progress.dismiss();
+
+			if (progress != null && progress.isShowing()) {
+				progress.dismiss();
+			}
 			finish();
 		}
 
 		@Override
 		protected void onPreExecute() {
-			progress = new ProgressDialog(ReviewSleepActivity.this);
 			progress.setMessage(getString(R.string.deleting_sleep));
 			progress.show();
 		}
@@ -110,11 +113,9 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		addTab(findViewById(R.id.sleep_movement_chart), R.string.sleep_chart);
-		addTab(findViewById(R.id.sleep_analysis_table), R.string.analysis);
-		tabHost.setCurrentTab(1);
-		tabHost.setCurrentTab(0);
+		progress = new ProgressDialog(this);
+		addTab(R.id.sleep_movement_chart, R.string.sleep_chart);
+		addTab(R.id.sleep_analysis_table, R.string.analysis);
 	}
 
 	@Override
@@ -144,6 +145,15 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 		} catch (final ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		if (progress != null && progress.isShowing()) {
+			progress.dismiss();
 		}
 	}
 

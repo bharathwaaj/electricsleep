@@ -1,6 +1,7 @@
 package com.androsz.electricsleepbeta.app;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,10 +29,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.Alarm;
@@ -80,6 +83,8 @@ public class SleepAccelerometerService extends Service implements
 
 	private WakeLock partialWakeLock;
 
+	private Handler serviceHandler;
+
 	private final BroadcastReceiver pokeSyncChartReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
@@ -124,8 +129,7 @@ public class SleepAccelerometerService extends Service implements
 		saveIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
 				| Intent.FLAG_ACTIVITY_CLEAR_TOP
 				| Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-		saveIntent.putExtra("id", dateStarted.getTime());
-		saveIntent.putExtra("sleepData", sleepData);
+		saveIntent.putExtra("id", hashCode());
 		saveIntent.putExtra("min", minNetForce);
 		saveIntent.putExtra("alarm", alarmTriggerSensitivity);
 
@@ -232,6 +236,8 @@ public class SleepAccelerometerService extends Service implements
 		filter.addAction(Alarms.ALARM_SNOOZE_CANCELED_BY_USER_ACTION);
 		registerReceiver(alarmDismissedByUserReceiver, filter);
 
+		serviceHandler = new Handler();
+
 		dateStarted = new Date();
 
 	}
@@ -243,6 +249,8 @@ public class SleepAccelerometerService extends Service implements
 		if (partialWakeLock != null && partialWakeLock.isHeld()) {
 			partialWakeLock.release();
 		}
+
+		serviceHandler.removeCallbacks(updateRunner);
 
 		unregisterReceiver(pokeSyncChartReceiver);
 		unregisterReceiver(stopAndSaveSleepReceiver);
@@ -263,107 +271,95 @@ public class SleepAccelerometerService extends Service implements
 		super.onDestroy();
 	}
 
+	final float alpha = 0.8f;
+	int waitForSensorsToWarmUp = 0;
 	@Override
-	public synchronized void onSensorChanged(final SensorEvent event) {
-		new Thread(new Runnable() {
+	public void onSensorChanged(final SensorEvent event) {
+		if(waitForSensorsToWarmUp < 5)
+		{
+			waitForSensorsToWarmUp++;
+			return;
+		}
+		else if(waitForSensorsToWarmUp == 5)
+		{
+			waitForSensorsToWarmUp++;
+			serviceHandler.postDelayed(updateRunner, updateInterval);
 
-			@Override
-			public void run() {
-				final long currentTime = System.currentTimeMillis();
-				final float alpha = 0.8f;
+			gravity[0] = event.values[0];
+			gravity[1] = event.values[1];
+			gravity[2] = event.values[2];
+			return;
+		}
 
-				/*
-				 * if (Double.isInfinite(mAccelLast)) {
-				 * 
-				 * gravity[0] = alpha * gravity[0] + (1 - alpha)
-				 * event.values[0]; gravity[1] = alpha * gravity[1] + (1 -
-				 * alpha) event.values[1]; gravity[2] = alpha * gravity[2] + (1
-				 * - alpha) event.values[2];
-				 * 
-				 * final double curX = event.values[0] - gravity[0]; final
-				 * double curY = event.values[1] - gravity[1]; final double curZ
-				 * = event.values[2] - gravity[2]; mAccelCurrent =
-				 * Math.sqrt(curX * curX + curY * curY + curZ curZ); mAccelLast
-				 * = mAccelCurrent; lastChartUpdateTime = currentTime; return; }
-				 */
+		gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+		gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+		gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
 
-				gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-				gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-				gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+		final double curX = event.values[0] - gravity[0];
+		final double curY = event.values[1] - gravity[1];
+		final double curZ = event.values[2] - gravity[2];
 
-				final double curX = event.values[0] - gravity[0];
-				final double curY = event.values[1] - gravity[1];
-				final double curZ = event.values[2] - gravity[2];
+		final double mAccelCurrent = Math.sqrt(curX * curX + curY * curY + curZ
+				* curZ);
 
-				// mAccelLast = mAccelCurrent;
-				final double mAccelCurrent = Math.sqrt(curX * curX + curY
-						* curY + curZ * curZ);
-				// final double delta = mAccelCurrent - mAccelLast;
-				// mAccel = mAccel * 0.1f + delta; // perform low-cut filter
-				final double absAccel = Math.abs(mAccelCurrent);
-				maxNetForce = absAccel > maxNetForce ? absAccel : maxNetForce;
-				// averageForce += absAccel;
-				// numberOfSamples++;
-
-				// lastOnSensorChangedTime = currentTime;
-
-				if (currentTime - lastChartUpdateTime >= updateInterval) {
-
-					// averageForce /= numberOfSamples;
-
-					final double x = currentTime;
-					final double y = java.lang.Math.min(
-							alarmTriggerSensitivity, maxNetForce);
-					/*
-					 * (maxNetForce >= alarmTriggerSensitivity) ? maxNetForce :
-					 * averageForce);
-					 */
-					if (y < minNetForce) {
-						minNetForce = y;
-					}
-
-					sleepData.add(new PointD(x, y));
-					FileOutputStream fos;
-					try {
-						fos = openFileOutput(SLEEP_DATA_FILE,
-								Context.MODE_PRIVATE);
-						fos.write(SleepRecord.objectToByteArray(sleepData));
-						fos.close();
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-					final Intent i = new Intent(SleepActivity.UPDATE_CHART);
-					i.putExtra("x", x);
-					i.putExtra("y", y);
-					i.putExtra("min", minNetForce);
-					i.putExtra("alarm", alarmTriggerSensitivity);
-					sendBroadcast(i);
-					// totalTimeBetweenSensorChanges = 0;
-
-					lastChartUpdateTime = currentTime;
-					maxNetForce = 0;
-					// averageForce = 0;
-					// numberOfSamples = 0;
-
-					if (triggerAlarmIfNecessary(currentTime, y)) {
-						// unregisterAccelerometerListener();
-					} else if (forceScreenOn) {
-						final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-
-						final WakeLock forceScreenOnWakeLock = powerManager
-								.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
-										| PowerManager.ON_AFTER_RELEASE
-										| PowerManager.ACQUIRE_CAUSES_WAKEUP,
-										LOCK_TAG + "1");
-						forceScreenOnWakeLock.acquire(3000);
-					}
-				}
-			}
-		}).start();
+		final double absAccel = Math.abs(mAccelCurrent);
+		maxNetForce = absAccel > maxNetForce ? absAccel : maxNetForce;
 	}
+
+	private Runnable updateRunner = new Runnable() {
+		public void run() {
+			final long currentTime = System.currentTimeMillis();
+			//re-post this runner every 5 seconds.
+			serviceHandler.postDelayed(updateRunner, updateInterval);
+			final double x = currentTime;
+			final double y = java.lang.Math.min(alarmTriggerSensitivity,
+					maxNetForce);
+
+			if (y < minNetForce) {
+				minNetForce = y;
+			}
+			
+			PointD sleepPoint = new PointD(x, y);
+			sleepData.add(sleepPoint);
+			FileOutputStream fos;
+			try {
+				//append the two doubles in sleepPoint to file
+				fos = openFileOutput(SLEEP_DATA_FILE, Context.MODE_APPEND);
+				fos.write(PointD.toByteArray(sleepPoint));
+				fos.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			final Intent i = new Intent(SleepActivity.UPDATE_CHART);
+			i.putExtra("x", x);
+			i.putExtra("y", y);
+			i.putExtra("min", minNetForce);
+			i.putExtra("alarm", alarmTriggerSensitivity);
+			sendBroadcast(i);
+			// totalTimeBetweenSensorChanges = 0;
+
+			lastChartUpdateTime = currentTime;
+			maxNetForce = 0;
+			// averageForce = 0;
+			// numberOfSamples = 0;
+
+			if (triggerAlarmIfNecessary(currentTime, y)) {
+				// unregisterAccelerometerListener();
+			} else if (forceScreenOn) {
+				final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+				final WakeLock forceScreenOnWakeLock = powerManager
+						.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
+								| PowerManager.ON_AFTER_RELEASE
+								| PowerManager.ACQUIRE_CAUSES_WAKEUP, LOCK_TAG
+								+ "1");
+				forceScreenOnWakeLock.acquire(3000);
+			}			
+		}
+	};
 
 	@Override
 	public int onStartCommand(final Intent intent, final int flags,
@@ -391,7 +387,7 @@ public class SleepAccelerometerService extends Service implements
 			toggleAirplaneMode(true);
 
 			final SharedPreferences.Editor ed = getSharedPreferences(
-					"sleepService", Context.MODE_PRIVATE).edit();
+					"serviceIsRunning", Context.MODE_PRIVATE).edit();
 			ed.putBoolean("serviceIsRunning", true);
 			ed.commit();
 

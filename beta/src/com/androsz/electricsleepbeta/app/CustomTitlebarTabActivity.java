@@ -1,5 +1,6 @@
 package com.androsz.electricsleepbeta.app;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TabHost;
@@ -10,18 +11,16 @@ import com.androsz.electricsleepbeta.R;
 public abstract class CustomTitlebarTabActivity extends CustomTitlebarActivity {
 	protected TabHost tabHost = null;
 
-	public void addTab(final View v, final int resIndicator) {
-		final TabHost.TabSpec spec = tabHost.newTabSpec(resIndicator + "");
+	public void addTab(int viewId, final int resIndicator) {
+		String tag = resIndicator + "";
+		final TabHost.TabSpec spec = tabHost.newTabSpec(tag);
 
-		spec.setContent(new TabHost.TabContentFactory() {
-			@Override
-			public View createTabContent(final String tag) {
-				return v;
-			}
-		});
-
+		spec.setContent(viewId);
+	    
 		spec.setIndicator(buildIndicator(resIndicator));
 		tabHost.addTab(spec);
+		tabHost.getTabWidget().setCurrentTab(0);
+		tabHost.getTabWidget().focusCurrentTab(0);
 	}
 
 	/**
@@ -45,13 +44,13 @@ public abstract class CustomTitlebarTabActivity extends CustomTitlebarActivity {
 
 	@Override
 	protected void onRestoreInstanceState(final Bundle savedInstanceState) {
-		tabHost.setCurrentTab(savedInstanceState.getInt("selectedTabIndex"));
+		//tabHost.setCurrentTab(savedInstanceState.getInt("selectedTabIndex"));
 		super.onRestoreInstanceState(savedInstanceState);
 	}
 
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
-		outState.putInt("selectedTabIndex", tabHost.getCurrentTab());
+		//outState.putInt("selectedTabIndex", tabHost.getCurrentTab());
 		super.onSaveInstanceState(outState);
 	}
 }

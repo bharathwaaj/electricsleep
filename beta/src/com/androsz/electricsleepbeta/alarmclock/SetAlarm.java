@@ -372,4 +372,9 @@ public class SetAlarm extends CustomTitlebarPreferenceActivity implements
 		mTimePref.setSummary(Alarms.formatTime(this, mHour, mMinutes,
 				mRepeatPref.getDaysOfWeek()));
 	}
+
+	@Override
+	protected String getPreferencesName() {
+		return null;
+	}
 }
