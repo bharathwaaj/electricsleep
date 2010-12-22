@@ -137,6 +137,11 @@ public class SetAlarm extends CustomTitlebarPreferenceActivity implements
 	}
 
 	@Override
+	protected String getPreferencesName() {
+		return null;
+	}
+
+	@Override
 	public void onBackPressed() {
 		// In the usual case of viewing an alarm, mTimePickerCancelled is
 		// initialized to false. When creating a new alarm, this value is
@@ -371,10 +376,5 @@ public class SetAlarm extends CustomTitlebarPreferenceActivity implements
 		}
 		mTimePref.setSummary(Alarms.formatTime(this, mHour, mMinutes,
 				mRepeatPref.getDaysOfWeek()));
-	}
-
-	@Override
-	protected String getPreferencesName() {
-		return null;
 	}
 }

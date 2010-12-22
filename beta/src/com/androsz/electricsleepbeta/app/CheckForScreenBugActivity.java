@@ -47,6 +47,7 @@ public class CheckForScreenBugActivity extends CalibrateForResultActivity {
 	@Override
 	public void onPause() {
 		super.onPause();
+
 		unregisterReceiver(bugPresentReceiver);
 		unregisterReceiver(bugNotPresentReceiver);
 	}
@@ -54,6 +55,7 @@ public class CheckForScreenBugActivity extends CalibrateForResultActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
+
 		registerReceiver(bugPresentReceiver, new IntentFilter(
 				CheckForScreenBugAccelerometerService.BUG_PRESENT));
 		registerReceiver(bugNotPresentReceiver, new IntentFilter(

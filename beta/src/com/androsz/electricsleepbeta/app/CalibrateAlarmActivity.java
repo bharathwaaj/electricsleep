@@ -28,9 +28,12 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 			 * CalibrateAlarmActivity.this .setResult( CALIBRATION_SUCCEEDED,
 			 * new Intent().putExtra("y", sleepChart.getCalibrationLevel()));
 			 */
-			CalibrateAlarmActivity.this.findViewById(R.id.calibration_sleep_chart).setVisibility(View.VISIBLE);
-			CalibrateAlarmActivity.this.findViewById(R.id.calibration_level_seekbar).setVisibility(View.VISIBLE);
-			CalibrateAlarmActivity.this.findViewById(R.id.warming_up_text).setVisibility(View.GONE);
+			CalibrateAlarmActivity.this.findViewById(
+					R.id.calibration_sleep_chart).setVisibility(View.VISIBLE);
+			CalibrateAlarmActivity.this.findViewById(
+					R.id.calibration_level_seekbar).setVisibility(View.VISIBLE);
+			CalibrateAlarmActivity.this.findViewById(R.id.warming_up_text)
+					.setVisibility(View.GONE);
 			if (sleepChart != null) {
 				final DecimalSeekBar seekBar = (DecimalSeekBar) findViewById(R.id.calibration_level_seekbar);
 				seekBar.setProgress((float) sleepChart.getCalibrationLevel());

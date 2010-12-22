@@ -31,8 +31,6 @@ import com.androsz.electricsleepbeta.widget.SleepHistoryCursorAdapter;
 
 public class HistoryActivity extends CustomTitlebarTabActivity {
 
-	ProgressDialog progress;
-
 	private class DeleteSleepTask extends AsyncTask<Long, Void, Void> {
 
 		@Override
@@ -185,6 +183,8 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 			progress.show();
 		}
 	}
+
+	ProgressDialog progress;
 
 	private TextView mTextView;
 

@@ -3,12 +3,8 @@ package com.androsz.electricsleepbeta.app;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.widget.TextView;
 
 import com.androsz.electricsleepbeta.R;
@@ -119,16 +115,17 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity {
 
 	@Override
 	protected void onFinishWizardActivity() {
-		final SharedPreferences.Editor ed = getSharedPreferences(SettingsActivity.PREFERENCES, 0).edit();
+		final SharedPreferences.Editor ed = getSharedPreferences(
+				SettingsActivity.PREFERENCES, 0).edit();
 		ed.putFloat(getString(R.string.pref_alarm_trigger_sensitivity),
 				(float) alarmTriggerCalibration);
 		ed.putBoolean(getString(R.string.pref_force_screen), screenBugPresent);
 		ed.commit();
 
 		final SharedPreferences.Editor ed2 = getSharedPreferences(
-				getString(R.string.prefs_version), Context.MODE_PRIVATE).edit();
-		ed2.putInt(getString(R.string.prefs_version), getResources()
-				.getInteger(R.integer.prefs_version));
+				SettingsActivity.PREFS_VERSION, Context.MODE_PRIVATE).edit();
+		ed2.putInt(SettingsActivity.PREFS_VERSION,
+				getResources().getInteger(R.integer.prefs_version));
 		ed2.commit();
 		ed.commit();
 

@@ -22,8 +22,6 @@ import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 
-	ProgressDialog progress;
-
 	private class DeleteSleepTask extends AsyncTask<Void, Void, Void> {
 
 		@Override
@@ -53,6 +51,8 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 			progress.show();
 		}
 	}
+
+	ProgressDialog progress;
 
 	private SleepChart sleepChart;
 
@@ -119,6 +119,15 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 	}
 
 	@Override
+	public void onPause() {
+		super.onPause();
+
+		if (progress != null && progress.isShowing()) {
+			progress.dismiss();
+		}
+	}
+
+	@Override
 	protected void onRestoreInstanceState(final Bundle savedState) {
 		try {
 			super.onRestoreInstanceState(savedState);
@@ -145,15 +154,6 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 		} catch (final ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-
-		if (progress != null && progress.isShowing()) {
-			progress.dismiss();
 		}
 	}
 

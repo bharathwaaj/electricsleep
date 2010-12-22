@@ -4,7 +4,8 @@
 	android:layout_width="fill_parent" android:orientation="vertical">
 
 	<TextView android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:id="@+id/warming_up_text" android:text="@string/warming_up" android:layout_gravity="center_vertical|center_horizontal|center"></TextView>
+		android:layout_height="wrap_content" android:id="@+id/warming_up_text"
+		android:text="@string/warming_up" android:layout_gravity="center_vertical|center_horizontal|center"></TextView>
 
 	<com.androsz.electricsleepbeta.widget.CalibrationSleepChart
 		android:id="@+id/calibration_sleep_chart" android:layout_margin="4dip"

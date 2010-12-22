@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="warming_up">Warming up sensors, please wait.</string>
+	<string name="warming_up">Warming up sensors, please wait.</string>
 	<string name="go_into_standy">Press your device\'s standby button</string>
 	<string name="calibrate_directions_force_screen_on">
 		<li>
@@ -54,7 +54,7 @@
 	<string name="summary_pref_sensor_delay">Try changing this if you\'re having problems with
 		sleep movement collection.</string>
 	<string name="title_pref_sensor_delay">Sensor Delay</string>
-	
+
 	<string name="how_review">Your sleep movement graph is saved for later
 		review. Analysis of sleep will be available for all records.</string>
 	<string name="how_wake">Wake up! (With help of smart alarm or naturally.)</string>
@@ -119,13 +119,21 @@
 		If you are having problems recording sleep throughout the night,
 		enable this.</string>
 	<string name="title_pref_force_screen">Force Screen On</string>
-	
+
 	<string name="summary_pref_airplane_mode_off">Airplane mode will not be automatically enabled
 		when sleeping</string>
 	<string name="summary_pref_airplane_mode_on">Airplane mode will be automatically enabled when
 		sleeping</string>
 	<string name="title_pref_airplane_mode">Airplane Mode Sleep</string>
-	
+
+	<string name="summary_pref_silent_mode_off">Silent mode will not be automatically enabled
+		when
+		sleeping</string>
+	<string name="summary_pref_silent_mode_on">Silent mode will be automatically enabled when
+		sleeping</string>
+	<string name="title_pref_silent_mode">Silent Mode Sleep</string>
+
+
 	<string name="title_misc">Miscellaneous</string>
 	<string name="rate_title">Rate how easily you awoke and how refreshed you
 		feel:</string>
@@ -138,7 +146,7 @@
 		automatically</string>
 	<string name="title_pref_calibration">Calibration Wizard</string>
 	<string name="pref_calibration">calibrationWizard</string>
-	
+
 	<string name="summary_pref_alarms">Manage ElectricSleep\'s built-in alarms - these are
 		persistent even if Light Sleep Pre-Alarm is disabled.</string>
 	<string name="preset">Preset:</string>
@@ -148,7 +156,7 @@
 		the next
 		enabled alarm in sleep mode</string>
 	<string name="title_pref_use_alarm">Light Sleep Pre-Alarm</string>
-	
+
 	<string name="monitoring_sleep">Monitoring Sleep</string>
 	<string name="movement_level_during_sleep">"&lt;-deep| Sleep |light-&gt;"</string>
 	<string name="search">Search</string>
@@ -270,7 +278,7 @@
 	<string name="dialog_wait_for_sleep_data_message">Have a restful sleep!\n\nThere\'s nothing to
 		display
 		yet, check back later!</string>
-	
+
 	<string name="title_pref_alarm_trigger_sensitivity">Light Sleep Sensitivity</string>
 	<string name="summary_alarm_trigger_sensitivity">Level of movement that signifies light sleep will
 		trigger alarm
@@ -301,7 +309,7 @@
 		</li>
 	</string>
 	<string name="calibrating">Calibrating...</string>
-	
+
 	<string name="settings_description">Sleep results</string>
 
 	<string name="search_instructions">Tap search to search for previous sleep results</string>
@@ -311,7 +319,7 @@
 		<item>Normal</item>
 		<item>UI</item>
 	</string-array>
-	
+
 	<string-array name="array_prefs_alarm_window_friendly">
 		<item>5 minutes</item>
 		<item>10 minutes</item>
@@ -339,15 +347,15 @@
 		<item>2 hours</item>
 	</string-array>
 
-	
+
 
 	<string name="title_pref_alarm_window">Pre-Alarm Window</string>
 	<string name="summary_pref_alarm_window">The window of time before the next enabled alarm is
 		set to go
 		off during which ElectricSleep will try to wake you.</string>
-	
+
 	<string name="stop">Stop</string>
-	
+
 	<string name="donate">Donate</string>
 	<string name="notification_save_sleep_title">Save sleep</string>
 	<string name="notification_save_sleep_text">Tap to save or discard sleep history</string>

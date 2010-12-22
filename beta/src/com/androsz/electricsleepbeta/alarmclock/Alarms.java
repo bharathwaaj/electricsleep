@@ -18,8 +18,6 @@ package com.androsz.electricsleepbeta.alarmclock;
 
 import java.util.Calendar;
 
-import com.androsz.electricsleepbeta.app.SettingsActivity;
-
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -34,6 +32,8 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.provider.Settings;
 import android.text.format.DateFormat;
+
+import com.androsz.electricsleepbeta.app.SettingsActivity;
 
 /**
  * The Alarms provider supplies info about Alarm Clock settings

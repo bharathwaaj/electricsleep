@@ -87,7 +87,8 @@ public class DailySleepComparisonChart extends ChartView implements
 	public void redraw(final double min, final double alarm) {
 		if (makesSenseToDisplay()) {
 			final double firstX = xySeriesMovement.xyList.get(0).x;
-			final double lastX = xySeriesMovement.xyList.get(xySeriesMovement.xyList.size() - 1).x;
+			final double lastX = xySeriesMovement.xyList
+					.get(xySeriesMovement.xyList.size() - 1).x;
 			xyMultipleSeriesRenderer.setXAxisMin(firstX);
 			xyMultipleSeriesRenderer.setXAxisMax(lastX);
 

@@ -6,11 +6,11 @@
 	<string name="pref_sensor_delay">sensorDelay</string>
 	<string name="pref_force_screen">forceScreenOn</string>
 	<string name="pref_airplane_mode">airplaneMode</string>
+	<string name="pref_silent_mode">silentMode</string>
 	<string name="pref_last_sleep_row">lastSavedSleepRow</string>
 	<string name="pref_use_alarm">useAlarm</string>
 	<string name="pref_alarm_trigger_sensitivity">alarmTriggerSensitivity</string>
 	<string name="pref_alarm_window">alarmWindow</string>
-	<string name="prefs_version">prefsVersion</string>
 	<string name="pref_alarms">alarms</string>
 	<string-array name="array_prefs_sensor_delay_values">
 		<item>3</item>

@@ -1,9 +1,7 @@
 package com.androsz.electricsleepbeta.content;
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
@@ -11,7 +9,6 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
-import com.androsz.electricsleepbeta.app.CalibrationWizardActivity;
 import com.androsz.electricsleepbeta.app.SettingsActivity;
 import com.androsz.electricsleepbeta.app.SleepAccelerometerService;
 import com.androsz.electricsleepbeta.app.SleepActivity;
@@ -20,12 +17,21 @@ public class StartSleepReceiver extends BroadcastReceiver {
 
 	public final static String START_SLEEP = "com.androsz.electricsleepbeta.START_SLEEP";
 
+	public final static String EXTRA_ALARM = "alarm";
+
+	public final static String EXTRA_SENSOR_DELAY = "sensorDelay";
+	public final static String EXTRA_USE_ALARM = "useAlarm";
+	public final static String EXTRA_ALARM_WINDOW = "alarmWindow";
+	public final static String EXTRA_AIRPLANE_MODE = "airplaneMode";
+	public final static String EXTRA_SILENT_MODE = "silentMode";
+	public final static String EXTRA_FORCE_SCREEN_ON = "forceScreenOn";
+
 	public static void enforceCalibrationBeforeStartingSleep(
 			final Context context, final Intent service, final Intent activity) {
 		final SharedPreferences userPrefs = context.getSharedPreferences(
-				"prefsVersion", Context.MODE_PRIVATE);
+				SettingsActivity.PREFS_VERSION, Context.MODE_PRIVATE);
 		final int prefsVersion = userPrefs.getInt(
-				context.getString(R.string.prefs_version), 0);
+				SettingsActivity.PREFS_VERSION, 0);
 		String message = "";
 		if (prefsVersion == 0) {
 			message = context.getString(R.string.message_not_calibrated);
@@ -63,19 +69,24 @@ public class StartSleepReceiver extends BroadcastReceiver {
 				context.getString(R.string.pref_alarm_window), "-1"));
 		final boolean airplaneMode = userPrefs.getBoolean(
 				context.getString(R.string.pref_airplane_mode), false);
+		final boolean silentMode = userPrefs.getBoolean(
+				context.getString(R.string.pref_silent_mode), false);
 		final boolean forceScreenOn = userPrefs.getBoolean(
 				context.getString(R.string.pref_force_screen), false);
 
 		final Intent serviceIntent = new Intent(context,
 				SleepAccelerometerService.class);
-		serviceIntent.putExtra("alarm", alarmTriggerSensitivity);
-		serviceIntent.putExtra("sensorDelay", sensorDelay);
-		serviceIntent.putExtra("useAlarm", useAlarm);
-		serviceIntent.putExtra("alarmWindow", alarmWindow);
-		serviceIntent.putExtra("airplaneMode", airplaneMode);
-		serviceIntent.putExtra("forceScreenOn", forceScreenOn);
+		serviceIntent.putExtra(EXTRA_ALARM, alarmTriggerSensitivity);
+		serviceIntent.putExtra(EXTRA_SENSOR_DELAY, sensorDelay);
+		serviceIntent.putExtra(EXTRA_USE_ALARM, useAlarm);
+		serviceIntent.putExtra(EXTRA_ALARM_WINDOW, alarmWindow);
+		serviceIntent.putExtra(EXTRA_AIRPLANE_MODE, airplaneMode);
+		serviceIntent.putExtra(EXTRA_SILENT_MODE, silentMode);
+		serviceIntent.putExtra(EXTRA_FORCE_SCREEN_ON, forceScreenOn);
+
 		enforceCalibrationBeforeStartingSleep(context, serviceIntent,
 				new Intent(context, SleepActivity.class)
 						.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+
 	}
 }

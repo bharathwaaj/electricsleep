@@ -1,7 +1,6 @@
 package com.androsz.electricsleepbeta.app;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 
 import android.app.ProgressDialog;
@@ -21,6 +20,7 @@ import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.Alarm;
 import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
 import com.androsz.electricsleepbeta.alarmclock.Alarms;
+import com.androsz.electricsleepbeta.content.StartSleepReceiver;
 import com.androsz.electricsleepbeta.util.PointD;
 import com.androsz.electricsleepbeta.widget.SleepChart;
 
@@ -56,10 +56,13 @@ public class SleepActivity extends CustomTitlebarActivity {
 		public void onReceive(final Context context, final Intent intent) {
 
 			if (sleepChart != null) {
-				sleepChart.sync(intent.getDoubleExtra("x", 0), intent
-						.getDoubleExtra("y", 0), intent.getDoubleExtra("min",
-						SettingsActivity.DEFAULT_MIN_SENSITIVITY), intent
-						.getDoubleExtra("alarm",
+				sleepChart.sync(intent.getDoubleExtra(
+						SleepAccelerometerService.EXTRA_X, 0), intent
+						.getDoubleExtra(SleepAccelerometerService.EXTRA_Y, 0),
+						intent.getDoubleExtra(
+								SleepAccelerometerService.EXTRA_MIN,
+								SettingsActivity.DEFAULT_MIN_SENSITIVITY),
+						intent.getDoubleExtra(StartSleepReceiver.EXTRA_ALARM,
 								SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 
 				if (sleepChart.makesSenseToDisplay()
@@ -86,9 +89,10 @@ public class SleepActivity extends CustomTitlebarActivity {
 							SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 			sleepChart.repaint();
 
-			final boolean useAlarm = intent.getBooleanExtra("useAlarm", false);
+			final boolean useAlarm = intent.getBooleanExtra(
+					StartSleepReceiver.EXTRA_USE_ALARM, false);
 			final boolean forceScreenOn = intent.getBooleanExtra(
-					"forceScreenOn", false);
+					StartSleepReceiver.EXTRA_FORCE_SCREEN_ON, false);
 
 			// Shows the bound to alarm toast if useAlarm is enabled
 			if (useAlarm) {
@@ -122,8 +126,8 @@ public class SleepActivity extends CustomTitlebarActivity {
 				final Window win = getWindow();
 				final WindowManager.LayoutParams winParams = win
 						.getAttributes();
-
-				winParams.screenBrightness = 0.01f;
+				winParams.flags |= WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+				// winParams.screenBrightness = 0.01f;
 				// winParams.buttonBrightness = WindowManager.LayoutParams.;
 
 				win.setAttributes(winParams);

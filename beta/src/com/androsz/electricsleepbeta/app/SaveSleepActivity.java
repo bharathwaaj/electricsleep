@@ -36,9 +36,10 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 
 			final Intent reviewSleepIntent = new Intent(context,
 					ReviewSleepActivity.class);
-			if (!intent.getBooleanExtra("success", false)) {
+			if (!intent.getBooleanExtra(SaveSleepReceiver.EXTRA_SUCCESS, false)) {
 				String why = getString(R.string.could_not_save_sleep) + " ";
-				final String ioException = intent.getStringExtra("IOException");
+				final String ioException = intent
+						.getStringExtra(SaveSleepReceiver.EXTRA_IO_EXCEPTION);
 				if (ioException != null) {
 					why += ioException;
 				} else {
@@ -49,7 +50,8 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 				finish();
 				return;
 			}
-			final String rowId = intent.getStringExtra("rowId");
+			final String rowId = intent
+					.getStringExtra(SaveSleepReceiver.EXTRA_ROW_ID);
 			if (rowId != null) {
 				final Uri uri = Uri.withAppendedPath(
 						SleepContentProvider.CONTENT_URI, rowId);
@@ -82,7 +84,8 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 	public void onDiscardClick(final View v) {
 		finish();
 		final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(getIntent().getExtras().getInt("id"));
+		notificationManager.cancel(getIntent().getExtras().getInt(
+				SleepAccelerometerService.EXTRA_ID));
 	}
 
 	@Override
@@ -102,7 +105,7 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 	@Override
 	protected void onRestoreInstanceState(final Bundle savedState) {
 		super.onRestoreInstanceState(savedState);
-		rating = savedState.getFloat("rating");
+		rating = savedState.getFloat(SaveSleepReceiver.EXTRA_RATING);
 	}
 
 	@Override
@@ -121,8 +124,9 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 		}
 
 		final Intent saveIntent = new Intent(SaveSleepActivity.SAVE_SLEEP);
-		saveIntent.putExtra("note", noteEdit.getText().toString());
-		saveIntent.putExtra("rating", (int) rating);
+		saveIntent.putExtra(SaveSleepReceiver.EXTRA_NOTE, noteEdit.getText()
+				.toString());
+		saveIntent.putExtra(SaveSleepReceiver.EXTRA_RATING, (int) rating);
 		saveIntent.putExtras(getIntent().getExtras()); // add the sleep history
 														// data
 
@@ -132,12 +136,13 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 		progress.show();
 		sendBroadcast(saveIntent);
 		final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(getIntent().getExtras().getInt("id"));
+		notificationManager.cancel(getIntent().getExtras().getInt(
+				SleepAccelerometerService.EXTRA_ID));
 	}
 
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putFloat("rating", rating);
+		outState.putFloat(SaveSleepReceiver.EXTRA_RATING, rating);
 	}
 }

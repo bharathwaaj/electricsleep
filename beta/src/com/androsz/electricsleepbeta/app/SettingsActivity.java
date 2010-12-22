@@ -8,13 +8,12 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
-import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
 import com.androsz.electricsleepbeta.preference.CustomTitlebarPreferenceActivity;
 
 public class SettingsActivity extends CustomTitlebarPreferenceActivity
@@ -23,6 +22,8 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 	public static double DEFAULT_MIN_SENSITIVITY = 0;
 	public static double DEFAULT_ALARM_SENSITIVITY = 0.33;
 	public static double MAX_ALARM_SENSITIVITY = 1;
+
+	public static final String PREFS_VERSION = "prefsVersion";
 
 	// this is actually what android uses as default..
 	public static String PREFERENCES = "com.androsz.electricsleepbeta_preferences";
@@ -36,6 +37,11 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 	@Override
 	protected int getContentAreaLayoutId() {
 		return R.xml.settings;
+	}
+
+	@Override
+	protected String getPreferencesName() {
+		return PREFERENCES;
 	}
 
 	@Override
@@ -54,7 +60,8 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 				});
 
 		final SharedPreferences serviceIsRunningPrefs = getSharedPreferences(
-				"serviceIsRunning", Context.MODE_PRIVATE);
+				SleepAccelerometerService.SERVICE_IS_RUNNING,
+				Context.MODE_PRIVATE);
 		if (serviceIsRunningPrefs.getBoolean("serviceIsRunning", false)) {
 			Toast.makeText(
 					this,
@@ -72,9 +79,9 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 			@Override
 			public void run() {
 				final SharedPreferences.Editor ed = getSharedPreferences(
-						"prefsVersion", Context.MODE_PRIVATE).edit();
-				ed.putInt(getString(R.string.prefs_version), getResources()
-						.getInteger(R.integer.prefs_version));
+						PREFS_VERSION, Context.MODE_PRIVATE).edit();
+				ed.putInt(PREFS_VERSION,
+						getResources().getInteger(R.integer.prefs_version));
 				ed.commit();
 			}
 		}).start();
@@ -132,10 +139,5 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 		final ListPreference snooze = (ListPreference) findPreference(KEY_ALARM_SNOOZE);
 		snooze.setSummary(snooze.getEntry());
 		snooze.setOnPreferenceChangeListener(this);
-	}
-
-	@Override
-	protected String getPreferencesName() {
-		return PREFERENCES;
 	}
 }

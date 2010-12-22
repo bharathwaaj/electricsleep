@@ -1,22 +1,14 @@
 package com.androsz.electricsleepbeta.content;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 
@@ -28,6 +20,11 @@ import com.androsz.electricsleepbeta.util.PointD;
 
 public class SaveSleepReceiver extends BroadcastReceiver {
 
+	public static final String EXTRA_IO_EXCEPTION = "IOException";
+	public static final String EXTRA_ROW_ID = "rowId";
+	public static final String EXTRA_SUCCESS = "success";
+	public static final String EXTRA_NOTE = "note";
+	public static final String EXTRA_RATING = "rating";
 	public static String SAVE_SLEEP_COMPLETED = "com.androsz.electricsleep.SAVE_SLEEP_COMPLETED";
 
 	@Override
@@ -35,6 +32,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 		new Thread(new Runnable() {
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void run() {
 				final SleepHistoryDatabase shdb = new SleepHistoryDatabase(
@@ -42,33 +40,40 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 				double min = Double.MAX_VALUE;
 
-				final double alarm = intent.getDoubleExtra("alarm",
+				final double alarm = intent.getDoubleExtra(
+						StartSleepReceiver.EXTRA_ALARM,
 						SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
 
-				final String name = intent.getStringExtra("name");
-				final int rating = intent.getIntExtra("rating", 5);
-				final String note = intent.getStringExtra("note");
+				final String name = intent
+						.getStringExtra(SleepAccelerometerService.EXTRA_NAME);
+				final int rating = intent.getIntExtra(EXTRA_RATING, 5);
+				final String note = intent.getStringExtra(EXTRA_NOTE);
 
 				FileInputStream fis;
 				List<PointD> originalData = null;
 				try {
 					fis = context
-							.openFileInput(SleepAccelerometerService.SLEEP_DATA_FILE);
+							.openFileInput(SleepAccelerometerService.SLEEP_DATA);
 					final long length = context.getFileStreamPath(
-							SleepAccelerometerService.SLEEP_DATA_FILE).length();
+							SleepAccelerometerService.SLEEP_DATA).length();
 					final int chunkSize = 16;
 					originalData = new ArrayList<PointD>((int) (length
 							/ chunkSize / 2));
-					byte[] buffer = new byte[(int) length];
+					final byte[] buffer = new byte[(int) length];
 					fis.read(buffer);
 					fis.close();
 					for (int i = 0; i < buffer.length; i += 16) {
-						byte[] chunk = new byte[chunkSize];
+						final byte[] chunk = new byte[chunkSize];
 						System.arraycopy(buffer, i, chunk, 0, chunkSize);
 						originalData.add(PointD.fromByteArray(chunk));
 					}
-				} catch (FileNotFoundException e) {
-				} catch (IOException e) {
+				} catch (final FileNotFoundException e) {
+				} catch (final IOException e) {
+				}
+
+				if (originalData == null) {
+					originalData = (List<PointD>) intent
+							.getSerializableExtra(SleepAccelerometerService.SLEEP_DATA);
 				}
 
 				final int numberOfPointsOriginal = originalData.size();
@@ -162,7 +167,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 					} catch (final IOException e) {
 						shdb.close();
 						context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED)
-								.putExtra("IOException", e.getMessage()));
+								.putExtra(EXTRA_IO_EXCEPTION, e.getMessage()));
 						return;
 					}
 				} else {
@@ -200,7 +205,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 					} catch (final IOException e) {
 						shdb.close();
 						context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED)
-								.putExtra("IOException", e.getMessage()));
+								.putExtra(EXTRA_IO_EXCEPTION, e.getMessage()));
 						return;
 					}
 				}
@@ -236,8 +241,8 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 				final Intent saveSleepCompletedIntent = new Intent(
 						SAVE_SLEEP_COMPLETED);
-				saveSleepCompletedIntent.putExtra("success", true);
-				saveSleepCompletedIntent.putExtra("rowId",
+				saveSleepCompletedIntent.putExtra(EXTRA_SUCCESS, true);
+				saveSleepCompletedIntent.putExtra(EXTRA_ROW_ID,
 						String.valueOf(rowId));
 				context.sendBroadcast(saveSleepCompletedIntent);
 			}

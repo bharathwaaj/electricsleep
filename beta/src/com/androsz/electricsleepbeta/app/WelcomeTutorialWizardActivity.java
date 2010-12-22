@@ -1,11 +1,13 @@
 package com.androsz.electricsleepbeta.app;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
@@ -13,53 +15,50 @@ import com.androsz.electricsleepbeta.R;
 
 public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity {
 
-	private boolean required = false;
+	public static boolean enforceCalibrationBeforeStartingSleep(
+			final Activity context) {
 
-	private void enforceCalibrationBeforeStartingSleep() {
-
-		final SharedPreferences userPrefs = getSharedPreferences(
-				getString(R.string.prefs_version), Context.MODE_PRIVATE);
+		final SharedPreferences userPrefs = context.getSharedPreferences(
+				SettingsActivity.PREFS_VERSION, Context.MODE_PRIVATE);
 		final int prefsVersion = userPrefs.getInt(
-				getString(R.string.prefs_version), 0);
+				SettingsActivity.PREFS_VERSION, 0);
 		String message = "";
 		if (prefsVersion == 0) {
-			message = getString(R.string.message_not_calibrated);
-		} else if (prefsVersion != getResources().getInteger(
+			message = context.getString(R.string.message_not_calibrated);
+		} else if (prefsVersion != context.getResources().getInteger(
 				R.integer.prefs_version)) {
-			message = getString(R.string.message_prefs_not_compatible);
+			message = context.getString(R.string.message_prefs_not_compatible);
 		}
 
 		if (message.length() > 0) {
-			message += getString(R.string.message_recommend_calibration);
-			final AlertDialog.Builder dialog = new AlertDialog.Builder(
-					WelcomeTutorialWizardActivity.this)
+			message += context
+					.getString(R.string.message_recommend_calibration);
+			final AlertDialog.Builder dialog = new AlertDialog.Builder(context)
 					.setMessage(message)
 					.setCancelable(false)
-					.setPositiveButton(getString(R.string.calibrate),
+					.setPositiveButton(context.getString(R.string.calibrate),
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(
 										final DialogInterface dialog,
 										final int id) {
-									startActivity(new Intent(
-											WelcomeTutorialWizardActivity.this,
+									context.startActivity(new Intent(context,
 											CalibrationWizardActivity.class));
-									finish();
+									context.finish();
 								}
 							})
-					.setNeutralButton(getString(R.string.manual),
+					.setNeutralButton(context.getString(R.string.manual),
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(
 										final DialogInterface dialog,
 										final int id) {
-									startActivity(new Intent(
-											WelcomeTutorialWizardActivity.this,
+									context.startActivity(new Intent(context,
 											SettingsActivity.class));
-									finish();
+									context.finish();
 								}
 							})
-					.setNegativeButton(getString(R.string.cancel),
+					.setNegativeButton(context.getString(R.string.cancel),
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(
@@ -69,10 +68,13 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 								}
 							});
 			dialog.show();
+			return false;
 		} else {
-			finish();
+			return true;
 		}
 	}
+
+	private boolean required = false;
 
 	@Override
 	protected int getWizardLayoutId() {
@@ -90,8 +92,19 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(final Menu menu) {
+		if (required) {
+			return false;
+		} else {
+			return super.onCreateOptionsMenu(menu);
+		}
+	}
+
+	@Override
 	protected void onFinishWizardActivity() {
-		enforceCalibrationBeforeStartingSleep();
+		if (enforceCalibrationBeforeStartingSleep(this)) {
+			finish();
+		}
 	}
 
 	@Override

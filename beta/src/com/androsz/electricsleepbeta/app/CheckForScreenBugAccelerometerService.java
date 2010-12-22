@@ -22,18 +22,10 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 			if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-				screenIsOff = true;
+				serviceHandler.postDelayed(setScreenIsOffRunnable, 3000);
 				serviceHandler.postDelayed(turnScreenOnFallbackRunnable, 12000);
 			} else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-				if (bugPresent) {
-					// Sensor change never triggered, so the bug is present
-					sendBroadcast(new Intent(BUG_PRESENT));
-					stopSelf();
-				} else {
-					// Sensor change triggered, so the bug isn't present :)
-					sendBroadcast(new Intent(BUG_NOT_PRESENT));
-					stopSelf();
-				}
+				stopSelf();
 			}
 		}
 	}
@@ -44,6 +36,13 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 		@Override
 		public void run() {
 			turnScreenOn();
+		}
+	};
+
+	Runnable setScreenIsOffRunnable = new Runnable() {
+		@Override
+		public void run() {
+			screenIsOff = true;
 		}
 	};
 
@@ -89,11 +88,19 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 
 	@Override
 	public void onDestroy() {
+		if (bugPresent) {
+			// Sensor change never triggered, so the bug is present
+			sendBroadcast(new Intent(BUG_PRESENT));
+		} else {
+			// Sensor change triggered, so the bug isn't present :)
+			sendBroadcast(new Intent(BUG_NOT_PRESENT));
+		}
 
 		unregisterAccelerometerListener();
 
 		unregisterReceiver(screenOnOffReceiver);
 
+		serviceHandler.removeCallbacks(setScreenIsOffRunnable);
 		serviceHandler.removeCallbacks(turnScreenOnFallbackRunnable);
 
 		if (partialWakeLock != null && partialWakeLock.isHeld()) {
@@ -106,7 +113,6 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 	@Override
 	public void onSensorChanged(final SensorEvent event) {
 		if (screenIsOff) {
-			//unregisterAccelerometerListener();
 			bugPresent = false;
 			turnScreenOn();
 		}
@@ -117,7 +123,7 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 
 		sensorManager.registerListener(this,
 				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-				SensorManager.SENSOR_DELAY_NORMAL);
+				SensorManager.SENSOR_DELAY_FASTEST);
 	}
 
 	private void turnScreenOn() {

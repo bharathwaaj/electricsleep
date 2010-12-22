@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -53,7 +52,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 	protected int getContentAreaLayoutId() {
 		return R.layout.activity_home;
 	}
-	
+
 	public void onAlarmsClick(final View v) {
 		startActivity(new Intent(this, AlarmClock.class));
 	}
@@ -69,18 +68,21 @@ public class HomeActivity extends CustomTitlebarActivity {
 		// showTitleButton2(R.drawable.ic_title_refresh);
 		setHomeButtonAsLogo();
 
-		final SharedPreferences userPrefs = getSharedPreferences("prefsVersion", Context.MODE_PRIVATE);
+		final SharedPreferences userPrefs = getSharedPreferences(
+				SettingsActivity.PREFS_VERSION, Context.MODE_PRIVATE);
 		final int prefsVersion = userPrefs.getInt(
-				getString(R.string.prefs_version), 0);
+				SettingsActivity.PREFS_VERSION, 0);
 		if (prefsVersion == 0) {
 			startActivity(new Intent(this, WelcomeTutorialWizardActivity.class)
 					.putExtra("required", true));
 		} else {
-			StartSleepReceiver.enforceCalibrationBeforeStartingSleep(this,
-					null, null);
+
+			WelcomeTutorialWizardActivity
+					.enforceCalibrationBeforeStartingSleep(this);
+
 		}
 	}
-	
+
 	public void onHistoryClick(final View v) {
 		startActivity(new Intent(this, HistoryActivity.class));
 	}

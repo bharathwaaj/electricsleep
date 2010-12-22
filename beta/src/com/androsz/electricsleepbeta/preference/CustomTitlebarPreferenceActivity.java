@@ -5,10 +5,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.PixelFormat;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Build.VERSION;
+import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,23 +25,6 @@ public abstract class CustomTitlebarPreferenceActivity extends
 		PreferenceActivity {
 
 	private GoogleAnalyticsTracker analytics;
-
-	protected void trackEvent(String label, int value) {
-		String esVersion = "?";
-		try {
-			esVersion = getPackageManager().getPackageInfo(
-					this.getPackageName(), 0).versionName;
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String phoneAndApiLevel = Build.MODEL + "-" + VERSION.SDK_INT;
-		analytics.trackEvent(esVersion, phoneAndApiLevel, label, value);
-	}
-
-	protected void trackPageView(String pageUrl) {
-		analytics.trackPageView(pageUrl);
-	}
 
 	protected abstract int getContentAreaLayoutId();
 
@@ -143,5 +125,22 @@ public abstract class CustomTitlebarPreferenceActivity extends
 		btn2.setVisibility(View.VISIBLE);
 		btn2.setImageResource(drawableResourceId);
 		findViewById(R.id.title_sep_2).setVisibility(View.VISIBLE);
+	}
+
+	protected void trackEvent(final String label, final int value) {
+		String esVersion = "?";
+		try {
+			esVersion = getPackageManager().getPackageInfo(
+					this.getPackageName(), 0).versionName;
+		} catch (final NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		final String phoneAndApiLevel = Build.MODEL + "-" + VERSION.SDK_INT;
+		analytics.trackEvent(esVersion, phoneAndApiLevel, label, value);
+	}
+
+	protected void trackPageView(final String pageUrl) {
+		analytics.trackPageView(pageUrl);
 	}
 }

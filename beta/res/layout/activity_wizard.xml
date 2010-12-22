@@ -7,14 +7,16 @@
 		android:layout_weight="1" android:layout_height="wrap_content"
 		android:layout_width="fill_parent" android:layout_margin="8dip" />
 	<RelativeLayout android:layout_height="wrap_content"
-		android:layout_width="fill_parent"
-		android:layout_gravity="bottom|center_horizontal" android:background="@color/primary1_transparent">
+		android:layout_width="fill_parent" android:layout_gravity="bottom|center_horizontal"
+		android:background="@color/primary1_transparent">
 		<Button android:layout_height="wrap_content" android:id="@+id/leftButton"
 			android:onClick="onLeftButtonClick" android:drawableLeft="@drawable/arrow_left"
-			android:layout_alignParentLeft="true" android:layout_width="160dip" android:layout_marginTop="4dip"></Button>
+			android:layout_alignParentLeft="true" android:layout_width="160dip"
+			android:layout_marginTop="4dip"></Button>
 		<Button android:layout_height="wrap_content" android:onClick="onRightButtonClick"
 			android:id="@+id/rightButton" android:drawableRight="@drawable/arrow_right"
-			android:layout_alignParentRight="true" android:layout_width="160dip" android:layout_marginTop="4dip"></Button>
+			android:layout_alignParentRight="true" android:layout_width="160dip"
+			android:layout_marginTop="4dip"></Button>
 	</RelativeLayout>
 
 </LinearLayout>

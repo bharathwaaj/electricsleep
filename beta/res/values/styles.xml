@@ -20,16 +20,16 @@
 	<style name="HomeButton">
 		<item name="android:padding">8dip</item>
 		<item name="android:layout_gravity">center_vertical</item>
-		
-		
-		
+
+
+
 		<item name="android:gravity">center_horizontal</item>
 		<item name="android:textSize">@dimen/text_size_large</item>
 		<item name="android:textStyle">bold</item>
 		<item name="android:textColor">@color/primary1</item>
 		<item name="android:background">@null</item>
-	
-</style>
+
+	</style>
 
 	<style name="AppwidgetButton">
 		<item name="android:layout_gravity">center_vertical</item>

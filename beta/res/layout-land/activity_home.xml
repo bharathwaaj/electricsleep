@@ -8,17 +8,17 @@
 		android:layout_centerVertical="true">
 		<Button android:drawableTop="@drawable/home_btn_sleep"
 			android:layout_width="wrap_content" android:id="@+id/home_btn_sleep"
-			android:onClick="onSleepClick"
-			style="@style/HomeButton" android:layout_height="wrap_content"
-			android:layout_weight="0.33"></Button>
+			android:onClick="onSleepClick" style="@style/HomeButton"
+			android:layout_height="wrap_content" android:layout_weight="0.33"></Button>
 		<Button android:drawableTop="@drawable/home_btn_history"
 			android:layout_width="wrap_content" android:id="@+id/home_btn_history"
-			android:layout_height="wrap_content" android:onClick="onHistoryClick" style="@style/HomeButton"
-			android:layout_weight="0.33"></Button>
+			android:layout_height="wrap_content" android:onClick="onHistoryClick"
+			style="@style/HomeButton" android:layout_weight="0.33"></Button>
 		<Button android:layout_width="wrap_content"
-			android:drawableTop="@drawable/home_btn_alarms" android:layout_height="wrap_content"
-			android:id="@+id/home_btn_alarms" style="@style/HomeButton"
-			android:layout_weight="0.33" android:onClick="onAlarmsClick"></Button>
+			android:drawableTop="@drawable/home_btn_alarms"
+			android:layout_height="wrap_content" android:id="@+id/home_btn_alarms"
+			style="@style/HomeButton" android:layout_weight="0.33"
+			android:onClick="onAlarmsClick"></Button>
 	</LinearLayout>
 
 

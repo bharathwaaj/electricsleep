@@ -1,8 +1,6 @@
 package com.androsz.electricsleepbeta.widget;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.util.AttributeSet;
 
 import com.androsz.electricsleepbeta.R;
@@ -12,7 +10,6 @@ import com.androsz.electricsleepbeta.achartengine.model.XYMultipleSeriesDataset;
 import com.androsz.electricsleepbeta.achartengine.model.XYSeries;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
-import com.androsz.electricsleepbeta.app.SettingsActivity;
 
 public class CalibrationSleepChart extends SleepChart {
 
@@ -90,7 +87,9 @@ public class CalibrationSleepChart extends SleepChart {
 
 	@Override
 	public void reconfigure(final double min, final double alarm) {
-		super.reconfigure(0d, com.androsz.electricsleepbeta.app.SettingsActivity.MAX_ALARM_SENSITIVITY);
+		super.reconfigure(
+				0d,
+				com.androsz.electricsleepbeta.app.SettingsActivity.MAX_ALARM_SENSITIVITY);
 		if (makesSenseToDisplay()) {
 			// reconfigure the calibration line..
 			xySeriesCalibration.clear();
