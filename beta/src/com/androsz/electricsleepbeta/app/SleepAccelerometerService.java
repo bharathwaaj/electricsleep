@@ -183,7 +183,7 @@ public class SleepAccelerometerService extends Service implements
 		saveIntent.putExtra(EXTRA_ID, hashCode());
 		saveIntent.putExtra(StartSleepReceiver.EXTRA_ALARM,
 				alarmTriggerSensitivity);
-
+		
 		// send start/end time as well
 		final DateFormat sdf = DateFormat.getDateTimeInstance(DateFormat.SHORT,
 				DateFormat.SHORT, Locale.getDefault());
@@ -208,6 +208,8 @@ public class SleepAccelerometerService extends Service implements
 		final Notification notification = new Notification(icon, tickerText,
 				when);
 
+		notification.flags = Notification.FLAG_AUTO_CANCEL | Notification.DEFAULT_LIGHTS;
+		
 		final Context context = getApplicationContext();
 		final CharSequence contentTitle = getText(R.string.notification_save_sleep_title);
 		final CharSequence contentText = getText(R.string.notification_save_sleep_text);
@@ -416,8 +418,8 @@ public class SleepAccelerometerService extends Service implements
 	private void toggleSilentMode(final boolean enabling) {
 		if (silentMode) {
 			final AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-			ringerModeBackup = audioManager.getRingerMode();
 			if (enabling) {
+				ringerModeBackup = audioManager.getRingerMode();
 				audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
 			} else {
 				audioManager.setRingerMode(ringerModeBackup);
