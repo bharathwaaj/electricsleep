@@ -49,6 +49,7 @@ public class StartSleepReceiver extends BroadcastReceiver {
 					.getString(R.string.message_recommend_calibration);
 			Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 		} else if (service != null && activity != null) {
+			context.deleteFile(SleepAccelerometerService.SLEEP_DATA);
 			context.startService(service);
 			context.startActivity(activity);
 		}

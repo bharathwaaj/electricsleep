@@ -18,8 +18,8 @@ import com.androsz.electricsleepbeta.achartengine.model.XYMultipleSeriesDataset;
 import com.androsz.electricsleepbeta.achartengine.model.XYSeries;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
+import com.androsz.electricsleepbeta.app.SleepAccelerometerService;
 import com.androsz.electricsleepbeta.db.SleepRecord;
-import com.androsz.electricsleepbeta.util.PointD;
 
 public class SleepChart extends ChartView implements Serializable {
 
@@ -138,7 +138,12 @@ public class SleepChart extends ChartView implements Serializable {
 
 	public void sync(final Double x, final Double y, final double min,
 			final double alarm) {
-		xySeriesMovement.xyList.add(new PointD(x, y));
+		if (xySeriesMovement.xyList.size() >= SleepAccelerometerService.MAX_POINTS_IN_A_GRAPH) {
+			xySeriesMovement.add(x, y);
+			xySeriesMovement.remove(0);
+		} else {
+			xySeriesMovement.add(x, y);
+		}
 		reconfigure(min, alarm);
 		repaint();
 	}

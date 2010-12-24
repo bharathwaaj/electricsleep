@@ -32,11 +32,8 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 		new Thread(new Runnable() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public void run() {
-				final SleepHistoryDatabase shdb = new SleepHistoryDatabase(
-						context);
 
 				double min = Double.MAX_VALUE;
 
@@ -57,24 +54,23 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 					final long length = context.getFileStreamPath(
 							SleepAccelerometerService.SLEEP_DATA).length();
 					final int chunkSize = 16;
-					originalData = new ArrayList<PointD>((int) (length
-							/ chunkSize / 2));
-					final byte[] buffer = new byte[(int) length];
-					fis.read(buffer);
-					fis.close();
-					for (int i = 0; i < buffer.length; i += 16) {
+					if (length > chunkSize) {
+						originalData = new ArrayList<PointD>((int) (length
+								/ chunkSize / 2));
+						final byte[] buffer = new byte[(int) length];
+						fis.read(buffer);
+						fis.close();
 						final byte[] chunk = new byte[chunkSize];
-						System.arraycopy(buffer, i, chunk, 0, chunkSize);
-						originalData.add(PointD.fromByteArray(chunk));
+						for (int i = 0; i < buffer.length; i += chunkSize) {
+							System.arraycopy(buffer, i, chunk, 0, chunkSize);
+							originalData.add(PointD.fromByteArray(chunk));
+						}
 					}
 				} catch (final FileNotFoundException e) {
 				} catch (final IOException e) {
 				}
 
-				if (originalData == null) {
-					originalData = (List<PointD>) intent
-							.getSerializableExtra(SleepAccelerometerService.SLEEP_DATA);
-				}
+				context.deleteFile(SleepAccelerometerService.SLEEP_DATA);
 
 				final int numberOfPointsOriginal = originalData.size();
 
@@ -88,7 +84,10 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 					return;
 				}
 
-				final int numberOfDesiredGroupedPoints = 200;
+				final SleepHistoryDatabase shdb = new SleepHistoryDatabase(
+						context);
+
+				final int numberOfDesiredGroupedPoints = SleepAccelerometerService.MAX_POINTS_IN_A_GRAPH;
 				// numberOfDesiredGroupedPoints = numberOfPointsOriginal >
 				// numberOfDesiredGroupedPoints ? numberOfDesiredGroupedPoints
 				// : numberOfPointsOriginal;

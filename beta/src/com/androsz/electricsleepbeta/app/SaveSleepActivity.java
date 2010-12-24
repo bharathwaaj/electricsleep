@@ -82,10 +82,11 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 	}
 
 	public void onDiscardClick(final View v) {
-		finish();
 		final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(getIntent().getExtras().getInt(
 				SleepAccelerometerService.EXTRA_ID));
+		deleteFile(SleepAccelerometerService.SLEEP_DATA);
+		finish();
 	}
 
 	@Override

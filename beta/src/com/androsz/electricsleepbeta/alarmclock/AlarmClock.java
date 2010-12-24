@@ -204,6 +204,7 @@ public class AlarmClock extends
 		mFactory = LayoutInflater.from(this);
 		mPrefs = getSharedPreferences(SettingsActivity.PREFERENCES, 0);
 		mCursor = Alarms.getAlarmsCursor(getContentResolver());
+		mCursor.deactivate();
 
 		updateLayout();
 	}
@@ -245,7 +246,7 @@ public class AlarmClock extends
 	protected void onDestroy() {
 		super.onDestroy();
 		ToastMaster.cancelToast();
-		mCursor.deactivate();
+		mCursor.close();
 	}
 
 	@Override
@@ -269,6 +270,7 @@ public class AlarmClock extends
 
 	private void updateLayout() {
 		mAlarmsList = (ListView) findViewById(R.id.alarms_list);
+		mCursor.requery();
 		final AlarmTimeAdapter adapter = new AlarmTimeAdapter(this, mCursor);
 		mAlarmsList.setAdapter(adapter);
 		mAlarmsList.setVerticalScrollBarEnabled(true);
