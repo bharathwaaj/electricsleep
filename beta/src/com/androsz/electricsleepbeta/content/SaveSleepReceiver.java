@@ -54,9 +54,9 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 					final long length = context.getFileStreamPath(
 							SleepAccelerometerService.SLEEP_DATA).length();
 					final int chunkSize = 16;
-					if (length > chunkSize) {
-						originalData = new ArrayList<PointD>((int) (length
-								/ chunkSize / 2));
+					originalData = new ArrayList<PointD>((int) (length
+							/ chunkSize / 2));
+					if (length >= chunkSize) {
 						final byte[] buffer = new byte[(int) length];
 						fis.read(buffer);
 						fis.close();
@@ -67,7 +67,13 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 						}
 					}
 				} catch (final FileNotFoundException e) {
+					context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED)
+							.putExtra(EXTRA_IO_EXCEPTION, e.getMessage()));
+					return;
 				} catch (final IOException e) {
+					context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED)
+							.putExtra(EXTRA_IO_EXCEPTION, e.getMessage()));
+					return;
 				}
 
 				context.deleteFile(SleepAccelerometerService.SLEEP_DATA);

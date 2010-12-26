@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.androsz.electricsleepbeta" android:versionCode="16"
-	android:versionName="0.6.2 beta" android:installLocation="internalOnly">
+	package="com.androsz.electricsleepbeta" android:versionCode="17"
+	android:versionName="0.6.3 beta" android:installLocation="internalOnly">
 
 	<application android:icon="@drawable/icon" android:label="@string/app_name"
-		android:theme="@style/Theme.electricsleep" android:debuggable="false">
+		android:theme="@style/Theme.electricsleep" android:debuggable="true">
 
 		<activity android:name=".app.HomeActivity" android:label="@string/app_name">
 			<intent-filter>

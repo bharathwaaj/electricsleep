@@ -76,27 +76,27 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 
 		@Override
 		protected void onPostExecute(final Void results) {
-			try {
-				addChartView();
-			} catch (final StreamCorruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (final IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (final IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (final ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			if (cursor == null) {
 				// There are no results
 				mTextView.setVisibility(View.VISIBLE);
 				mTextView.setText(getString(R.string.no_results));
 				mListView.setVisibility(View.GONE);
 			} else {
+				try {
+					addChartView(cursor);
+				} catch (final StreamCorruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (final IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (final IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (final ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				mTextView.setVisibility(View.GONE);
 				mListView.setVisibility(View.VISIBLE);
 
@@ -192,13 +192,13 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 
 	private DailySleepComparisonChart sleepChart;
 
-	private void addChartView() throws StreamCorruptedException,
+	private void addChartView(Cursor cursor) throws StreamCorruptedException,
 			IllegalArgumentException, IOException, ClassNotFoundException {
+		if (sleepChart != null) {
+			sleepChart.xySeriesMovement.clear();
+		}
 		sleepChart = (DailySleepComparisonChart) findViewById(R.id.chart);
 
-		final Cursor cursor = managedQuery(SleepContentProvider.CONTENT_URI,
-				null, null, new String[] { getString(R.string.to) },
-				SleepRecord.KEY_TITLE);
 		if (cursor == null) {
 			sleepChart.setVisibility(View.GONE);
 		} else {
