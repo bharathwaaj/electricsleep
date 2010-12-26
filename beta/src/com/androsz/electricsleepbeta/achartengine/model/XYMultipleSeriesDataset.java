@@ -23,70 +23,62 @@ import java.util.List;
  * A series that includes 0 to many XYSeries.
  */
 public class XYMultipleSeriesDataset implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1766219700972279204L;
-	/** The included series. */
-	private final List<XYSeries> mSeries = new ArrayList<XYSeries>();
+  /** The included series. */
+  private List<XYSeries> mSeries = new ArrayList<XYSeries>();
 
-	/**
-	 * Adds a new XY series to the list.
-	 * 
-	 * @param series
-	 *            the XY series to ass
-	 */
-	public void addSeries(final XYSeries series) {
-		mSeries.add(series);
-	}
+  /**
+   * Adds a new XY series to the list.
+   * 
+   * @param series the XY series to ass
+   */
+  public synchronized void addSeries(XYSeries series) {
+    mSeries.add(series);
+  }
 
-	/**
-	 * Returns an array of the XY series.
-	 * 
-	 * @return the XY series array
-	 */
-	public XYSeries[] getSeries() {
-		return mSeries.toArray(new XYSeries[0]);
-	}
+  /**
+   * Removes the XY series from the list.
+   * 
+   * @param index the index in the series list of the series to remove
+   */
+  public synchronized void removeSeries(int index) {
+    mSeries.remove(index);
+  }
 
-	/**
-	 * Returns the XY series at the specified index.
-	 * 
-	 * @param index
-	 *            the index
-	 * @return the XY series at the index
-	 */
-	public XYSeries getSeriesAt(final int index) {
-		return mSeries.get(index);
-	}
+  /**
+   * Removes the XY series from the list.
+   * 
+   * @param series the XY series to be removed
+   */
+  public synchronized void removeSeries(XYSeries series) {
+    mSeries.remove(series);
+  }
 
-	/**
-	 * Returns the XY series count.
-	 * 
-	 * @return the XY series count
-	 */
-	public int getSeriesCount() {
-		return mSeries.size();
-	}
+  /**
+   * Returns the XY series at the specified index.
+   * 
+   * @param index the index
+   * @return the XY series at the index
+   */
+  public synchronized XYSeries getSeriesAt(int index) {
+    return mSeries.get(index);
+  }
 
-	/**
-	 * Removes the XY series from the list.
-	 * 
-	 * @param index
-	 *            the index in the series list of the series to remove
-	 */
-	public void removeSeries(final int index) {
-		mSeries.remove(index);
-	}
+  /**
+   * Returns the XY series count.
+   * 
+   * @return the XY series count
+   */
+  public synchronized int getSeriesCount() {
+    return mSeries.size();
+  }
 
-	/**
-	 * Removes the XY series from the list.
-	 * 
-	 * @param series
-	 *            the XY series to be removed
-	 */
-	public void removeSeries(final XYSeries series) {
-		mSeries.remove(series);
-	}
+  /**
+   * Returns an array of the XY series.
+   * 
+   * @return the XY series array
+   */
+  public synchronized XYSeries[] getSeries() {
+    return mSeries.toArray(new XYSeries[0]);
+  }
 
 }

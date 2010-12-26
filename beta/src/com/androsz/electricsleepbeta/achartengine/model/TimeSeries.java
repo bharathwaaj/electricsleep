@@ -22,30 +22,22 @@ import java.util.Date;
  */
 public class TimeSeries extends XYSeries {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4943185346838519637L;
+  /**
+   * Builds a new date / time series.
+   * 
+   * @param title the series title
+   */
+  public TimeSeries(String title) {
+    super(title);
+  }
 
-	/**
-	 * Builds a new date / time series.
-	 * 
-	 * @param title
-	 *            the series title
-	 */
-	public TimeSeries(final String title) {
-		super(title);
-	}
-
-	/**
-	 * Adds a new value to the series.
-	 * 
-	 * @param x
-	 *            the date / time value for the X axis
-	 * @param y
-	 *            the value for the Y axis
-	 */
-	public void add(final Date x, final double y) {
-		super.add(x.getTime(), y);
-	}
+  /**
+   * Adds a new value to the series.
+   * 
+   * @param x the date / time value for the X axis
+   * @param y the value for the Y axis
+   */
+  public synchronized void add(Date x, double y) {
+    super.add(x.getTime(), y);
+  }
 }

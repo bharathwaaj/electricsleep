@@ -63,7 +63,7 @@ public class XYSeries implements Serializable {
 	 * @param y
 	 *            the value for the Y axis
 	 */
-	public void add(final double x, final double y) {
+	public synchronized void add(final double x, final double y) {
 		xyList.add(new PointD(x, y));
 		updateRange(x, y);
 	}
@@ -71,7 +71,7 @@ public class XYSeries implements Serializable {
 	/**
 	 * Removes all the existing values from the series.
 	 */
-	public void clear() {
+	public synchronized void clear() {
 		xyList.clear();
 		initRange();
 	}
@@ -81,7 +81,7 @@ public class XYSeries implements Serializable {
 	 * 
 	 * @return the series item count
 	 */
-	public int getItemCount() {
+	public synchronized int getItemCount() {
 		return xyList.size();
 	}
 
@@ -137,7 +137,7 @@ public class XYSeries implements Serializable {
 	 *            the index
 	 * @return the X value
 	 */
-	public double getX(final int index) {
+	public synchronized double getX(final int index) {
 		return xyList.get(index).x;
 	}
 
@@ -148,7 +148,7 @@ public class XYSeries implements Serializable {
 	 *            the index
 	 * @return the Y value
 	 */
-	public double getY(final int index) {
+	public synchronized double getY(final int index) {
 		return xyList.get(index).y;
 	}
 
@@ -174,7 +174,7 @@ public class XYSeries implements Serializable {
 	 * @param index
 	 *            the index in the series of the value to remove
 	 */
-	public void remove(final int index) {
+	public synchronized void remove(final int index) {
 		final PointD removedPoint = xyList.remove(index);
 		if (removedPoint.x == mMinX || removedPoint.x == mMaxX
 				|| removedPoint.y == mMinY || removedPoint.y == mMaxY) {

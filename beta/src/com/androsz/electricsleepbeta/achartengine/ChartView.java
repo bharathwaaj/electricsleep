@@ -1,43 +1,67 @@
-/**
- * Copyright (C) 2009, 2010 SC 4ViewSoft SRL
- *  
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *  
- *      http://www.apache.org/licenses/LICENSE-2.0
- *  
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.androsz.electricsleepbeta.achartengine;
 
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.os.Handler;
-import android.util.AttributeSet;
-import android.view.View;
+import java.io.InputStream;
 
 import com.androsz.electricsleepbeta.achartengine.chart.AbstractChart;
 import com.androsz.electricsleepbeta.achartengine.chart.XYChart;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
+import com.androsz.electricsleepbeta.achartengine.tools.*;
+
+import com.androsz.electricsleepbeta.R;
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
 
 /**
  * The view that encapsulates the graphical chart.
  */
 public abstract class ChartView extends View {
 	/** The chart to be drawn. */
-	private final AbstractChart mChart;
+	private AbstractChart mChart;
 	/** The chart renderer. */
 	private XYMultipleSeriesRenderer mRenderer;
 	/** The view bounds. */
-	private final Rect mRect = new Rect();
+	private Rect mRect = new Rect();
 	/** The user interface thread handler. */
-	private final Handler mHandler;
+	private Handler mHandler;
+	/** The old x coordinate. */
+	private float oldX;
+	/** The old y coordinate. */
+	private float oldY;
+	/** The zoom buttons rectangle. */
+	private RectF zoomR = new RectF();
+	/** The zoom in icon. */
+	private Bitmap zoomInImage;
+	/** The zoom out icon. */
+	private Bitmap zoomOutImage;
+	/** The fit zoom icon. */
+	private Bitmap fitZoomImage;
+	/** The zoom area size. */
+	private static final int ZOOM_SIZE = 45;
+	/** The zoom buttons background color. */
+	private static final int ZOOM_BUTTONS_COLOR = Color
+			.argb(175, 150, 150, 150);
+	/** The pan tool. */
+	private Pan pan;
+	/** The zoom in tool. */
+	private Zoom zoomIn;
+	/** The zoom out tool. */
+	private Zoom zoomOut;
+	/** The fit zoom tool. */
+	private FitZoom fitZoom;
+	/** The paint to be used when drawing the chart. */
+	private Paint mPaint = new Paint();
 
 	/**
 	 * Creates a new graphical view.
@@ -47,79 +71,144 @@ public abstract class ChartView extends View {
 	 * @param chart
 	 *            the chart to be drawn
 	 */
-	public ChartView(final Context context) {
+	public ChartView(Context context) {
 		super(context);
-		mChart = buildChart();
-		mHandler = new Handler();
-		if (mChart instanceof XYChart) {
-			mRenderer = ((XYChart) mChart).getRenderer();
-		}
-		this.setFocusable(false);
+		setup(context);
 	}
 
 	public ChartView(final Context context, final AttributeSet as) {
 		super(context, as);
+		setup(context);
+	}
+
+	private void setup(final Context context) {
 		mChart = buildChart();
 		mHandler = new Handler();
 		if (mChart instanceof XYChart) {
+			Resources res = context.getResources();
+			zoomInImage = BitmapFactory.decodeResource(res, R.drawable.zoom_in);
+			zoomOutImage = BitmapFactory.decodeResource(res,
+					R.drawable.zoom_out);
+			fitZoomImage = BitmapFactory.decodeResource(res, R.drawable.zoom_1);
 			mRenderer = ((XYChart) mChart).getRenderer();
+			if (mRenderer.getMarginsColor() == XYMultipleSeriesRenderer.NO_COLOR) {
+				mRenderer.setMarginsColor(mPaint.getColor());
+			}
+			if (mRenderer.isPanXEnabled() || mRenderer.isPanYEnabled()) {
+				pan = new Pan((XYChart) mChart);
+			}
+			if (mRenderer.isZoomXEnabled() || mRenderer.isZoomYEnabled()) {
+				zoomIn = new Zoom((XYChart) mChart, true,
+						mRenderer.getZoomRate());
+				zoomOut = new Zoom((XYChart) mChart, false,
+						mRenderer.getZoomRate());
+				fitZoom = new FitZoom((XYChart) mChart);
+			}
 		}
-		this.setFocusable(false);
 	}
 
 	protected abstract AbstractChart buildChart();
 
-	/*
-	 * public void handleTouch(MotionEvent event) { final int action =
-	 * event.getAction(); if (mRenderer != null && action ==
-	 * MotionEvent.ACTION_MOVE) { if (oldX >= 0 || oldY >= 0) { final float newX
-	 * = event.getX(); final float newY = event.getY();
-	 * 
-	 * double minX = mRenderer.getXAxisMin(); double maxX =
-	 * mRenderer.getXAxisMax(); double minY = mRenderer.getYAxisMin(); double
-	 * maxY = mRenderer.getYAxisMax(); final XYChart chart = (XYChart) mChart;
-	 * final double[] calcRange = chart.getCalcRange(); if (minX == minY &&
-	 * calcRange[0] == calcRange[1] || maxX == maxY && calcRange[2] ==
-	 * calcRange[3]) { return; }
-	 * 
-	 * if (!mRenderer.isMinXSet()) { minX = calcRange[0];
-	 * //mRenderer.setXAxisMin(minX); } if (!mRenderer.isMaxXSet()) { maxX =
-	 * calcRange[1]; //mRenderer.setXAxisMax(maxX); } if
-	 * (!mRenderer.isMinYSet()) { minY = calcRange[2];
-	 * //mRenderer.setYAxisMin(minY); } if (!mRenderer.isMaxYSet()) { maxY =
-	 * calcRange[3]; //mRenderer.setYAxisMax(maxY); }
-	 * 
-	 * final PointF realPoint = chart.toRealPoint(oldX, oldY); final PointF
-	 * realPoint2 = chart.toRealPoint(newX, newY); final double deltaX =
-	 * realPoint.x - realPoint2.x; final double deltaY = realPoint.y -
-	 * realPoint2.y; //mRenderer.setXAxisMin(minX + deltaX);
-	 * //mRenderer.setXAxisMax(maxX + deltaX); //mRenderer.setYAxisMin(minY +
-	 * deltaY); //mRenderer.setYAxisMax(maxY + deltaY); oldX = newX; oldY =
-	 * newY; //repaint(); } } else if (action == MotionEvent.ACTION_DOWN) { oldX
-	 * = event.getX(); oldY = event.getY(); } else if (action ==
-	 * MotionEvent.ACTION_UP) { oldX = 0; oldY = 0; } }
-	 */
-
 	@Override
-	protected void onDraw(final Canvas canvas) {
+	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		canvas.getClipBounds(mRect);
-		final int top = mRect.top;
-		final int left = mRect.left;
-		final int width = mRect.width();
-		final int height = mRect.height();
-		mChart.draw(canvas, left, top, width, height);
+		int top = mRect.top;
+		int left = mRect.left;
+		int width = mRect.width();
+		int height = mRect.height();
+		mChart.draw(canvas, left, top, width, height, mPaint);
+		if (mRenderer != null
+				&& (mRenderer.isZoomXEnabled() || mRenderer.isZoomYEnabled())) {
+			mPaint.setColor(ZOOM_BUTTONS_COLOR);
+			zoomR.set(left + width - ZOOM_SIZE * 3, top + height - ZOOM_SIZE
+					* 0.775f, left + width, top + height);
+			canvas.drawRoundRect(zoomR, ZOOM_SIZE / 3, ZOOM_SIZE / 3, mPaint);
+			float buttonY = top + height - ZOOM_SIZE * 0.625f;
+			canvas.drawBitmap(zoomInImage, left + width - ZOOM_SIZE * 2.75f,
+					buttonY, null);
+			canvas.drawBitmap(zoomOutImage, left + width - ZOOM_SIZE * 1.75f,
+					buttonY, null);
+			canvas.drawBitmap(fitZoomImage, left + width - ZOOM_SIZE * 0.75f,
+					buttonY, null);
+		}
+	}
+
+	public void handleTouch(MotionEvent event) {
+		int action = event.getAction();
+		if (mRenderer != null && action == MotionEvent.ACTION_MOVE) {
+			if (oldX >= 0 || oldY >= 0) {
+				float newX = event.getX();
+				float newY = event.getY();
+				if (mRenderer.isPanXEnabled() || mRenderer.isPanYEnabled()) {
+					pan.apply(oldX, oldY, newX, newY);
+				}
+				oldX = newX;
+				oldY = newY;
+				repaint();
+			}
+		} else if (action == MotionEvent.ACTION_DOWN) {
+			oldX = event.getX();
+			oldY = event.getY();
+			if (mRenderer != null
+					&& (mRenderer.isZoomXEnabled() || mRenderer
+							.isZoomYEnabled()) && zoomR.contains(oldX, oldY)) {
+				if (oldX < zoomR.left + zoomR.width() / 3) {
+					zoomIn.apply();
+				} else if (oldX < zoomR.left + zoomR.width() * 2 / 3) {
+					zoomOut.apply();
+				} else {
+					fitZoom.apply();
+				}
+			}
+		} else if (action == MotionEvent.ACTION_UP) {
+			oldX = 0;
+			oldY = 0;
+		}
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if (mRenderer != null
+				&& (mRenderer.isPanXEnabled() || mRenderer.isZoomYEnabled()
+						|| mRenderer.isZoomXEnabled() || mRenderer
+						.isZoomYEnabled())) {
+			handleTouch(event);
+			return true;
+		}
+		return super.onTouchEvent(event);
 	}
 
 	/**
-	 * Schedule a user interface repaint.
+	 * Schedule a view content repaint.
 	 */
 	public void repaint() {
 		mHandler.post(new Runnable() {
-			@Override
 			public void run() {
 				invalidate();
 			}
 		});
 	}
+
+	/**
+	 * Schedule a view content repaint, in the specified rectangle area.
+	 * 
+	 * @param left
+	 *            the left position of the area to be repainted
+	 * @param top
+	 *            the top position of the area to be repainted
+	 * @param right
+	 *            the right position of the area to be repainted
+	 * @param bottom
+	 *            the bottom position of the area to be repainted
+	 */
+	public void repaint(final int left, final int top, final int right,
+			final int bottom) {
+		mHandler.post(new Runnable() {
+			public void run() {
+				invalidate(left, top, right, bottom);
+			}
+		});
+	}
+
 }

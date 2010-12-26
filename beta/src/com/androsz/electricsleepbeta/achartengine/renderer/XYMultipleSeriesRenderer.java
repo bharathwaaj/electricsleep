@@ -18,404 +18,627 @@ package com.androsz.electricsleepbeta.achartengine.renderer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.androsz.electricsleepbeta.achartengine.chart.AbstractChart;
 import com.androsz.electricsleepbeta.achartengine.util.MathHelper;
 
 /**
  * Multiple XY series renderer.
  */
 public class XYMultipleSeriesRenderer extends DefaultRenderer {
-	/**
-	 * An enum for the XY chart orientation of the X axis.
-	 */
-	public enum Orientation {
-		HORIZONTAL(0), VERTICAL(90);
-		/** The rotate angle. */
-		private int mAngle = 0;
+  /** The chart title. */
+  private String mChartTitle = "";
+  /** The chart title text size. */
+  private float mChartTitleTextSize = 15;
+  /** The X axis title. */
+  private String mXTitle = "";
+  /** The Y axis title. */
+  private String mYTitle = "";
+  /** The axis title text size. */
+  private float mAxisTitleTextSize = 12;
+  /** The start value in the X axis range. */
+  private double mMinX = MathHelper.NULL_VALUE;
+  /** The end value in the X axis range. */
+  private double mMaxX = -MathHelper.NULL_VALUE;
+  /** The start value in the Y axis range. */
+  private double mMinY = MathHelper.NULL_VALUE;
+  /** The end value in the Y axis range. */
+  private double mMaxY = -MathHelper.NULL_VALUE;
 
-		private Orientation(final int angle) {
-			mAngle = angle;
-		}
+  /** The approximative number of labels on the x axis. */
+  private int mXLabels = 5;
+  /** The approximative number of labels on the y axis. */
+  private int mYLabels = 5;
+  /** The current orientation of the chart. */
+  private Orientation mOrientation = Orientation.HORIZONTAL;
+  /** The X axis text labels. */
+  private Map<Double, String> mXTextLabels = new HashMap<Double, String>();
+  /** If the values should be displayed above the chart points. */
+  private boolean mDisplayChartValues;
+  /** The chart values text size. */
+  private float mChartValuesTextSize = 9;
+  /** A flag for enabling or not the pan on the X axis. */
+  private boolean mPanXEnabled = true;
+  /** A flag for enabling or not the pan on the Y axis. */
+  private boolean mPanYEnabled = true;
+  /** A flag for enabling or not the zoom on the X axis. */
+  private boolean mZoomXEnabled = true;
+  /** A flag for enabling or not the zoom on the Y axis . */
+  private boolean mZoomYEnabled = true;
+  /** The zoom rate. */
+  private float mZoomRate = 1.5f;
+  /** The spacing between bars, in bar charts. */
+  private double mBarSpacing = 0;
+  /** The margins colors. */
+  private int mMarginsColor = NO_COLOR;
+  /** The pan limits. */
+  private double[] mPanLimits;
+  /** The X axis labels rotation angle. */
+  private float mXLabelsAngle;
+  /** The Y axis labels rotation angle. */
+  private float mYLabelsAngle;
+  /** The initial axis range. */
+  private double[] initialRange = new double[] { mMinX, mMaxX, mMinY, mMaxY };
 
-		/**
-		 * Return the orientation rotate angle.
-		 * 
-		 * @return the orientaion rotate angle
-		 */
-		public int getAngle() {
-			return mAngle;
-		}
-	}
+  /**
+   * An enum for the XY chart orientation of the X axis.
+   */
+  public enum Orientation {
+    HORIZONTAL(0), VERTICAL(90);
+    /** The rotate angle. */
+    private int mAngle = 0;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3682282817645980372L;
+    private Orientation(int angle) {
+      mAngle = angle;
+    }
 
-	/** The chart title. */
-	private String mChartTitle = "";
-	/** The chart title text size. */
-	private float mChartTitleTextSize = 15;
-	/** The X axis title. */
-	private String mXTitle = "";
-	/** The Y axis title. */
-	private String mYTitle = "";
-	/** The axis title text size. */
-	private float mAxisTitleTextSize = 12;
-	/** The start value in the X axis range. */
-	private double mMinX = MathHelper.NULL_VALUE;
-	/** The end value in the X axis range. */
-	private double mMaxX = -MathHelper.NULL_VALUE;
-	/** The start value in the Y axis range. */
-	private double mMinY = MathHelper.NULL_VALUE;
+    /**
+     * Return the orientation rotate angle.
+     * 
+     * @return the orientaion rotate angle
+     */
+    public int getAngle() {
+      return mAngle;
+    }
+  }
 
-	/** The end value in the Y axis range. */
-	private double mMaxY = -MathHelper.NULL_VALUE;
-	/** The approximative number of labels on the x axis. */
-	private int mXLabels = 5;
-	/** The approximative number of labels on the y axis. */
-	private int mYLabels = 5;
-	/** The current orientation of the chart. */
-	private Orientation mOrientation = Orientation.HORIZONTAL;
-	/** The X axis text labels. */
-	private final Map<Double, String> mXTextLabels = new HashMap<Double, String>();
-	/** If the values should be displayed above the chart points. */
-	private boolean mDisplayChartValues;
+  /**
+   * Returns the current orientation of the chart X axis.
+   * 
+   * @return the chart orientation
+   */
+  public Orientation getOrientation() {
+    return mOrientation;
+  }
 
-	/** The chart values text size. */
-	private float mChartValuesTextSize = 9;
+  /**
+   * Sets the current orientation of the chart X axis.
+   * 
+   * @param orientation the chart orientation
+   */
+  public void setOrientation(Orientation orientation) {
+    mOrientation = orientation;
+  }
 
-	/**
-	 * Adds a new text label for the specified X axis value.
-	 * 
-	 * @param x
-	 *            the X axis value
-	 * @param text
-	 *            the text label
-	 */
-	public void addTextLabel(final double x, final String text) {
-		mXTextLabels.put(x, text);
-	}
+  /**
+   * Returns the chart title.
+   * 
+   * @return the chart title
+   */
+  public String getChartTitle() {
+    return mChartTitle;
+  }
 
-	/**
-	 * Returns the axis title text size.
-	 * 
-	 * @return the axis title text size
-	 */
-	public float getAxisTitleTextSize() {
-		return mAxisTitleTextSize;
-	}
+  /**
+   * Sets the chart title.
+   * 
+   * @param title the chart title
+   */
+  public void setChartTitle(String title) {
+    mChartTitle = title;
+  }
 
-	/**
-	 * Returns the chart title.
-	 * 
-	 * @return the chart title
-	 */
-	public String getChartTitle() {
-		return mChartTitle;
-	}
+  /**
+   * Returns the chart title text size.
+   * 
+   * @return the chart title text size
+   */
+  public float getChartTitleTextSize() {
+    return mChartTitleTextSize;
+  }
 
-	/**
-	 * Returns the chart title text size.
-	 * 
-	 * @return the chart title text size
-	 */
-	public float getChartTitleTextSize() {
-		return mChartTitleTextSize;
-	}
+  /**
+   * Sets the chart title text size.
+   * 
+   * @param textSize the chart title text size
+   */
+  public void setChartTitleTextSize(float textSize) {
+    mChartTitleTextSize = textSize;
+  }
 
-	/**
-	 * Returns the chart values text size.
-	 * 
-	 * @return the chart values text size
-	 */
-	public float getChartValuesTextSize() {
-		return mChartValuesTextSize;
-	}
+  /**
+   * Returns the title for the X axis.
+   * 
+   * @return the X axis title
+   */
+  public String getXTitle() {
+    return mXTitle;
+  }
 
-	/**
-	 * Returns the current orientation of the chart X axis.
-	 * 
-	 * @return the chart orientation
-	 */
-	public Orientation getOrientation() {
-		return mOrientation;
-	}
+  /**
+   * Sets the title for the X axis.
+   * 
+   * @param title the X axis title
+   */
+  public void setXTitle(String title) {
+    mXTitle = title;
+  }
 
-	/**
-	 * Returns the end value of the X axis range.
-	 * 
-	 * @return the X axis range end value
-	 */
-	public double getXAxisMax() {
-		return mMaxX;
-	}
+  /**
+   * Returns the title for the Y axis.
+   * 
+   * @return the Y axis title
+   */
+  public String getYTitle() {
+    return mYTitle;
+  }
 
-	/**
-	 * Returns the start value of the X axis range.
-	 * 
-	 * @return the X axis range start value
-	 */
-	public double getXAxisMin() {
-		return mMinX;
-	}
+  /**
+   * Sets the title for the Y axis.
+   * 
+   * @param title the Y axis title
+   */
+  public void setYTitle(String title) {
+    mYTitle = title;
+  }
 
-	/**
-	 * Returns the approximate number of labels for the X axis.
-	 * 
-	 * @return the approximate number of labels for the X axis
-	 */
-	public int getXLabels() {
-		return mXLabels;
-	}
+  /**
+   * Returns the axis title text size.
+   * 
+   * @return the axis title text size
+   */
+  public float getAxisTitleTextSize() {
+    return mAxisTitleTextSize;
+  }
 
-	/**
-	 * Returns the X axis text label at the specified X axis value.
-	 * 
-	 * @param x
-	 *            the X axis value
-	 * @return the X axis text label
-	 */
-	public String getXTextLabel(final Double x) {
-		return mXTextLabels.get(x);
-	}
+  /**
+   * Sets the axis title text size.
+   * 
+   * @param textSize the chart axis text size
+   */
+  public void setAxisTitleTextSize(float textSize) {
+    mAxisTitleTextSize = textSize;
+  }
 
-	/**
-	 * Returns the X text label locations.
-	 * 
-	 * @return the X text label locations
-	 */
-	public Double[] getXTextLabelLocations() {
-		return mXTextLabels.keySet().toArray(new Double[0]);
-	}
+  /**
+   * Returns the start value of the X axis range.
+   * 
+   * @return the X axis range start value
+   */
+  public double getXAxisMin() {
+    return mMinX;
+  }
 
-	/**
-	 * Returns the title for the X axis.
-	 * 
-	 * @return the X axis title
-	 */
-	public String getXTitle() {
-		return mXTitle;
-	}
+  /**
+   * Sets the start value of the X axis range.
+   * 
+   * @param min the X axis range start value
+   */
+  public void setXAxisMin(double min) {
+    if (!isMinXSet()) {
+      initialRange[0] = min;
+    }
+    mMinX = min;
+  }
 
-	/**
-	 * Returns the end value of the Y axis range.
-	 * 
-	 * @return the Y axis range end value
-	 */
-	public double getYAxisMax() {
-		return mMaxY;
-	}
+  /**
+   * Returns if the minimum X value was set.
+   * 
+   * @return the minX was set or not
+   */
+  public boolean isMinXSet() {
+    return mMinX != MathHelper.NULL_VALUE;
+  }
 
-	/**
-	 * Returns the end value of the Y axis range.
-	 * 
-	 * @return the Y axis range end value
-	 */
-	public double getYAxisMin() {
-		return mMinY;
-	}
+  /**
+   * Returns the end value of the X axis range.
+   * 
+   * @return the X axis range end value
+   */
+  public double getXAxisMax() {
+    return mMaxX;
+  }
 
-	/**
-	 * Returns the approximate number of labels for the Y axis.
-	 * 
-	 * @return the approximate number of labels for the Y axis
-	 */
-	public int getYLabels() {
-		return mYLabels;
-	}
+  /**
+   * Sets the end value of the X axis range.
+   * 
+   * @param max the X axis range end value
+   */
+  public void setXAxisMax(double max) {
+    if (!isMaxXSet()) {
+      initialRange[1] = max;
+    }
+    mMaxX = max;
+  }
 
-	/**
-	 * Returns the title for the Y axis.
-	 * 
-	 * @return the Y axis title
-	 */
-	public String getYTitle() {
-		return mYTitle;
-	}
+  /**
+   * Returns if the maximum X value was set.
+   * 
+   * @return the maxX was set or not
+   */
+  public boolean isMaxXSet() {
+    return mMaxX != -MathHelper.NULL_VALUE;
+  }
 
-	/**
-	 * Returns if the chart point values should be displayed as text.
-	 * 
-	 * @return if the chart point values should be displayed as text
-	 */
-	public boolean isDisplayChartValues() {
-		return mDisplayChartValues;
-	}
+  /**
+   * Returns the start value of the Y axis range.
+   * 
+   * @return the Y axis range end value
+   */
+  public double getYAxisMin() {
+    return mMinY;
+  }
 
-	/**
-	 * Returns if the maximum X value was set.
-	 * 
-	 * @return the maxX was set or not
-	 */
-	public boolean isMaxXSet() {
-		return mMaxX != -MathHelper.NULL_VALUE;
-	}
+  /**
+   * Sets the start value of the Y axis range.
+   * 
+   * @param min the Y axis range start value
+   */
+  public void setYAxisMin(double min) {
+    if (!isMinYSet()) {
+      initialRange[2] = min;
+    }
+    mMinY = min;
+  }
 
-	/**
-	 * Returns if the maximum Y value was set.
-	 * 
-	 * @return the maxY was set or not
-	 */
-	public boolean isMaxYSet() {
-		return mMaxY != -MathHelper.NULL_VALUE;
-	}
+  /**
+   * Returns if the minimum Y value was set.
+   * 
+   * @return the minY was set or not
+   */
+  public boolean isMinYSet() {
+    return mMinY != MathHelper.NULL_VALUE;
+  }
 
-	/**
-	 * Returns if the minimum X value was set.
-	 * 
-	 * @return the minX was set or not
-	 */
-	public boolean isMinXSet() {
-		return mMinX != MathHelper.NULL_VALUE;
-	}
+  /**
+   * Returns the end value of the Y axis range.
+   * 
+   * @return the Y axis range end value
+   */
+  public double getYAxisMax() {
+    return mMaxY;
+  }
 
-	/**
-	 * Returns if the minimum Y value was set.
-	 * 
-	 * @return the minY was set or not
-	 */
-	public boolean isMinYSet() {
-		return mMinY != MathHelper.NULL_VALUE;
-	}
+  /**
+   * Sets the end value of the Y axis range.
+   * 
+   * @param max the Y axis range end value
+   */
+  public void setYAxisMax(double max) {
+    if (!isMaxYSet()) {
+      initialRange[3] = max;
+    }
+    mMaxY = max;
+  }
 
-	/**
-	 * Sets the axis title text size.
-	 * 
-	 * @param textSize
-	 *            the chart axis text size
-	 */
-	public void setAxisTitleTextSize(final float textSize) {
-		mAxisTitleTextSize = textSize;
-	}
+  /**
+   * Returns if the maximum Y value was set.
+   * 
+   * @return the maxY was set or not
+   */
+  public boolean isMaxYSet() {
+    return mMaxY != -MathHelper.NULL_VALUE;
+  }
 
-	/**
-	 * Sets the chart title.
-	 * 
-	 * @param title
-	 *            the chart title
-	 */
-	public void setChartTitle(final String title) {
-		mChartTitle = title;
-	}
+  /**
+   * Returns the approximate number of labels for the X axis.
+   * 
+   * @return the approximate number of labels for the X axis
+   */
+  public int getXLabels() {
+    return mXLabels;
+  }
 
-	/**
-	 * Sets the chart title text size.
-	 * 
-	 * @param textSize
-	 *            the chart title text size
-	 */
-	public void setChartTitleTextSize(final float textSize) {
-		mChartTitleTextSize = textSize;
-	}
+  /**
+   * Sets the approximate number of labels for the X axis.
+   * 
+   * @param xLabels the approximate number of labels for the X axis
+   */
+  public void setXLabels(int xLabels) {
+    mXLabels = xLabels;
+  }
 
-	/**
-	 * Sets the chart values text size.
-	 * 
-	 * @param textSize
-	 *            the chart values text size
-	 */
-	public void setChartValuesTextSize(final float textSize) {
-		mChartValuesTextSize = textSize;
-	}
+  /**
+   * Adds a new text label for the specified X axis value.
+   * 
+   * @param x the X axis value
+   * @param text the text label
+   */
+  public void addTextLabel(double x, String text) {
+    mXTextLabels.put(x, text);
+  }
 
-	/**
-	 * Sets if the chart point values should be displayed as text.
-	 * 
-	 * @param display
-	 *            if the chart point values should be displayed as text
-	 */
-	public void setDisplayChartValues(final boolean display) {
-		mDisplayChartValues = display;
-	}
+  /**
+   * Returns the X axis text label at the specified X axis value.
+   * 
+   * @param x the X axis value
+   * @return the X axis text label
+   */
+  public String getXTextLabel(Double x) {
+    return mXTextLabels.get(x);
+  }
 
-	/**
-	 * Sets the current orientation of the chart X axis.
-	 * 
-	 * @param orientation
-	 *            the chart orientation
-	 */
-	public void setOrientation(final Orientation orientation) {
-		mOrientation = orientation;
-	}
+  /**
+   * Returns the X text label locations.
+   * 
+   * @return the X text label locations
+   */
+  public Double[] getXTextLabelLocations() {
+    return mXTextLabels.keySet().toArray(new Double[0]);
+  }
 
-	/**
-	 * Sets the end value of the X axis range.
-	 * 
-	 * @param max
-	 *            the X axis range end value
-	 */
-	public void setXAxisMax(final double max) {
-		mMaxX = max;
-	}
+  /**
+   * Returns the approximate number of labels for the Y axis.
+   * 
+   * @return the approximate number of labels for the Y axis
+   */
+  public int getYLabels() {
+    return mYLabels;
+  }
 
-	/**
-	 * Sets the start value of the X axis range.
-	 * 
-	 * @param min
-	 *            the X axis range start value
-	 */
-	public void setXAxisMin(final double min) {
-		mMinX = min;
-	}
+  /**
+   * Sets the approximate number of labels for the Y axis.
+   * 
+   * @param yLabels the approximate number of labels for the Y axis
+   */
+  public void setYLabels(int yLabels) {
+    mYLabels = yLabels;
+  }
 
-	/**
-	 * Sets the approximate number of labels for the X axis.
-	 * 
-	 * @param xLabels
-	 *            the approximate number of labels for the X axis
-	 */
-	public void setXLabels(final int xLabels) {
-		mXLabels = xLabels;
-	}
+  /**
+   * Returns if the chart point values should be displayed as text.
+   * 
+   * @return if the chart point values should be displayed as text
+   */
+  public boolean isDisplayChartValues() {
+    return mDisplayChartValues;
+  }
 
-	/**
-	 * Sets the title for the X axis.
-	 * 
-	 * @param title
-	 *            the X axis title
-	 */
-	public void setXTitle(final String title) {
-		mXTitle = title;
-	}
+  /**
+   * Sets if the chart point values should be displayed as text.
+   * 
+   * @param display if the chart point values should be displayed as text
+   */
+  public void setDisplayChartValues(boolean display) {
+    mDisplayChartValues = display;
+  }
 
-	/**
-	 * Sets the end value of the Y axis range.
-	 * 
-	 * @param max
-	 *            the Y axis range end value
-	 */
-	public void setYAxisMax(final double max) {
-		mMaxY = max;
-	}
+  /**
+   * Returns the chart values text size.
+   * 
+   * @return the chart values text size
+   */
+  public float getChartValuesTextSize() {
+    return mChartValuesTextSize;
+  }
 
-	/**
-	 * Sets the start value of the Y axis range.
-	 * 
-	 * @param min
-	 *            the Y axis range start value
-	 */
-	public void setYAxisMin(final double min) {
-		mMinY = min;
-	}
+  /**
+   * Sets the chart values text size.
+   * 
+   * @param textSize the chart values text size
+   */
+  public void setChartValuesTextSize(float textSize) {
+    mChartValuesTextSize = textSize;
+  }
 
-	/**
-	 * Sets the approximate number of labels for the Y axis.
-	 * 
-	 * @param yLabels
-	 *            the approximate number of labels for the Y axis
-	 */
-	public void setYLabels(final int yLabels) {
-		mYLabels = yLabels;
-	}
+  /**
+   * Returns the enabled state of the pan on X axis.
+   * 
+   * @return if pan is enabled on X axis
+   */
+  public boolean isPanXEnabled() {
+    return mPanXEnabled;
+  }
 
-	/**
-	 * Sets the title for the Y axis.
-	 * 
-	 * @param title
-	 *            the Y axis title
-	 */
-	public void setYTitle(final String title) {
-		mYTitle = title;
-	}
+  /**
+   * Returns the enabled state of the pan on Y axis.
+   * 
+   * @return if pan is enabled on Y axis
+   */
+  public boolean isPanYEnabled() {
+    return mPanYEnabled;
+  }
+
+  /**
+   * Sets the enabled state of the pan.
+   * 
+   * @param enabledX pan enabled on X axis
+   * @param enabledY pan enabled on Y axis
+   */
+  public void setPanEnabled(boolean enabledX, boolean enabledY) {
+    mPanXEnabled = enabledX;
+    mPanYEnabled = enabledY;
+  }
+
+  /**
+   * Returns the enabled state of the zoom on X axis.
+   * 
+   * @return if zoom is enabled on X axis
+   */
+  public boolean isZoomXEnabled() {
+    return mZoomXEnabled;
+  }
+
+  /**
+   * Returns the enabled state of the zoom on Y axis.
+   * 
+   * @return if zoom is enabled on Y axis
+   */
+  public boolean isZoomYEnabled() {
+    return mZoomYEnabled;
+  }
+
+  /**
+   * Sets the enabled state of the zoom.
+   * 
+   * @param enabledX zoom enabled on X axis
+   * @param enabledY zoom enabled on Y axis
+   */
+  public void setZoomEnabled(boolean enabledX, boolean enabledY) {
+    mZoomXEnabled = enabledX;
+    mZoomYEnabled = enabledY;
+  }
+
+  /**
+   * Returns the zoom rate.
+   * 
+   * @return the zoom rate
+   */
+  public float getZoomRate() {
+    return mZoomRate;
+  }
+
+  /**
+   * Sets the zoom rate.
+   * 
+   * @param rate the zoom rate
+   */
+  public void setZoomRate(float rate) {
+    mZoomRate = rate;
+  }
+  
+  /**
+   * Returns the spacing between bars, in bar charts.
+   * 
+   * @return the spacing between bars
+   */
+  public double getBarsSpacing() {
+    return mBarSpacing;
+  }
+
+  /**
+   * Sets the spacing between bars, in bar charts.
+   * Only available for bar charts.
+   * This is a coefficient of the bar width. For instance, if you want the spacing to be
+   * a half of the bar width, set this value to 0.5.
+   * 
+   * @param spacing the spacing between bars coefficient
+   */
+  public void setBarSpacing(double spacing) {
+    mBarSpacing = spacing;
+  }
+  
+  /**
+   * Returns the margins color.
+   * 
+   * @return the margins color
+   */
+  public int getMarginsColor() {
+    return mMarginsColor;
+  }
+
+  /**
+   * Sets the color of the margins.
+   * 
+   * @param color the margins color
+   */
+  public void setMarginsColor(int color) {
+    mMarginsColor = color;
+  }
+
+  /**
+   * Returns the pan limits.
+   * 
+   * @return the pan limits
+   */
+  public double[] getPanLimits() {
+    return mPanLimits;
+  }
+
+  /**
+   * Sets the pan limits as an array of 4 values.
+   * Setting it to null or a different size array will disable the panning limitation.
+   * Values: [panMinimumX, panMaximumX, panMinimumY, panMaximumY]
+   * 
+   * @param panLimits the pan limits
+   */
+  public void setPanLimits(double[] panLimits) {
+    mPanLimits = panLimits;
+  }
+
+  /**
+   * Returns the rotation angle of labels for the X axis.
+   * 
+   * @return the rotation angle of labels for the X axis
+   */
+  public float getXLabelsAngle() {
+    return mXLabelsAngle;
+  }
+
+  /**
+   * Sets the rotation angle (in degrees) of labels for the X axis.
+   * 
+   * @param angle the rotation angle of labels for the X axis
+   */
+  public void setXLabelsAngle(float angle) {
+    mXLabelsAngle = angle;
+  }
+
+  /**
+   * Returns the rotation angle of labels for the Y axis.
+   * 
+   * @return the approximate number of labels for the Y axis
+   */
+  public float getYLabelsAngle() {
+    return mYLabelsAngle;
+  }
+
+  /**
+   * Sets the rotation angle (in degrees) of labels for the Y axis.
+   * 
+   * @param angle the rotation angle of labels for the Y axis
+   */
+  public void setYLabelsAngle(float angle) {
+    mYLabelsAngle = angle;
+  }
+  
+  /**
+   * Sets the axes range values.
+   * 
+   * @param range an array having the values in this order: minX, maxX, minY, maxY
+   */
+  public void setRange(double[] range) {
+    setXAxisMin(range[0]);
+    setXAxisMax(range[1]);
+    setYAxisMin(range[2]);
+    setYAxisMax(range[3]);
+  }
+
+  /**
+   * Returns if the initial range is set.
+   * 
+   * @return the initial range was set or not
+   */
+  public boolean isInitialRangeSet() {
+    return isMinXSet() && isMaxXSet() && isMinYSet() && isMaxYSet();
+  }
+  
+  /**
+   * Sets the axes initial range values.
+   * This will be used in the zoom fit tool.
+   * 
+   * @param range an array having the values in this order: minX, maxX, minY, maxY
+   */
+  public void setInitialRange(double[] range) {
+    initialRange = range;
+  }
+  
+  /**
+   * Returns the initial range.
+   * 
+   * @return the initial range
+   */
+  public double[] getInitialRange() {
+    return initialRange;
+  }
 
 }
