@@ -84,8 +84,8 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 	public void onDiscardClick(final View v) {
 		final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(getIntent().getExtras().getInt(
-				SleepAccelerometerService.EXTRA_ID));
-		deleteFile(SleepAccelerometerService.SLEEP_DATA);
+				SleepMonitoringService.EXTRA_ID));
+		deleteFile(SleepMonitoringService.SLEEP_DATA);
 		finish();
 	}
 
@@ -138,7 +138,7 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 		sendBroadcast(saveIntent);
 		final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(getIntent().getExtras().getInt(
-				SleepAccelerometerService.EXTRA_ID));
+				SleepMonitoringService.EXTRA_ID));
 	}
 
 	@Override

@@ -27,7 +27,7 @@
 		android:layout_width="fill_parent" android:background="@color/primary2"
 		android:shadowColor="@android:color/white" android:shadowRadius="1"
 		android:shadowDx="1"></TextView>
-	<com.androsz.electricsleepbeta.widget.SleepChart
+	<com.androsz.electricsleepbeta.widget.ReviewSleepChart
 		android:id="@+id/home_sleep_chart" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:layout_margin="4dip"
 		android:layout_below="@+id/home_review_title_text" />

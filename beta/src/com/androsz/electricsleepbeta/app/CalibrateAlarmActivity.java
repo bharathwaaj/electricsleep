@@ -37,10 +37,10 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 			if (sleepChart != null) {
 				final DecimalSeekBar seekBar = (DecimalSeekBar) findViewById(R.id.calibration_level_seekbar);
 				seekBar.setProgress((float) sleepChart.getCalibrationLevel());
-				sleepChart.sync(intent.getDoubleExtra("x", 0), intent
-						.getDoubleExtra("y", 0), intent.getDoubleExtra("min",
-						SettingsActivity.DEFAULT_MIN_SENSITIVITY), sleepChart
-						.getCalibrationLevel());
+				sleepChart.sync(intent.getDoubleExtra(
+						SleepMonitoringService.EXTRA_X, 0), intent
+						.getDoubleExtra(SleepMonitoringService.EXTRA_Y, 0),
+						sleepChart.getCalibrationLevel());
 			}
 		}
 	};
@@ -55,17 +55,14 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 			// inlined for efficiency
 			sleepChart.xySeriesMovement.xyList = (List<PointD>) intent
 					.getSerializableExtra("sleepData");
-			sleepChart.reconfigure(intent.getDoubleExtra("min",
-					SettingsActivity.DEFAULT_MIN_SENSITIVITY), intent
-					.getDoubleExtra("alarm",
-							SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
+			sleepChart.reconfigure();
 			sleepChart.repaint();
 		}
 	};
 
 	@Override
 	protected Intent getAssociatedServiceIntent() {
-		return new Intent(this, SleepAccelerometerService.class);
+		return new Intent(this, SleepMonitoringService.class);
 	}
 
 	@Override
@@ -121,7 +118,7 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 			super.onRestoreInstanceState(savedState);
 		} catch (final java.lang.RuntimeException rte) {
 			// sendBroadcast(new
-			// Intent(SleepAccelerometerService.POKE_SYNC_CHART));
+			// Intent(SleepMonitoringService.POKE_SYNC_CHART));
 		}
 		sleepChart = (CalibrationSleepChart) savedState
 				.getSerializable("sleepChart");
@@ -134,7 +131,7 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 				SleepActivity.UPDATE_CHART));
 		registerReceiver(syncChartReceiver, new IntentFilter(
 				SleepActivity.SYNC_CHART));
-		sendBroadcast(new Intent(SleepAccelerometerService.POKE_SYNC_CHART));
+		sendBroadcast(new Intent(SleepMonitoringService.POKE_SYNC_CHART));
 	}
 
 	@Override

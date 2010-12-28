@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.app.SettingsActivity;
-import com.androsz.electricsleepbeta.app.SleepAccelerometerService;
+import com.androsz.electricsleepbeta.app.SleepMonitoringService;
 import com.androsz.electricsleepbeta.app.SleepActivity;
 
 public class StartSleepReceiver extends BroadcastReceiver {
@@ -49,7 +49,7 @@ public class StartSleepReceiver extends BroadcastReceiver {
 					.getString(R.string.message_recommend_calibration);
 			Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 		} else if (service != null && activity != null) {
-			context.deleteFile(SleepAccelerometerService.SLEEP_DATA);
+			context.deleteFile(SleepMonitoringService.SLEEP_DATA);
 			context.startService(service);
 			context.startActivity(activity);
 		}
@@ -76,7 +76,7 @@ public class StartSleepReceiver extends BroadcastReceiver {
 				context.getString(R.string.pref_force_screen), false);
 
 		final Intent serviceIntent = new Intent(context,
-				SleepAccelerometerService.class);
+				SleepMonitoringService.class);
 		serviceIntent.putExtra(EXTRA_ALARM, alarmTriggerSensitivity);
 		serviceIntent.putExtra(EXTRA_SENSOR_DELAY, sensorDelay);
 		serviceIntent.putExtra(EXTRA_USE_ALARM, useAlarm);

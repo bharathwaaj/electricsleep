@@ -18,7 +18,8 @@ import com.androsz.electricsleepbeta.achartengine.model.XYMultipleSeriesDataset;
 import com.androsz.electricsleepbeta.achartengine.model.XYSeries;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
-import com.androsz.electricsleepbeta.app.SleepAccelerometerService;
+import com.androsz.electricsleepbeta.app.SettingsActivity;
+import com.androsz.electricsleepbeta.app.SleepMonitoringService;
 import com.androsz.electricsleepbeta.db.SleepRecord;
 
 public class SleepChart extends ChartView implements Serializable {
@@ -33,10 +34,12 @@ public class SleepChart extends ChartView implements Serializable {
 
 	public XYSeriesRenderer xySeriesMovementRenderer;
 
-	public int rating;
+	public XYSeries xySeriesCalibration;
+	public XYSeriesRenderer xySeriesCalibrationRenderer;
 
-	protected double firstX = 0;
-	protected double lastX = 0;
+	protected double calibrationLevel = SettingsActivity.DEFAULT_ALARM_SENSITIVITY;
+
+	public int rating;
 
 	public SleepChart(final Context context) {
 		super(context);
@@ -50,36 +53,47 @@ public class SleepChart extends ChartView implements Serializable {
 	protected AbstractChart buildChart() {
 		if (xySeriesMovement == null) {
 			// set up sleep movement series/renderer
-			xySeriesMovement = new XYSeries("sleep");
+			xySeriesMovement = new XYSeries("Movement");
 			xySeriesMovementRenderer = new XYSeriesRenderer();
 			xySeriesMovementRenderer.setFillBelowLine(true);
 			xySeriesMovementRenderer.setFillBelowLineColor(getResources()
 					.getColor(R.color.primary1_transparent));
 			xySeriesMovementRenderer.setColor(getResources().getColor(
-					R.color.primary1_transparent));
+					R.color.primary1));
+
+			// set up calibration line series/renderer
+			xySeriesCalibration = new XYSeries("Light Sleep Trigger");
+			xySeriesCalibrationRenderer = new XYSeriesRenderer();
+			xySeriesCalibrationRenderer.setFillBelowLine(true);
+			xySeriesCalibrationRenderer.setFillBelowLineColor(getResources()
+					.getColor(R.color.background_transparent_lighten));
+			xySeriesCalibrationRenderer.setColor(getResources().getColor(
+					R.color.white));
 
 			// add series to the dataset
 			xyMultipleSeriesDataset = new XYMultipleSeriesDataset();
 			xyMultipleSeriesDataset.addSeries(xySeriesMovement);
+			xyMultipleSeriesDataset.addSeries(xySeriesCalibration);
 
 			// set up the dataset renderer
 			xyMultipleSeriesRenderer = new XYMultipleSeriesRenderer();
 			xyMultipleSeriesRenderer
 					.addSeriesRenderer(xySeriesMovementRenderer);
-			
-			xyMultipleSeriesRenderer.setShowLegend(false);
+			xyMultipleSeriesRenderer
+					.addSeriesRenderer(xySeriesCalibrationRenderer);
+
+			xyMultipleSeriesRenderer.setShowLegend(true);
 			xyMultipleSeriesRenderer.setAxisTitleTextSize(17);
 			xyMultipleSeriesRenderer.setLabelsTextSize(17);
-
-			xyMultipleSeriesRenderer.setXLabels(7);
-			xyMultipleSeriesRenderer.setYLabels(0);
-			xyMultipleSeriesRenderer.setYTitle(super.getContext().getString(
-					R.string.movement_level_during_sleep));
+			xyMultipleSeriesRenderer.setShowLabels(true);
+			xyMultipleSeriesRenderer.setXLabels(6);
+			xyMultipleSeriesRenderer.setYLabels(4);
 			xyMultipleSeriesRenderer.setShowGrid(true);
 			xyMultipleSeriesRenderer.setAxesColor(getResources().getColor(
 					R.color.text));
 			xyMultipleSeriesRenderer.setLabelsColor(xyMultipleSeriesRenderer
 					.getAxesColor());
+			xyMultipleSeriesRenderer.setApplyBackgroundColor(false);
 			final TimeChart timeChart = new TimeChart(xyMultipleSeriesDataset,
 					xyMultipleSeriesRenderer);
 			timeChart.setDateFormat("h:mm a");
@@ -95,39 +109,43 @@ public class SleepChart extends ChartView implements Serializable {
 	@Override
 	protected void onDraw(final Canvas canvas) {
 		super.onDraw(canvas);
-		if (rating < 6 && rating > 0) {
-			final Drawable dStarOn = getResources().getDrawable(
-					R.drawable.rate_star_small_on);
-			final Drawable dStarOff = getResources().getDrawable(
-					R.drawable.rate_star_small_off);
-			final int width = dStarOn.getMinimumWidth();
-			final int height = dStarOn.getMinimumHeight();
-			final int numOffStars = 5 - rating;
-			final int centerThemDangStarz = (canvas.getWidth() - width * 5) / 2;
-			for (int i = 0; i < rating; i++) {
-				dStarOn.setBounds(width * i + centerThemDangStarz, height,
-						width * i + width + centerThemDangStarz, height * 2);
-				dStarOn.draw(canvas);
-			}
-			for (int i = 0; i < numOffStars; i++) {
-				dStarOff.setBounds(width * (i + rating) + centerThemDangStarz,
-						height, width * (i + rating) + width
-								+ centerThemDangStarz, height * 2);
-				dStarOff.draw(canvas);
-			}
-		}
+		/*
+		 * if (rating < 6 && rating > 0) { final Drawable dStarOn =
+		 * getResources().getDrawable( R.drawable.rate_star_small_on); final
+		 * Drawable dStarOff = getResources().getDrawable(
+		 * R.drawable.rate_star_small_off); final int width =
+		 * dStarOn.getMinimumWidth(); final int height =
+		 * dStarOn.getMinimumHeight(); final int numOffStars = 5 - rating; final
+		 * int centerThemDangStarz = (canvas.getWidth() - width * 5) / 2; for
+		 * (int i = 0; i < rating; i++) { dStarOn.setBounds(width * i +
+		 * centerThemDangStarz, height, width * i + width + centerThemDangStarz,
+		 * height * 2); dStarOn.draw(canvas); } for (int i = 0; i < numOffStars;
+		 * i++) { dStarOff.setBounds(width * (i + rating) + centerThemDangStarz,
+		 * height, width * (i + rating) + width + centerThemDangStarz, height *
+		 * 2); dStarOff.draw(canvas); } }
+		 */
 	}
 
-	public void reconfigure(final double min, final double alarm) {
+	public void reconfigure() {
 		if (makesSenseToDisplay()) {
-			firstX = xySeriesMovement.xyList.get(0).x;
-			lastX = xySeriesMovement.xyList
-					.get(xySeriesMovement.getItemCount() - 1).x;
+			double firstX = xySeriesMovement.xyList.get(0).x;
+			double lastX = xySeriesMovement.xyList.get(xySeriesMovement
+					.getItemCount() - 1).x;
+
+			if (makesSenseToDisplay()) {
+				// reconfigure the calibration line..
+				xySeriesCalibration.clear();
+
+				xySeriesCalibration.add(firstX, calibrationLevel);
+				xySeriesCalibration.add(lastX, calibrationLevel);
+			}
+
 			xyMultipleSeriesRenderer.setXAxisMin(firstX);
 			xyMultipleSeriesRenderer.setXAxisMax(lastX);
 
-			xyMultipleSeriesRenderer.setYAxisMin(min);
-			xyMultipleSeriesRenderer.setYAxisMax(alarm);
+			xyMultipleSeriesRenderer.setYAxisMin(0);
+			xyMultipleSeriesRenderer
+					.setYAxisMax(SettingsActivity.MAX_ALARM_SENSITIVITY);
 		}
 	}
 
@@ -136,25 +154,33 @@ public class SleepChart extends ChartView implements Serializable {
 		sync(new SleepRecord(cursor));
 	}
 
-	public void sync(final Double x, final Double y, final double min,
-			final double alarm) {
-		if (xySeriesMovement.xyList.size() >= SleepAccelerometerService.MAX_POINTS_IN_A_GRAPH) {
+	public void sync(final Double x, final Double y, final double alarm) {
+		if (xySeriesMovement.xyList.size() >= SleepMonitoringService.MAX_POINTS_IN_A_GRAPH) {
 			xySeriesMovement.add(x, y);
 			xySeriesMovement.remove(0);
 		} else {
 			xySeriesMovement.add(x, y);
 		}
-		reconfigure(min, alarm);
+		reconfigure();
 		repaint();
 	}
 
 	public void sync(final SleepRecord sleepRecord) {
 		xySeriesMovement.xyList = sleepRecord.chartData;
+		calibrationLevel = sleepRecord.alarm;
 
 		rating = sleepRecord.rating;
 
 		xyMultipleSeriesRenderer.setChartTitle(sleepRecord.title);
-		reconfigure(sleepRecord.min, sleepRecord.alarm);
+		reconfigure();
 		repaint();
+	}
+
+	public double getCalibrationLevel() {
+		return calibrationLevel;
+	}
+
+	public void setCalibrationLevel(final double calibrationLevel) {
+		this.calibrationLevel = calibrationLevel;
 	}
 }

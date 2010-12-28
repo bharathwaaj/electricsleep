@@ -60,7 +60,7 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 				});
 
 		final SharedPreferences serviceIsRunningPrefs = getSharedPreferences(
-				SleepAccelerometerService.SERVICE_IS_RUNNING,
+				SleepMonitoringService.SERVICE_IS_RUNNING,
 				Context.MODE_PRIVATE);
 		if (serviceIsRunningPrefs.getBoolean("serviceIsRunning", false)) {
 			Toast.makeText(

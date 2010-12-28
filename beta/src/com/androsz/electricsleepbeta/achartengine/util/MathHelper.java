@@ -114,6 +114,9 @@ public class MathHelper {
       e = tmp;
     }
     double xStep = roundUp(Math.abs(s - e) / approxNumLabels);
+    double oneHour = 3600000.0;
+    if(xStep > oneHour)
+    	xStep = oneHour;
     // Compute x starting point so it is a multiple of xStep.
     double xStart = xStep * Math.ceil(s / xStep);
     double xEnd = xStep * Math.floor(e / xStep);

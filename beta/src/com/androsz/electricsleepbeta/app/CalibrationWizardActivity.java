@@ -22,7 +22,7 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity {
 		@Override
 		protected void onPostExecute(final Void result) {
 			final Intent i = new Intent(CalibrationWizardActivity.this,
-					SleepAccelerometerService.class);
+					SleepMonitoringService.class);
 			stopService(i);
 			i.putExtra("interval", ALARM_CALIBRATION_TIME);
 			i.putExtra("alarm", SettingsActivity.MAX_ALARM_SENSITIVITY);
@@ -85,14 +85,14 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity {
 			if (currentTask != null) {
 				currentTask.cancel(true);
 			} else {
-				stopService(new Intent(this, SleepAccelerometerService.class));
+				stopService(new Intent(this, SleepMonitoringService.class));
 			}
 			return;
 		}
 		switch (requestCode) {
 		case R.id.alarmTest:
 			alarmTriggerCalibration = data.getDoubleExtra("y", 0);
-			stopService(new Intent(this, SleepAccelerometerService.class));
+			stopService(new Intent(this, SleepMonitoringService.class));
 			break;
 		case R.id.screenTest:
 			screenBugPresent = data.getAction().equals(

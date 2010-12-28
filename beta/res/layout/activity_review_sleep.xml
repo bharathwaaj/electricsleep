@@ -71,7 +71,7 @@
 					android:id="@+id/value_note_text" android:text="x"
 					android:layout_gravity="right" android:gravity="right"></TextView>
 			</TableLayout>
-			<com.androsz.electricsleepbeta.widget.SleepChart
+			<com.androsz.electricsleepbeta.widget.ReviewSleepChart
 				android:id="@+id/sleep_movement_chart" android:layout_width="fill_parent"
 				android:layout_height="fill_parent" android:orientation="horizontal"
 				android:padding="4dip" />

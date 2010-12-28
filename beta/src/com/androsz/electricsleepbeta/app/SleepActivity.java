@@ -57,11 +57,8 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 			if (sleepChart != null) {
 				sleepChart.sync(intent.getDoubleExtra(
-						SleepAccelerometerService.EXTRA_X, 0), intent
-						.getDoubleExtra(SleepAccelerometerService.EXTRA_Y, 0),
-						intent.getDoubleExtra(
-								SleepAccelerometerService.EXTRA_MIN,
-								SettingsActivity.DEFAULT_MIN_SENSITIVITY),
+						SleepMonitoringService.EXTRA_X, 0), intent
+						.getDoubleExtra(SleepMonitoringService.EXTRA_Y, 0),
 						intent.getDoubleExtra(StartSleepReceiver.EXTRA_ALARM,
 								SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 
@@ -83,10 +80,11 @@ public class SleepActivity extends CustomTitlebarActivity {
 			// inlined for efficiency
 			sleepChart.xySeriesMovement.xyList = (List<PointD>) intent
 					.getSerializableExtra("sleepData");
-			sleepChart.reconfigure(intent.getDoubleExtra("min",
-					SettingsActivity.DEFAULT_MIN_SENSITIVITY), intent
-					.getDoubleExtra("alarm",
-							SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
+
+			final double alarmTriggerSensitivity = intent.getDoubleExtra(
+					StartSleepReceiver.EXTRA_ALARM, SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
+			sleepChart.setCalibrationLevel(alarmTriggerSensitivity);
+			sleepChart.reconfigure();
 			sleepChart.repaint();
 
 			final boolean useAlarm = intent.getBooleanExtra(
@@ -163,7 +161,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 		showTitleButton1(R.drawable.ic_title_stop_default);
 		showTitleButton2(R.drawable.ic_title_alarm);
 		registerReceiver(sleepStoppedReceiver, new IntentFilter(
-				SleepAccelerometerService.SLEEP_STOPPED));
+				SleepMonitoringService.SLEEP_STOPPED));
 	}
 
 	@Override
@@ -189,7 +187,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 			super.onRestoreInstanceState(savedState);
 		} catch (final java.lang.RuntimeException rte) {
 			// sendBroadcast(new
-			// Intent(SleepAccelerometerService.POKE_SYNC_CHART));
+			// Intent(SleepMonitoringService.POKE_SYNC_CHART));
 		}
 		sleepChart = (SleepChart) savedState.getSerializable("sleepChart");
 
@@ -201,7 +199,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 		registerReceiver(updateChartReceiver, new IntentFilter(UPDATE_CHART));
 		registerReceiver(syncChartReceiver, new IntentFilter(SYNC_CHART));
-		sendBroadcast(new Intent(SleepAccelerometerService.POKE_SYNC_CHART));
+		sendBroadcast(new Intent(SleepMonitoringService.POKE_SYNC_CHART));
 	}
 
 	@Override
@@ -212,7 +210,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 	public void onTitleButton1Click(final View v) {
 
-		sendBroadcast(new Intent(SleepAccelerometerService.STOP_AND_SAVE_SLEEP));
+		sendBroadcast(new Intent(SleepMonitoringService.STOP_AND_SAVE_SLEEP));
 		finish();
 	}
 
@@ -235,7 +233,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 									final int arg1) {
 
 								stopService(new Intent(SleepActivity.this,
-										SleepAccelerometerService.class));
+										SleepMonitoringService.class));
 								SleepActivity.this.finish();
 							}
 						});

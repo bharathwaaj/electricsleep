@@ -35,7 +35,7 @@ import com.androsz.electricsleepbeta.alarmclock.Alarms;
 import com.androsz.electricsleepbeta.content.StartSleepReceiver;
 import com.androsz.electricsleepbeta.util.PointD;
 
-public class SleepAccelerometerService extends Service implements
+public class SleepMonitoringService extends Service implements
 		SensorEventListener {
 
 	private final class UpdateTimerTask extends TimerTask {
@@ -45,12 +45,8 @@ public class SleepAccelerometerService extends Service implements
 			// re-post this runner every 5 seconds.
 			// serviceHandler.postDelayed(updateTimerRunnable, updateInterval);
 			final double x = currentTime;
-			final double y = java.lang.Math.min(alarmTriggerSensitivity,
+			final double y = java.lang.Math.min(SettingsActivity.MAX_ALARM_SENSITIVITY,
 					maxNetForce);
-
-			if (y < minNetForce) {
-				minNetForce = y;
-			}
 
 			final PointD sleepPoint = new PointD(x, y);
 			if (sleepData.size() >= MAX_POINTS_IN_A_GRAPH) {
@@ -73,7 +69,6 @@ public class SleepAccelerometerService extends Service implements
 			final Intent i = new Intent(SleepActivity.UPDATE_CHART);
 			i.putExtra(EXTRA_X, x);
 			i.putExtra(EXTRA_Y, y);
-			i.putExtra(EXTRA_MIN, minNetForce);
 			i.putExtra(StartSleepReceiver.EXTRA_ALARM, alarmTriggerSensitivity);
 			sendBroadcast(i);
 
@@ -98,10 +93,9 @@ public class SleepAccelerometerService extends Service implements
 	public static final String EXTRA_Y = "y";
 	public static final String EXTRA_X = "x";
 	public static final String EXTRA_NAME = "name";
-	public static final String EXTRA_MIN = "min";
 	public static final String SERVICE_IS_RUNNING = "serviceIsRunning";
 	public static final String SLEEP_DATA = "sleepData";
-	private static final String LOCK_TAG = "com.androsz.electricsleepbeta.app.SleepAccelerometerService";
+	private static final String LOCK_TAG = "com.androsz.electricsleepbeta.app.SleepMonitoringService";
 	private static final int NOTIFICATION_ID = 0x1337a;
 
 	public static final String POKE_SYNC_CHART = "com.androsz.electricsleepbeta.POKE_SYNC_CHART";
@@ -119,7 +113,6 @@ public class SleepAccelerometerService extends Service implements
 			if (action.equals(POKE_SYNC_CHART)) {
 				final Intent i = new Intent(SleepActivity.SYNC_CHART);
 				i.putExtra(SLEEP_DATA, sleepData);
-				i.putExtra(EXTRA_MIN, minNetForce);
 				i.putExtra(StartSleepReceiver.EXTRA_ALARM,
 						alarmTriggerSensitivity);
 				i.putExtra(StartSleepReceiver.EXTRA_USE_ALARM, useAlarm);
@@ -128,7 +121,7 @@ public class SleepAccelerometerService extends Service implements
 				sendBroadcast(i);
 			} else if (action.equals(STOP_AND_SAVE_SLEEP)) {
 				final Intent saveIntent = addExtrasToSaveSleepIntent(new Intent(
-						SleepAccelerometerService.this, SaveSleepActivity.class));
+						SleepMonitoringService.this, SaveSleepActivity.class));
 				startActivity(saveIntent);
 				stopSelf();
 			} else {
@@ -144,9 +137,7 @@ public class SleepAccelerometerService extends Service implements
 
 	private Date dateStarted;
 
-	private double maxNetForce = 0;
-
-	private double minNetForce = Double.MAX_VALUE;
+	private double maxNetForce = SettingsActivity.DEFAULT_MIN_SENSITIVITY;
 
 	private WakeLock partialWakeLock;
 
@@ -283,7 +274,6 @@ public class SleepAccelerometerService extends Service implements
 		updateTimer = new Timer();
 
 		dateStarted = new Date();
-
 	}
 
 	@Override
@@ -362,7 +352,7 @@ public class SleepAccelerometerService extends Service implements
 
 			alarmTriggerSensitivity = intent.getDoubleExtra(
 					StartSleepReceiver.EXTRA_ALARM,
-					SettingsActivity.MAX_ALARM_SENSITIVITY);
+					SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
 
 			useAlarm = intent.getBooleanExtra(
 					StartSleepReceiver.EXTRA_USE_ALARM, false);

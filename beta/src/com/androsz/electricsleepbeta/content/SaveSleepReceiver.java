@@ -13,7 +13,7 @@ import android.database.Cursor;
 import android.provider.BaseColumns;
 
 import com.androsz.electricsleepbeta.app.SettingsActivity;
-import com.androsz.electricsleepbeta.app.SleepAccelerometerService;
+import com.androsz.electricsleepbeta.app.SleepMonitoringService;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 import com.androsz.electricsleepbeta.db.SleepRecord;
 import com.androsz.electricsleepbeta.util.PointD;
@@ -35,14 +35,12 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 			@Override
 			public void run() {
 
-				double min = Double.MAX_VALUE;
-
 				final double alarm = intent.getDoubleExtra(
 						StartSleepReceiver.EXTRA_ALARM,
 						SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
 
 				final String name = intent
-						.getStringExtra(SleepAccelerometerService.EXTRA_NAME);
+						.getStringExtra(SleepMonitoringService.EXTRA_NAME);
 				final int rating = intent.getIntExtra(EXTRA_RATING, 5);
 				final String note = intent.getStringExtra(EXTRA_NOTE);
 
@@ -50,9 +48,9 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 				List<PointD> originalData = null;
 				try {
 					fis = context
-							.openFileInput(SleepAccelerometerService.SLEEP_DATA);
+							.openFileInput(SleepMonitoringService.SLEEP_DATA);
 					final long length = context.getFileStreamPath(
-							SleepAccelerometerService.SLEEP_DATA).length();
+							SleepMonitoringService.SLEEP_DATA).length();
 					final int chunkSize = 16;
 					originalData = new ArrayList<PointD>((int) (length
 							/ chunkSize / 2));
@@ -76,7 +74,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 					return;
 				}
 
-				context.deleteFile(SleepAccelerometerService.SLEEP_DATA);
+				context.deleteFile(SleepMonitoringService.SLEEP_DATA);
 
 				final int numberOfPointsOriginal = originalData.size();
 
@@ -93,7 +91,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 				final SleepHistoryDatabase shdb = new SleepHistoryDatabase(
 						context);
 
-				final int numberOfDesiredGroupedPoints = SleepAccelerometerService.MAX_POINTS_IN_A_GRAPH;
+				final int numberOfDesiredGroupedPoints = SleepMonitoringService.MAX_POINTS_IN_A_GRAPH;
 				// numberOfDesiredGroupedPoints = numberOfPointsOriginal >
 				// numberOfDesiredGroupedPoints ? numberOfDesiredGroupedPoints
 				// : numberOfPointsOriginal;
@@ -151,9 +149,6 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 								numberOfConsecutiveNonSpikes = 0;
 								numberOfSpikes++;
 							}
-							if (maxYForThisGroup < min) {
-								min = maxYForThisGroup;
-							}
 							lessDetailedData.add(new PointD(originalData
 									.get(startIndexForThisGroup).x,
 									maxYForThisGroup));
@@ -166,7 +161,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 					try {
 						shdb.addSleep(context, new SleepRecord(name,
-								lessDetailedData, min, alarm, rating, endTime
+								lessDetailedData, SettingsActivity.DEFAULT_MIN_SENSITIVITY, alarm, rating, endTime
 										- startTime, numberOfSpikes,
 								timeOfFirstSleep, note));
 					} catch (final IOException e) {
@@ -198,13 +193,10 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 							numberOfConsecutiveNonSpikes = 0;
 							numberOfSpikes++;
 						}
-						if (currentY < min) {
-							min = currentY;
-						}
 					}
 					try {
 						shdb.addSleep(context, new SleepRecord(name,
-								originalData, min, alarm, rating, endTime
+								originalData, SettingsActivity.DEFAULT_MIN_SENSITIVITY, alarm, rating, endTime
 										- startTime, numberOfSpikes,
 								timeOfFirstSleep, note));
 					} catch (final IOException e) {

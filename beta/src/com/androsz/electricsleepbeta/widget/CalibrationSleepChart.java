@@ -10,14 +10,11 @@ import com.androsz.electricsleepbeta.achartengine.model.XYMultipleSeriesDataset;
 import com.androsz.electricsleepbeta.achartengine.model.XYSeries;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleepbeta.achartengine.renderer.XYSeriesRenderer;
+import com.androsz.electricsleepbeta.app.SettingsActivity;
 
 public class CalibrationSleepChart extends SleepChart {
 
 	private static final long serialVersionUID = -3856680457687369240L;
-	public XYSeries xySeriesCalibration;
-	public XYSeriesRenderer xySeriesCalibrationRenderer;
-
-	private double calibrationLevel = com.androsz.electricsleepbeta.app.SettingsActivity.DEFAULT_ALARM_SENSITIVITY;
 
 	public CalibrationSleepChart(final Context context) {
 		super(context);
@@ -79,27 +76,5 @@ public class CalibrationSleepChart extends SleepChart {
 			return timeChart;
 		}
 		return null;
-	}
-
-	public double getCalibrationLevel() {
-		return calibrationLevel;
-	}
-
-	@Override
-	public void reconfigure(final double min, final double alarm) {
-		super.reconfigure(
-				0d,
-				com.androsz.electricsleepbeta.app.SettingsActivity.MAX_ALARM_SENSITIVITY);
-		if (makesSenseToDisplay()) {
-			// reconfigure the calibration line..
-			xySeriesCalibration.clear();
-
-			xySeriesCalibration.add(firstX, calibrationLevel);
-			xySeriesCalibration.add(lastX, calibrationLevel);
-		}
-	}
-
-	public void setCalibrationLevel(final double calibrationLevel) {
-		this.calibrationLevel = calibrationLevel;
 	}
 }

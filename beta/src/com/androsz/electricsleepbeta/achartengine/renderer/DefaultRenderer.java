@@ -28,7 +28,7 @@ import android.graphics.Paint.Align;
  */
 public class DefaultRenderer implements Serializable {
   /** A no color constant. */
-  public static final int NO_COLOR = 0;
+  public static final int NO_COLOR = Color.TRANSPARENT;
   /** The default background color. */
   public static final int BACKGROUND_COLOR = Color.BLACK;
   /** The default color for text. */
