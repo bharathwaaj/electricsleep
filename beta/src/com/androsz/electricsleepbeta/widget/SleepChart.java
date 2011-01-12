@@ -83,6 +83,8 @@ public class SleepChart extends ChartView implements Serializable {
 					.addSeriesRenderer(xySeriesCalibrationRenderer);
 
 			xyMultipleSeriesRenderer.setShowLegend(true);
+			xyMultipleSeriesRenderer.setPanEnabled(false, false);
+			xyMultipleSeriesRenderer.setZoomEnabled(false, false);
 			xyMultipleSeriesRenderer.setAxisTitleTextSize(17);
 			xyMultipleSeriesRenderer.setLabelsTextSize(17);
 			xyMultipleSeriesRenderer.setShowLabels(true);
