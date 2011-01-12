@@ -45,8 +45,8 @@ public class SleepMonitoringService extends Service implements
 			// re-post this runner every 5 seconds.
 			// serviceHandler.postDelayed(updateTimerRunnable, updateInterval);
 			final double x = currentTime;
-			final double y = java.lang.Math.min(SettingsActivity.MAX_ALARM_SENSITIVITY,
-					maxNetForce);
+			final double y = java.lang.Math.min(
+					SettingsActivity.MAX_ALARM_SENSITIVITY, maxNetForce);
 
 			final PointD sleepPoint = new PointD(x, y);
 			if (sleepData.size() >= MAX_POINTS_IN_A_GRAPH) {
@@ -284,8 +284,6 @@ public class SleepMonitoringService extends Service implements
 			partialWakeLock.release();
 		}
 
-		updateTimer.cancel();
-
 		unregisterReceiver(serviceReceiver);
 
 		// tell monitoring activities that sleep has ended
@@ -294,6 +292,9 @@ public class SleepMonitoringService extends Service implements
 		toggleAirplaneMode(false);
 
 		stopForeground(true);
+		synchronized (updateTimer) {
+			updateTimer.cancel();
+		}
 
 		final SharedPreferences.Editor ed = getSharedPreferences(
 				SERVICE_IS_RUNNING, Context.MODE_PRIVATE).edit();
@@ -308,8 +309,10 @@ public class SleepMonitoringService extends Service implements
 		if (waitForSensorsToWarmUp < 5) {
 			if (waitForSensorsToWarmUp == 4) {
 				waitForSensorsToWarmUp++;
-				updateTimer.scheduleAtFixedRate(new UpdateTimerTask(),
-						updateInterval, updateInterval);
+				synchronized (updateTimer) {
+					updateTimer.scheduleAtFixedRate(new UpdateTimerTask(),
+							updateInterval, updateInterval);
+				}
 				// serviceHandler.postDelayed(updateTimerRunnable,
 				// updateInterval);
 
