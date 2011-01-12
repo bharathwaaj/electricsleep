@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.androsz.electricsleepbeta.widget.ViewFlipperBugfix
 	xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/wizardViewFlipper"
-	android:layout_height="wrap_content" android:layout_width="fill_parent">
-	<RelativeLayout android:orientation="vertical"
-		android:layout_width="fill_parent" android:layout_height="fill_parent">
-		<TextView style="@style/TextHeader" android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:text="@string/title_welcome"
-			android:layout_alignParentTop="true" android:layout_centerHorizontal="true"
-			android:id="@+id/welcomeTitle"></TextView>
-		<TextView android:layout_height="wrap_content" style="@style/TextBody"
-			android:layout_width="wrap_content" android:text="@string/electricsleep_description"
-			android:layout_below="@+id/welcomeTitle"
-			android:layout_centerHorizontal="true"></TextView>
-	</RelativeLayout>
+	android:layout_height="fill_parent" android:layout_width="fill_parent">
+	<ScrollView android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+		<RelativeLayout android:layout_height="wrap_content"
+			android:orientation="vertical" android:layout_width="fill_parent">
+			<TextView style="@style/TextHeader" android:layout_height="wrap_content"
+                        android:layout_width="wrap_content" android:text="@string/title_welcome"
+                        android:layout_alignParentTop="true" android:layout_centerHorizontal="true"
+                        android:id="@+id/welcomeTitle"></TextView>
+                <TextView android:layout_height="wrap_content" style="@style/TextBody"
+                        android:layout_width="wrap_content" android:text="@string/electricsleep_description"
+                        android:layout_below="@+id/welcomeTitle"
+                        android:layout_centerHorizontal="true"></TextView>
+		</RelativeLayout>
+	</ScrollView>
 	<ScrollView android:layout_width="wrap_content"
 		android:layout_height="wrap_content">
 		<RelativeLayout android:layout_height="wrap_content"
