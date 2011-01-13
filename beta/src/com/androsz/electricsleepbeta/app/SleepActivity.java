@@ -154,9 +154,8 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
-
-		this.setTitle(R.string.monitoring_sleep);
 		super.onCreate(savedInstanceState);
+		setTitle(R.string.monitoring_sleep);
 
 		showTitleButton1(R.drawable.ic_title_stop_default);
 		showTitleButton2(R.drawable.ic_title_alarm);

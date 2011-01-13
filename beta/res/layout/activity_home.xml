@@ -1,6 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/home_container" android:layout_height="fill_parent"
-	android:layout_width="fill_parent">
+	android:id="@+id/home_container" android:layout_height="match_parent"
+	android:layout_width="match_parent">
 
 	<LinearLayout android:layout_height="wrap_content"
 		android:layout_alignParentTop="true" android:id="@+id/home_button_container"
@@ -20,17 +20,19 @@
 			android:layout_weight="0.33" android:onClick="onAlarmsClick" />
 	</LinearLayout>
 
+	<View android:layout_width="match_parent" android:layout_height="1dip"
+		android:background="@android:color/white" android:layout_below="@+id/home_button_container" />
+
 	<TextView android:layout_height="wrap_content"
 		android:gravity="center" android:layout_below="@+id/home_button_container"
 		android:layout_centerHorizontal="true" android:text="@string/home_review_title_text_empty"
 		android:textAppearance="@style/TextHeader" android:id="@+id/home_review_title_text"
-		android:layout_width="fill_parent" android:background="@color/primary2"
-		android:shadowColor="@android:color/white" android:shadowRadius="1"
-		android:shadowDx="1"></TextView>
+		android:layout_width="fill_parent"></TextView>
+		
 	<com.androsz.electricsleepbeta.widget.ReviewSleepChart
 		android:id="@+id/home_sleep_chart" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:layout_margin="4dip"
-		android:layout_below="@+id/home_review_title_text" />
+		android:layout_below="@+id/home_review_title_text" android:visibility="gone" />
 
 
 </RelativeLayout>

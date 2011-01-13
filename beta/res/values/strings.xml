@@ -682,4 +682,15 @@
 		<item>Went to sleep time</item>
 		<item>Wake up time</item>
 	</string-array>
+	
+    <!-- Title of event when no explicit title is specified by the user -->
+    <string name="no_title_label">(No title)</string>
+    <!-- This string is used in a popup window when there are more events than
+         can be displayed so it displays the events that it can and then displays
+         this line so that the user knows how many more events there are that
+         could not be displayed.  For example, if there are 6 events but we can
+         only display 4 events then we will display the first 4 events and then
+         show 'plus 2 more' to indicate that there are two more events that we
+         could not display because of lack of room. -->
+    <string name="plus_N_more">"(plus <xliff:g id="more_count">%d</xliff:g> more \u2026)"</string>
 </resources>

@@ -19,6 +19,7 @@ import com.androsz.electricsleepbeta.content.StartSleepReceiver;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepRecord;
 import com.androsz.electricsleepbeta.widget.SleepChart;
+import com.androsz.electricsleepbeta.widget.calendar.MonthActivity;
 
 /**
  * Front-door {@link Activity} that displays high-level features the application
@@ -84,7 +85,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 	}
 
 	public void onHistoryClick(final View v) {
-		startActivity(new Intent(this, HistoryActivity.class));
+		startActivity(new Intent(this, MonthActivity.class));
 	}
 
 	@Override
