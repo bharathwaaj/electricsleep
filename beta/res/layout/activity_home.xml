@@ -8,7 +8,7 @@
 		<Button style="@style/HomeButton" android:id="@+id/home_btn_sleep"
 			android:onClick="onSleepClick" android:drawableTop="@drawable/home_btn_sleep"
 			android:text="@string/title_sleep" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:layout_weight="0.33" />
+			android:layout_height="wrap_content" android:layout_weight="0.33"/>
 		<Button android:id="@+id/home_btn_history" style="@style/HomeButton"
 			android:onClick="onHistoryClick" android:text="@string/title_history"
 			android:drawableTop="@drawable/home_btn_history"

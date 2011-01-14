@@ -24,7 +24,7 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity {
 			final Intent i = new Intent(CalibrationWizardActivity.this,
 					SleepMonitoringService.class);
 			stopService(i);
-			i.putExtra("interval", ALARM_CALIBRATION_TIME);
+			i.putExtra("testModeRate", ALARM_CALIBRATION_TIME);
 			i.putExtra("alarm", SettingsActivity.MAX_ALARM_SENSITIVITY);
 			startService(i);
 		}

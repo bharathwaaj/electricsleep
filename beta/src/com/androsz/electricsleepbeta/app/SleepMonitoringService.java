@@ -28,6 +28,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.Alarm;
@@ -62,7 +63,7 @@ public class SleepMonitoringService extends Service implements
 				fos.write(PointD.toByteArray(sleepPoint));
 				fos.close();
 			} catch (final IOException e) {
-				// TODO Auto-generated catch block
+				Toast.makeText(SleepMonitoringService.this, "Please report this: ", Toast.LENGTH_LONG);
 				e.printStackTrace();
 			}
 
