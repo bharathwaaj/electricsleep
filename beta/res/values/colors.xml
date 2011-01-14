@@ -4,14 +4,14 @@
 	<color name="text">#ffffffff</color>
 	<color name="text_alt">#ffA4C639</color>
 	<color name="titlebar_separator">#ffffffff</color>
-	<color name="secondary1">#ff363636</color><!-- ff30587c ff97c03d -->
+	<color name="secondary1">#ff333333</color><!-- ff30587c ff97c03d -->
 	<color name="secondary2">#ff000000</color>
-	<color name="secondary3">#ff111111</color>
+	<color name="secondary3">#ff202020</color>
 	<color name="primary1">#ffA4C639</color>
 	<color name="primary2">#ff000000</color>
 	<color name="primary3">#ffAFFF00</color>
 	<color name="background_transparent_darken">#66000000</color>
-	<color name="background_transparent_lighten">#66ffffff</color>
+	<color name="background_transparent_lighten">#44ffffff</color>
 	<color name="primary1_transparent">#88A4C639</color>
 
 <!-- calendar -->
@@ -19,7 +19,7 @@
     <color name="month_saturday">#ffCCCCCC</color>
     <color name="month_sunday">#ffCCCCCC</color>
     <color name="month_today_number">#ffffffff</color>
-    <color name="month_other_month">#FF4D4D4D</color>
+    <color name="month_other_month">#66ffffff</color>
     <color name="month_other_month_day_number">#ffB3B3B3</color>
     <color name="month_other_month_banner">#80595959</color>
     <color name="month_week_banner">#00000000</color>

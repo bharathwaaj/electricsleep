@@ -65,7 +65,7 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 		if (serviceIsRunningPrefs.getBoolean("serviceIsRunning", false)) {
 			Toast.makeText(
 					this,
-					R.string.changes_made_to_these_settings_except_alarms_will_not_take_effect_until_the_next_time_you_start_sleep,
+					R.string.changes_made_to_these_settings,
 					Toast.LENGTH_LONG).show();
 		}
 	}

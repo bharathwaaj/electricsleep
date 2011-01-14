@@ -14,12 +14,12 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.util.PointD;
-import com.androsz.electricsleepbeta.widget.CalibrationSleepChart;
 import com.androsz.electricsleepbeta.widget.DecimalSeekBar;
+import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 
-	CalibrationSleepChart sleepChart;
+	SleepChart sleepChart;
 
 	private final BroadcastReceiver updateChartReceiver = new BroadcastReceiver() {
 		@Override
@@ -50,7 +50,7 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 
-			sleepChart = (CalibrationSleepChart) findViewById(R.id.calibration_sleep_chart);
+			sleepChart = (SleepChart) findViewById(R.id.calibration_sleep_chart);
 
 			// inlined for efficiency
 			sleepChart.xySeriesMovement.xyList = (List<PointD>) intent
@@ -71,7 +71,7 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 
 		setContentView(R.layout.activity_calibrate_alarm);
 
-		sleepChart = (CalibrationSleepChart) findViewById(R.id.calibration_sleep_chart);
+		sleepChart = (SleepChart) findViewById(R.id.calibration_sleep_chart);
 
 		final DecimalSeekBar seekBar = (DecimalSeekBar) findViewById(R.id.calibration_level_seekbar);
 		seekBar.setMax((int) SettingsActivity.MAX_ALARM_SENSITIVITY);
@@ -120,7 +120,7 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 			// sendBroadcast(new
 			// Intent(SleepMonitoringService.POKE_SYNC_CHART));
 		}
-		sleepChart = (CalibrationSleepChart) savedState
+		sleepChart = (SleepChart) savedState
 				.getSerializable("sleepChart");
 	}
 

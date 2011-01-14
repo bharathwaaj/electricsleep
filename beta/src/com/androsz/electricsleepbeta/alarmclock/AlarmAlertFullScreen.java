@@ -47,7 +47,7 @@ import com.androsz.electricsleepbeta.app.SettingsActivity;
 public class AlarmAlertFullScreen extends Activity {
 
 	// These defaults must match the values in res/xml/settings.xml
-	private static final String DEFAULT_SNOOZE = "10";
+	private static final String DEFAULT_SNOOZE = "5";
 	private static final String DEFAULT_VOLUME_BEHAVIOR = "2";
 	protected static final String SCREEN_OFF = "screen_off";
 

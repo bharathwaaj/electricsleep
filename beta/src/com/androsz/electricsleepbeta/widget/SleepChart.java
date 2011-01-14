@@ -53,7 +53,7 @@ public class SleepChart extends ChartView implements Serializable {
 	protected AbstractChart buildChart() {
 		if (xySeriesMovement == null) {
 			// set up sleep movement series/renderer
-			xySeriesMovement = new XYSeries("Movement");
+			xySeriesMovement = new XYSeries(getContext().getString(R.string.legend_movement));
 			xySeriesMovementRenderer = new XYSeriesRenderer();
 			xySeriesMovementRenderer.setFillBelowLine(true);
 			xySeriesMovementRenderer.setFillBelowLineColor(getResources()
@@ -62,7 +62,7 @@ public class SleepChart extends ChartView implements Serializable {
 					R.color.primary1));
 
 			// set up calibration line series/renderer
-			xySeriesCalibration = new XYSeries("Light Sleep Trigger");
+			xySeriesCalibration = new XYSeries(getContext().getString(R.string.legend_light_sleep_trigger));
 			xySeriesCalibrationRenderer = new XYSeriesRenderer();
 			xySeriesCalibrationRenderer.setFillBelowLine(true);
 			xySeriesCalibrationRenderer.setFillBelowLineColor(getResources()
@@ -82,13 +82,16 @@ public class SleepChart extends ChartView implements Serializable {
 			xyMultipleSeriesRenderer
 					.addSeriesRenderer(xySeriesCalibrationRenderer);
 
-			xyMultipleSeriesRenderer.setShowLegend(true);
 			xyMultipleSeriesRenderer.setPanEnabled(false, false);
 			xyMultipleSeriesRenderer.setZoomEnabled(false, false);
-			xyMultipleSeriesRenderer.setAxisTitleTextSize(17);
-			xyMultipleSeriesRenderer.setLabelsTextSize(17);
+			float textSize = 18;
+			xyMultipleSeriesRenderer.setAxisTitleTextSize(textSize);
+			xyMultipleSeriesRenderer.setLabelsTextSize(textSize);
+			xyMultipleSeriesRenderer.setLegendHeight(60);
+			xyMultipleSeriesRenderer.setLegendTextSize(textSize);
+			xyMultipleSeriesRenderer.setShowLegend(true);
 			xyMultipleSeriesRenderer.setShowLabels(true);
-			xyMultipleSeriesRenderer.setXLabels(6);
+			xyMultipleSeriesRenderer.setXLabels(8);
 			xyMultipleSeriesRenderer.setYLabels(4);
 			xyMultipleSeriesRenderer.setShowGrid(true);
 			xyMultipleSeriesRenderer.setAxesColor(getResources().getColor(

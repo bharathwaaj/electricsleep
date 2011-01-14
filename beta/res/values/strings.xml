@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="legend_light_sleep_trigger">Light Sleep Trigger</string>
+    <string name="legend_movement">Movement</string>
 	<string name="warming_up">Warming up sensors, please wait.</string>
 	<string name="go_into_standy">Press your device\'s standby button</string>
 	<string name="calibrate_directions_force_screen_on">
@@ -29,9 +31,7 @@
 	<string name="analysis_x_axis_values">X Axis Values</string>
 	<string name="list">List</string>
 	<string name="chart_view">Sleep Score Over Time</string>
-	<string
-		name="changes_made_to_these_settings_except_alarms_will_not_take_effect_until_the_next_time_you_start_sleep">Changes made to these settings (except alarm times) will not take
-		effect until the next time you start sleep.</string>
+	<string name="changes_made_to_these_settings">Changes to these settings will not take effect during this session.</string>
 	<string name="gfx_designers">Graphic Designers</string>
 	<string name="project_lead">Project Lead</string>
 	<string name="developers">Developers</string>

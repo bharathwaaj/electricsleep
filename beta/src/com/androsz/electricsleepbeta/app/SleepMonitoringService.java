@@ -141,7 +141,7 @@ public class SleepMonitoringService extends Service implements
 
 	private WakeLock partialWakeLock;
 
-	private int testModeRate;
+	private int testModeRate = Integer.MIN_VALUE;
 
 	public int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
 	private final static int INTERVAL = 5000;
@@ -227,9 +227,19 @@ public class SleepMonitoringService extends Service implements
 
 		final CharSequence contentTitle = getText(R.string.notification_sleep_title);
 		final CharSequence contentText = getText(R.string.notification_sleep_text);
-		final Intent notificationIntent = new Intent(this, SleepActivity.class);
+		Intent notificationIntent = null;
+		
+		//prevents the user from entering SleepActivity from the notification when in test mode
+		if (this.testModeRate == Integer.MIN_VALUE) {
+			notificationIntent = new Intent(this, SleepActivity.class);
+		}
+		else
+		{
+			notificationIntent = new Intent();
+		}
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
 				| Intent.FLAG_ACTIVITY_NEW_TASK);
+		
 		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 				notificationIntent, 0);
 
@@ -260,8 +270,6 @@ public class SleepMonitoringService extends Service implements
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
-		startForeground(NOTIFICATION_ID, createServiceNotification());
 
 		final IntentFilter filter = new IntentFilter(
 				Alarms.ALARM_DISMISSED_BY_USER_ACTION);
@@ -351,7 +359,7 @@ public class SleepMonitoringService extends Service implements
 
 			sensorDelay = intent.getIntExtra(
 					StartSleepReceiver.EXTRA_SENSOR_DELAY,
-					SensorManager.SENSOR_DELAY_UI);
+					SensorManager.SENSOR_DELAY_FASTEST);
 
 			alarmTriggerSensitivity = intent.getDoubleExtra(
 					StartSleepReceiver.EXTRA_ALARM,
@@ -370,6 +378,8 @@ public class SleepMonitoringService extends Service implements
 			forceScreenOn = intent.getBooleanExtra(
 					StartSleepReceiver.EXTRA_FORCE_SCREEN_ON, false);
 
+			startForeground(NOTIFICATION_ID, createServiceNotification());
+			
 			obtainWakeLock();
 			registerAccelerometerListener();
 
@@ -387,9 +397,8 @@ public class SleepMonitoringService extends Service implements
 	private void registerAccelerometerListener() {
 		final SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-		sensorManager.registerListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-				sensorDelay);
+		sensorManager.registerListener(this, sensorManager
+				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), sensorDelay);
 	}
 
 	private void toggleAirplaneMode(final boolean enabling) {

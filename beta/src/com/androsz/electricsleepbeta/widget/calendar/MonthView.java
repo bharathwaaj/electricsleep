@@ -241,7 +241,6 @@ public class MonthView extends View {
         mMonthSaturdayColor = res.getColor(R.color.month_saturday);
         mMonthSundayColor = res.getColor(R.color.month_sunday);
         mBusybitsColor = res.getColor(R.color.primary1);
-        //mMonthBgColor = res.getColor(android.R.color.transparent);
 
         if (mShowToast) {
             LayoutInflater inflater;
@@ -387,7 +386,6 @@ public class MonthView extends View {
             public void run() {
                 mEvents = events;
                 mRedrawScreen = true;
-                mParentActivity.hideProgress();
                 invalidate();
                 int numEvents = events.size();
 
@@ -419,6 +417,7 @@ public class MonthView extends View {
                         }
                     }
                 }
+                mParentActivity.hideProgress();
             }
         }, null);
     }

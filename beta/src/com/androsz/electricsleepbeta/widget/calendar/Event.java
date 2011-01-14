@@ -292,6 +292,7 @@ public class Event implements Comparable<Event>, Cloneable {
 
             String orderBy = "";//Instances.SORT_CALENDAR_VIEW;
 
+            //TODO: hook this into sleep db
             c = null;//Instances.query(context.getContentResolver(), PROJECTION,
                     //start - DateUtils.DAY_IN_MILLIS, end + DateUtils.DAY_IN_MILLIS, null, orderBy);
 

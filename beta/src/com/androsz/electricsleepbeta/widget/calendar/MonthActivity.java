@@ -19,26 +19,21 @@ package com.androsz.electricsleepbeta.widget.calendar;
 //*import static android.provider.Calendar.EVENT_BEGIN_TIME;
 //*import dalvik.system.VMRuntime;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
 //*import android.provider.Calendar.Events;
 import android.text.format.DateUtils;
 import android.text.format.Time;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 import android.widget.Gallery.LayoutParams;
@@ -51,7 +46,6 @@ import com.androsz.electricsleepbeta.db.SleepContentProvider;
 
 public class MonthActivity extends CustomTitlebarActivity implements ViewSwitcher.ViewFactory,
         Navigator, AnimationListener {
-    private static final int INITIAL_HEAP_SIZE = 4 * 1024 * 1024;
     private Animation mInAnimationPast;
     private Animation mInAnimationFuture;
     private Animation mOutAnimationPast;
@@ -83,9 +77,7 @@ public class MonthActivity extends CustomTitlebarActivity implements ViewSwitche
 
     /* Navigator interface methods */
     public void goTo(Time time, boolean animate) {
-    	
-        //TextView title = (TextView) findViewById(R.id.title);
-    	this.setTitle(Utils.formatMonthYear(this, time));
+    	setTitle(Utils.formatMonthYear(this, time));
 
         MonthView current = (MonthView) mSwitcher.getCurrentView();
         current.dismissPopup();

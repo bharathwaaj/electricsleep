@@ -7,7 +7,7 @@
 		android:layout_height="wrap_content" android:id="@+id/warming_up_text"
 		android:text="@string/warming_up" android:layout_gravity="center_vertical|center_horizontal|center"></TextView>
 
-	<com.androsz.electricsleepbeta.widget.CalibrationSleepChart
+	<com.androsz.electricsleepbeta.widget.SleepChart
 		android:id="@+id/calibration_sleep_chart" android:layout_margin="4dip"
 		android:layout_gravity="left" android:layout_height="wrap_content"
 		android:layout_width="wrap_content" android:layout_weight="100"
