@@ -52,7 +52,6 @@ public class Utils {
         Intent intent = new Intent(Intent.ACTION_VIEW);
 
         intent.setClass(context, cls);
-        intent.putExtra(Fixta.EVENT_BEGIN_TIME, time);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         context.startActivity(intent);
@@ -118,8 +117,8 @@ public class Utils {
     public static final long timeFromIntentInMillis(Intent intent) {
         // If the time was specified, then use that.  Otherwise, use the current time.
         Uri data = intent.getData();
-        long millis = intent.getLongExtra(Fixta.EVENT_BEGIN_TIME, -1);
-        if (millis == -1 && data != null && data.isHierarchical()) {
+        long millis = 0;
+        if (data != null && data.isHierarchical()) {
             List<String> path = data.getPathSegments();
             if(path.size() == 2 && path.get(0).equals("time")) {
                 try {

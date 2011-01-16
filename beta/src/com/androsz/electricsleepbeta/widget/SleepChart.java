@@ -91,8 +91,8 @@ public class SleepChart extends ChartView implements Serializable {
 			xyMultipleSeriesRenderer.setLegendTextSize(textSize);
 			xyMultipleSeriesRenderer.setShowLegend(true);
 			xyMultipleSeriesRenderer.setShowLabels(true);
-			xyMultipleSeriesRenderer.setXLabels(8);
-			xyMultipleSeriesRenderer.setYLabels(4);
+			xyMultipleSeriesRenderer.setXLabels(6);
+			xyMultipleSeriesRenderer.setYLabels(5);
 			xyMultipleSeriesRenderer.setShowGrid(true);
 			xyMultipleSeriesRenderer.setAxesColor(getResources().getColor(
 					R.color.text));

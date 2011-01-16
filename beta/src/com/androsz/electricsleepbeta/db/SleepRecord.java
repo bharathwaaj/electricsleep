@@ -38,7 +38,7 @@ public class SleepRecord {
 	public static final String KEY_SPIKES = "KEY_SLEEP_DATA_SPIKES";
 	public static final String KEY_TIME_FELL_ASLEEP = "KEY_SLEEP_DATA_TIME_FELL_ASLEEP";
 	public static final String KEY_NOTE = "KEY_SLEEP_DATA_NOTE";
-
+	
 	/**
 	 * Builds a map for all columns that may be requested, which will be given
 	 * to the SQLiteQueryBuilder. This is a good way to define aliases for

@@ -14,6 +14,7 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.os.PowerManager.WakeLock;
 
 public class CheckForScreenBugAccelerometerService extends Service implements
@@ -24,10 +25,8 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 			if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-				serviceHandler.postDelayed(setScreenIsOffRunnable, 3000);
-				serviceHandler.postDelayed(turnScreenOnFallbackRunnable, 12000);
-			} else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-				stopSelf();
+				serviceHandler.postDelayed(setScreenIsOffRunnable, 6666);
+				serviceHandler.postDelayed(turnScreenOnFallbackRunnable, 10000);
 			}
 		}
 	}
@@ -37,6 +36,10 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 	Runnable turnScreenOnFallbackRunnable = new Runnable() {
 		@Override
 		public void run() {
+			if (bugPresent) {
+				CheckForScreenBugActivity.BUG_PRESENT_INTENT = new Intent(
+						BUG_PRESENT);
+			}
 			turnScreenOn();
 		}
 	};
@@ -56,11 +59,13 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 
 	private WakeLock partialWakeLock;
 
-	private boolean bugPresent;
-	private boolean screenIsOff;
+	private boolean bugPresent = true;
+	private boolean screenIsOff = false;
+
+	private PowerManager powerManager;
 
 	private void obtainWakeLock() {
-		final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		partialWakeLock = powerManager.newWakeLock(
 				PowerManager.PARTIAL_WAKE_LOCK, LOCK_TAG);
 		partialWakeLock.acquire();
@@ -81,7 +86,7 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 	@Override
 	public int onStartCommand(final Intent intent, final int flags,
 			final int startId) {
-		if (intent != null && startId == 1) {
+		if (intent != null) {
 			bugPresent = true;
 			screenIsOff = false;
 			final IntentFilter filter = new IntentFilter(
@@ -97,15 +102,6 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 
 	@Override
 	public void onDestroy() {
-		if (bugPresent) {
-			CheckForScreenBugActivity.BUG_PRESENT_INTENT = new Intent(
-					BUG_PRESENT);
-		}
-		else
-		{
-			CheckForScreenBugActivity.BUG_PRESENT_INTENT = new Intent(
-					BUG_NOT_PRESENT);
-		}
 
 		unregisterAccelerometerListener();
 
@@ -123,10 +119,10 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 
 	@Override
 	public void onSensorChanged(final SensorEvent event) {
-		if (screenIsOff && bugPresent) {
-			bugPresent = false;
+		if (!powerManager.isScreenOn() && screenIsOff && bugPresent) {
+			CheckForScreenBugActivity.BUG_PRESENT_INTENT = new Intent(
+					BUG_NOT_PRESENT);
 			turnScreenOn();
-			stopSelf();
 		}
 	}
 
@@ -142,19 +138,20 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 		if (partialWakeLock != null && partialWakeLock.isHeld()) {
 			partialWakeLock.release();
 		}
-		final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		powerManager.userActivity(SystemClock.uptimeMillis() + 100, false);
+
 		final WakeLock wakeLock = powerManager.newWakeLock(
 				PowerManager.SCREEN_DIM_WAKE_LOCK
 						| PowerManager.ACQUIRE_CAUSES_WAKEUP
 						| PowerManager.ON_AFTER_RELEASE, LOCK_TAG
 						+ java.lang.Math.random());
-		//this should be long enough for the user to interact.
-		wakeLock.acquire(5000); 
+		// this should be long enough for the user to interact.
+		wakeLock.acquire(5000);
+		stopSelf();
 	}
 
 	private void unregisterAccelerometerListener() {
 		final SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		sensorManager.unregisterListener(this);
 	}
-
 }

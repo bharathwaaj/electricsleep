@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Debug;
+import android.provider.BaseColumns;
 //*import android.provider.Calendar.Attendees;
 //*import android.provider.Calendar.Events;
 //*import android.provider.Calendar.Instances;
@@ -36,6 +37,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.R.color;
 import com.androsz.electricsleepbeta.R.string;
+import com.androsz.electricsleepbeta.app.HistoryActivity;
+import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
+import com.androsz.electricsleepbeta.db.SleepRecord;
 
 // TODO: should Event be Parcelable so it can be passed via Intents?
 public class Event implements Comparable<Event>, Cloneable {
@@ -81,12 +85,7 @@ public class Event implements Comparable<Event>, Cloneable {
     private static final int PROJECTION_GUESTS_CAN_INVITE_OTHERS_INDEX = 18;
 
     public long id;
-    public int color;
     public CharSequence title;
-    public CharSequence location;
-    public boolean allDay;
-    public String organizer;
-    public boolean guestsCanModify;
 
     public int startDay;       // start Julian day
     public int endDay;         // end Julian day
@@ -98,23 +97,11 @@ public class Event implements Comparable<Event>, Cloneable {
     private int mColumn;
     private int mMaxColumns;
 
-    public boolean hasAlarm;
-    public boolean isRepeating;
-
-    public int selfAttendeeStatus;
-
     // The coordinates of the event rectangle drawn on the screen.
     public float left;
     public float right;
     public float top;
     public float bottom;
-
-    // These 4 fields are used for navigating among events within the selected
-    // hour in the Day and Week view.
-    public Event nextRight;
-    public Event nextLeft;
-    public Event nextUp;
-    public Event nextDown;
 
     @Override
     public final Object clone() throws CloneNotSupportedException {
@@ -122,20 +109,12 @@ public class Event implements Comparable<Event>, Cloneable {
         Event e = new Event();
 
         e.title = title;
-        e.color = color;
-        e.location = location;
-        e.allDay = allDay;
         e.startDay = startDay;
         e.endDay = endDay;
         e.startTime = startTime;
         e.endTime = endTime;
         e.startMillis = startMillis;
         e.endMillis = endMillis;
-        e.hasAlarm = hasAlarm;
-        e.isRepeating = isRepeating;
-        e.selfAttendeeStatus = selfAttendeeStatus;
-        e.organizer = organizer;
-        e.guestsCanModify = guestsCanModify;
 
         return e;
     }
@@ -143,20 +122,12 @@ public class Event implements Comparable<Event>, Cloneable {
     public final void copyTo(Event dest) {
         dest.id = id;
         dest.title = title;
-        dest.color = color;
-        dest.location = location;
-        dest.allDay = allDay;
         dest.startDay = startDay;
         dest.endDay = endDay;
         dest.startTime = startTime;
         dest.endTime = endTime;
         dest.startMillis = startMillis;
         dest.endMillis = endMillis;
-        dest.hasAlarm = hasAlarm;
-        dest.isRepeating = isRepeating;
-        dest.selfAttendeeStatus = selfAttendeeStatus;
-        dest.organizer = organizer;
-        dest.guestsCanModify = guestsCanModify;
     }
 
     public static final Event newInstance() {
@@ -164,18 +135,12 @@ public class Event implements Comparable<Event>, Cloneable {
 
         e.id = 0;
         e.title = null;
-        e.color = 0;
-        e.location = null;
-        e.allDay = false;
         e.startDay = 0;
         e.endDay = 0;
         e.startTime = 0;
         e.endTime = 0;
         e.startMillis = 0;
         e.endMillis = 0;
-        e.hasAlarm = false;
-        e.isRepeating = false;
-        e.selfAttendeeStatus = 0;//Attendees.ATTENDEE_STATUS_NONE;
 
         return e;
     }
@@ -198,13 +163,6 @@ public class Event implements Comparable<Event>, Cloneable {
         if (endTime < obj.endTime) return 1;
         if (endTime > obj.endTime) return -1;
 
-        // Sort all-day events before normal events.
-        if (allDay && !obj.allDay) return -1;
-        if (!allDay && obj.allDay) return 1;
-
-        if (guestsCanModify && !obj.guestsCanModify) return -1;
-        if (!guestsCanModify && obj.guestsCanModify) return 1;
-
         // If two events have the same time range, then sort them in
         // alphabetical order based on their titles.
         int cmp = compareStrings(title, obj.title);
@@ -212,18 +170,6 @@ public class Event implements Comparable<Event>, Cloneable {
             return cmp;
         }
 
-        // If the titles are the same then compare the other fields
-        // so that we can use this function to check for differences
-        // between events.
-        cmp = compareStrings(location, obj.location);
-        if (cmp != 0) {
-            return cmp;
-        }
-
-        cmp = compareStrings(organizer, obj.organizer);
-        if (cmp != 0) {
-            return cmp;
-        }
         return 0;
     }
 
@@ -291,11 +237,14 @@ public class Event implements Comparable<Event>, Cloneable {
             // required for correctness, it just adds a nice touch.
 
             String orderBy = "";//Instances.SORT_CALENDAR_VIEW;
-
+            SleepHistoryDatabase shdb = new SleepHistoryDatabase(context);
             //TODO: hook this into sleep db
-            c = null;//Instances.query(context.getContentResolver(), PROJECTION,
+            
+            c = shdb.getSleepMatches(context.getString(R.string.to), new String[] {
+						BaseColumns._ID, SleepRecord.KEY_TITLE });//Instances.query(context.getContentResolver(), PROJECTION,
                     //start - DateUtils.DAY_IN_MILLIS, end + DateUtils.DAY_IN_MILLIS, null, orderBy);
-
+             shdb.close();
+             
             if (c == null) {
                 Log.e("Cal", "loadEvents() returned null cursor!");
                 return;
@@ -319,20 +268,9 @@ public class Event implements Comparable<Event>, Cloneable {
 
                 e.id = c.getLong(PROJECTION_EVENT_ID_INDEX);
                 e.title = c.getString(PROJECTION_TITLE_INDEX);
-                e.location = c.getString(PROJECTION_LOCATION_INDEX);
-                e.allDay = c.getInt(PROJECTION_ALL_DAY_INDEX) != 0;
-                e.organizer = c.getString(PROJECTION_ORGANIZER_INDEX);
-                e.guestsCanModify = c.getInt(PROJECTION_GUESTS_CAN_INVITE_OTHERS_INDEX) != 0;
 
                 if (e.title == null || e.title.length() == 0) {
                     e.title = res.getString(R.string.no_title_label);
-                }
-
-                if (!c.isNull(PROJECTION_COLOR_INDEX)) {
-                    // Read the color from the database
-                    e.color = c.getInt(PROJECTION_COLOR_INDEX);
-                } else {
-                    e.color = res.getColor(R.color.event_center);
                 }
 
                 long eStart = c.getLong(PROJECTION_BEGIN_INDEX);
@@ -349,19 +287,6 @@ public class Event implements Comparable<Event>, Cloneable {
                 if (e.startDay > endDay || e.endDay < startDay) {
                     continue;
                 }
-
-                e.hasAlarm = c.getInt(PROJECTION_HAS_ALARM_INDEX) != 0;
-
-                // Check if this is a repeating event
-                String rrule = c.getString(PROJECTION_RRULE_INDEX);
-                String rdate = c.getString(PROJECTION_RDATE_INDEX);
-                if (!TextUtils.isEmpty(rrule) || !TextUtils.isEmpty(rdate)) {
-                    e.isRepeating = true;
-                } else {
-                    e.isRepeating = false;
-                }
-
-                e.selfAttendeeStatus = c.getInt(PROJECTION_SELF_ATTENDEE_STATUS_INDEX);
 
                 events.add(e);
             }
@@ -407,19 +332,9 @@ public class Event implements Comparable<Event>, Cloneable {
         long colMask = 0;
         int maxCols = 0;
         for (Event event : eventsList) {
-            // Process all-day events separately
-            if (event.allDay != doAllDayEvents)
-                continue;
 
             long start = event.getStartMillis();
-            if (false && event.allDay) {
-                Event e = event;
-                Log.i("Cal", "event start,end day: " + e.startDay + "," + e.endDay
-                        + " start,end time: " + e.startTime + "," + e.endTime
-                        + " start,end millis: " + e.getStartMillis() + "," + e.getEndMillis()
-                        + " "  + e.title);
-            }
-
+            
             // Remove the inactive events. An event on the active list
             // becomes inactive when its end time is less than or equal to
             // the current event's start time.
@@ -427,13 +342,6 @@ public class Event implements Comparable<Event>, Cloneable {
             while (iter.hasNext()) {
                 Event active = iter.next();
                 if (active.getEndMillis() <= start) {
-                    if (false && event.allDay) {
-                        Event e = active;
-                        Log.i("Cal", "  removing: start,end day: " + e.startDay + "," + e.endDay
-                                + " start,end time: " + e.startTime + "," + e.endTime
-                                + " start,end millis: " + e.getStartMillis() + "," + e.getEndMillis()
-                                + " "  + e.title);
-                    }
                     colMask &= ~(1L << active.getColumn());
                     iter.remove();
                 }
@@ -479,16 +387,11 @@ public class Event implements Comparable<Event>, Cloneable {
     public final void dump() {
         Log.e("Cal", "+-----------------------------------------+");
         Log.e("Cal", "+        id = " + id);
-        Log.e("Cal", "+     color = " + color);
         Log.e("Cal", "+     title = " + title);
-        Log.e("Cal", "+  location = " + location);
-        Log.e("Cal", "+    allDay = " + allDay);
         Log.e("Cal", "+  startDay = " + startDay);
         Log.e("Cal", "+    endDay = " + endDay);
         Log.e("Cal", "+ startTime = " + startTime);
         Log.e("Cal", "+   endTime = " + endTime);
-        Log.e("Cal", "+ organizer = " + organizer);
-        Log.e("Cal", "+  guestwrt = " + guestsCanModify);
     }
 
     public final boolean intersects(int julianDay, int startMinute,
@@ -531,15 +434,6 @@ public class Event implements Comparable<Event>, Cloneable {
     public String getTitleAndLocation() {
         String text = title.toString();
 
-        // Append the location to the title, unless the title ends with the
-        // location (for example, "meeting in building 42" ends with the
-        // location).
-        if (location != null) {
-            String locationString = location.toString();
-            if (!text.endsWith(locationString)) {
-                text += ", " + locationString;
-            }
-        }
         return text;
     }
 

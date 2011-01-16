@@ -4,7 +4,7 @@
 	<color name="text">#ffffffff</color>
 	<color name="text_alt">#ffA4C639</color>
 	<color name="titlebar_separator">#ffffffff</color>
-	<color name="secondary1">#ff333333</color><!-- ff30587c ff97c03d -->
+	<color name="secondary1">#ff303030</color><!-- ff30587c ff97c03d -->
 	<color name="secondary2">#ff000000</color>
 	<color name="secondary3">#ff202020</color>
 	<color name="primary1">#ffA4C639</color>

@@ -44,7 +44,7 @@ public class AlarmKlaxon extends Service {
 	/** Play alarm up to 10 minutes before silencing */
 	private static final int ALARM_TIMEOUT_SECONDS = 10 * 60;
 
-	private static final long[] sVibratePattern = new long[] { 500, 500 };
+	private static final long[] sVibratePattern = new long[] { (long) (java.lang.Math.random()* 500), (long) (java.lang.Math.random()* 500) };
 
 	private boolean mPlaying = false;
 	private Vibrator mVibrator;
@@ -205,7 +205,7 @@ public class AlarmKlaxon extends Service {
 					Log.v("Using the in-call alarm");
 					mMediaPlayer.setVolume(IN_CALL_VOLUME, IN_CALL_VOLUME);
 					setDataSourceFromResource(getResources(), mMediaPlayer,
-							R.raw.in_call_alarm);
+							R.raw.fallbackring);
 				} else {
 					mMediaPlayer.setDataSource(this, alert);
 				}

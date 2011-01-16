@@ -59,10 +59,6 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity {
 		protected void onPreExecute() {
 			startActivityForResult(new Intent(CalibrationWizardActivity.this,
 					CheckForScreenBugActivity.class), R.id.screenTest);
-			final Intent i = new Intent(CalibrationWizardActivity.this,
-					CheckForScreenBugAccelerometerService.class);
-			stopService(i);
-			startService(i);
 		}
 	}
 

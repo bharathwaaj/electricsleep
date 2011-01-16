@@ -117,8 +117,7 @@ public class MonthActivity extends CustomTitlebarActivity implements ViewSwitche
         now.second = 0;
         now.normalize(false);
 
-        //TextView title = (TextView) findViewById(R.id.title);
-        this.setTitle(Utils.formatMonthYear(this, now));
+        setTitle(Utils.formatMonthYear(this, now));
         mTime = now;
 
         MonthView view = (MonthView) mSwitcher.getCurrentView();
@@ -196,13 +195,9 @@ public class MonthActivity extends CustomTitlebarActivity implements ViewSwitche
 
         mContentResolver = getContentResolver();
 
-        long time;
-        if (icicle != null) {
-            time = icicle.getLong(Fixta.EVENT_BEGIN_TIME);
-        } else {
-            time = Utils.timeFromIntentInMillis(getIntent());
-        }
-
+        long time = Utils.timeFromIntentInMillis(getIntent());
+        
+        
         mTime = new Time();
         mTime.set(time);
         mTime.normalize(true);
@@ -225,10 +220,9 @@ public class MonthActivity extends CustomTitlebarActivity implements ViewSwitche
                 label.setTextColor(saturdayColor);
             }
         }
+        
+    	setTitle(Utils.formatMonthYear(this, mTime));
 
-        // Set the initial title
-        //TextView title = (TextView) findViewById(R.id.title);
-        setTitle(Utils.formatMonthYear(this, mTime));
 
         mEventLoader = new EventLoader(this);
 

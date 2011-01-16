@@ -16,11 +16,11 @@
 		android:layout_height="wrap_content" android:layout_below="@+id/save_sleep_rating_bar"
 		android:id="@+id/save_sleep_note_txt" android:text="@string/note_title"></TextView>
 	<EditText android:layout_below="@+id/save_sleep_note_txt"
-		android:layout_height="wrap_content" android:layout_width="fill_parent"
-		android:id="@+id/save_sleep_note_edit"></EditText>
+		android:layout_width="fill_parent"
+		android:id="@+id/save_sleep_note_edit" android:inputType="textShortMessage" android:layout_height="wrap_content"></EditText>
 	<Button android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true" android:id="@+id/save_sleep_btn_save"
-		android:layout_toLeftOf="@+id/save_sleep_btn_discard" android:text="@string/save"
+		android:text="@string/save"
 		android:onClick="onSaveClick" android:drawableLeft="@android:drawable/ic_menu_save"
 		android:layout_width="wrap_content"></Button>
 	<Button android:layout_height="wrap_content"

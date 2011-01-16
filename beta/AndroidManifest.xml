@@ -157,5 +157,5 @@
 	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
+	
 </manifest> 
