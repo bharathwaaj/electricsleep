@@ -319,13 +319,10 @@ public class Event implements Comparable<Event>, Cloneable {
         if (eventsList == null)
             return;
 
-        // Compute the column positions separately for the all-day events
-        doComputePositions(eventsList, false);
-        doComputePositions(eventsList, true);
+        doComputePositions(eventsList);
     }
 
-    private static void doComputePositions(ArrayList<Event> eventsList,
-            boolean doAllDayEvents) {
+    private static void doComputePositions(ArrayList<Event> eventsList) {
         ArrayList<Event> activeList = new ArrayList<Event>();
         ArrayList<Event> groupList = new ArrayList<Event>();
 

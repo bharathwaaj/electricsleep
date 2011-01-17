@@ -51,12 +51,6 @@ public class CheckForScreenBugActivity extends CalibrateForResultActivity {
 		setContentView(R.layout.activity_check_for_screen_bug);
 	}
 	
-	@Override
-	public void onDestroy()
-	{
-		BUG_PRESENT_INTENT = null;
-		super.onDestroy();
-	}
 
 	@Override
 	public void onResume() {
@@ -64,6 +58,7 @@ public class CheckForScreenBugActivity extends CalibrateForResultActivity {
 
 		final Intent i = new Intent(this,
 				CheckForScreenBugAccelerometerService.class);
+		stopService(i);
 		//this replaces the need for broadcast receivers.
 		//the service updates BUG_PRESENT_INTENT, THEN our activity is alerted.
 		if(BUG_PRESENT_INTENT != null)
@@ -73,11 +68,9 @@ public class CheckForScreenBugActivity extends CalibrateForResultActivity {
 							BUG_PRESENT_INTENT));
 			BUG_PRESENT_INTENT = null;
 			finish();
-			stopService(i);
 		}
 		else
 		{
-			stopService(i);
 			startService(i);
 		}
 	}
