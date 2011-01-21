@@ -145,6 +145,7 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 						| PowerManager.ACQUIRE_CAUSES_WAKEUP
 						| PowerManager.ON_AFTER_RELEASE, LOCK_TAG
 						+ java.lang.Math.random());
+		wakeLock.setReferenceCounted(false);
 		// this should be long enough for the user to interact.
 		wakeLock.acquire(5000);
 		stopSelf();

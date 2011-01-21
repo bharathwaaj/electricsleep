@@ -268,6 +268,7 @@ public class AlarmKlaxon extends Service {
 		if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
 			player.setAudioStreamType(AudioManager.STREAM_ALARM);
 			player.setLooping(true);
+			//TODO: prepareAsync should be used here.
 			player.prepare();
 			player.start();
 		}

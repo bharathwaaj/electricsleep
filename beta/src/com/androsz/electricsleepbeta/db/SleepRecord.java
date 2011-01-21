@@ -6,20 +6,27 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import android.app.SearchManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
+import android.text.format.Time;
+import android.util.Log;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.util.PointD;
+import com.androsz.electricsleepbeta.widget.calendar.Event;
 
 public class SleepRecord {
 
@@ -38,7 +45,7 @@ public class SleepRecord {
 	public static final String KEY_SPIKES = "KEY_SLEEP_DATA_SPIKES";
 	public static final String KEY_TIME_FELL_ASLEEP = "KEY_SLEEP_DATA_TIME_FELL_ASLEEP";
 	public static final String KEY_NOTE = "KEY_SLEEP_DATA_NOTE";
-	
+
 	/**
 	 * Builds a map for all columns that may be requested, which will be given
 	 * to the SQLiteQueryBuilder. This is a good way to define aliases for
@@ -67,6 +74,194 @@ public class SleepRecord {
 		return map;
 	}
 
+	/**
+	 * Loads <i>days</i> days worth of instances starting at <i>start</i>.
+	 */
+	public static void loadEvents(Context context,
+			ArrayList<SleepRecord> events, long start, int days, int requestId,
+			AtomicInteger sequenceNumber) {
+
+		Cursor c = null;
+
+		events.clear();
+		try {
+			Time local = new Time();
+			int count;
+
+			local.set(start);
+			int startDay = Time.getJulianDay(start, local.gmtoff);
+			int endDay = startDay + days;
+
+			local.monthDay += days;
+			long end = local.normalize(true /* ignore isDst */);
+
+			// Widen the time range that we query by one day on each end
+			// so that we can catch all-day events. All-day events are
+			// stored starting at midnight in UTC but should be included
+			// in the list of events starting at midnight local time.
+			// This may fetch more events than we actually want, so we
+			// filter them out below.
+			//
+			// The sort order is: events with an earlier start time occur
+			// first and if the start times are the same, then events with
+			// a later end time occur first. The later end time is ordered
+			// first so that long rectangles in the calendar views appear on
+			// the left side. If the start and end times of two events are
+			// the same then we sort alphabetically on the title. This isn't
+			// required for correctness, it just adds a nice touch.
+
+			// String orderBy = "";//Instances.SORT_CALENDAR_VIEW;
+			SleepHistoryDatabase shdb = new SleepHistoryDatabase(context);
+			// TODO: hook this into sleep db
+
+			c = shdb.getSleepMatches(context.getString(R.string.to),
+					new String[] { BaseColumns._ID, SleepRecord.KEY_TITLE,
+							SleepRecord.KEY_ALARM, SleepRecord.KEY_DURATION,
+							SleepRecord.KEY_MIN, SleepRecord.KEY_NOTE,
+							SleepRecord.KEY_RATING, SleepRecord.KEY_SLEEP_DATA,
+							SleepRecord.KEY_SPIKES, SleepRecord.KEY_SLEEP_DATA,
+							SleepRecord.KEY_TIME_FELL_ASLEEP });
+
+			shdb.close();
+
+			if (c == null) {
+				Log.e("Cal", "loadEvents() returned null cursor!");
+				return;
+			}
+
+			// Check if we should return early because there are more recent
+			// load requests waiting.
+			if (requestId != sequenceNumber.get()) {
+				return;
+			}
+
+			count = c.getCount();
+
+			if (count == 0) {
+				return;
+			}
+
+			Resources res = context.getResources();
+			while (c.moveToNext()) {
+				SleepRecord s = new SleepRecord(c);
+				long startTime = s.getStartTime();
+				if (startTime > start && startTime < end) {
+					events.add(s);
+				}
+			}
+
+			computePositions(events);
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+	}
+
+	// The coordinates of the event rectangle drawn on the screen.
+	public float left;
+	public float right;
+	public float top;
+	public float bottom;
+
+	/**
+	 * Computes a position for each event. Each event is displayed as a
+	 * non-overlapping rectangle. For normal events, these rectangles are
+	 * displayed in separate columns in the week view and day view. For all-day
+	 * events, these rectangles are displayed in separate rows along the top. In
+	 * both cases, each event is assigned two numbers: N, and Max, that specify
+	 * that this event is the Nth event of Max number of events that are
+	 * displayed in a group. The width and position of each rectangle depend on
+	 * the maximum number of rectangles that occur at the same time.
+	 * 
+	 * @param eventsList
+	 *            the list of events, sorted into increasing time order
+	 */
+	static void computePositions(ArrayList<SleepRecord> eventsList) {
+		if (eventsList == null)
+			return;
+
+		doComputePositions(eventsList);
+	}
+
+	private static void doComputePositions(ArrayList<SleepRecord> eventsList) {
+		ArrayList<SleepRecord> activeList = new ArrayList<SleepRecord>();
+		ArrayList<SleepRecord> groupList = new ArrayList<SleepRecord>();
+
+		long colMask = 0;
+		int maxCols = 0;
+		for (SleepRecord record : eventsList) {
+
+			//long start = record.getStartTime();
+
+			// Remove the inactive events. An event on the active list
+			// becomes inactive when its end time is less than or equal to
+			// the current event's start time.
+			/*Iterator<SleepRecord> iter = activeList.iterator();
+			while (iter.hasNext()) {
+				SleepRecord active = iter.next();
+				if (active.getEndTime() <= start) {
+					colMask &= ~(1L << active.getColumn());
+					iter.remove();
+				}
+			}*/
+
+			// If the active list is empty, then reset the max columns, clear
+			// the column bit mask, and empty the groupList.
+			if (activeList.isEmpty()) {
+				for (SleepRecord ev : groupList) {
+					ev.setMaxColumns(maxCols);
+				}
+				maxCols = 0;
+				colMask = 0;
+				groupList.clear();
+			}
+
+			// Find the first empty column. Empty columns are represented by
+			// zero bits in the column mask "colMask".
+			int col = findFirstZeroBit(colMask);
+			if (col == 64)
+				col = 63;
+			colMask |= (1L << col);
+			record.setColumn(col);
+			activeList.add(record);
+			groupList.add(record);
+			int len = activeList.size();
+			if (maxCols < len)
+				maxCols = len;
+		}
+		for (SleepRecord ev : groupList) {
+			ev.setMaxColumns(maxCols);
+		}
+	}
+
+	public static int findFirstZeroBit(long val) {
+		for (int ii = 0; ii < 64; ++ii) {
+			if ((val & (1L << ii)) == 0)
+				return ii;
+		}
+		return 64;
+	}
+
+	private int mColumn;
+	private int mMaxColumns;
+
+	public void setColumn(int column) {
+		mColumn = column;
+	}
+
+	public int getColumn() {
+		return mColumn;
+	}
+
+	public void setMaxColumns(int maxColumns) {
+		mMaxColumns = maxColumns;
+	}
+
+	public int getMaxColumns() {
+		return mMaxColumns;
+	}
+
 	public static Object byteArrayToObject(final byte[] bytes)
 			throws StreamCorruptedException, IOException,
 			ClassNotFoundException {
@@ -87,7 +282,7 @@ public class SleepRecord {
 	}
 
 	public final String title;
-	public final List<PointD> chartData;
+	public List<PointD> chartData;
 	public final double min;
 	public final double alarm;
 	public final int rating;
@@ -98,13 +293,26 @@ public class SleepRecord {
 	public final String note;
 
 	@SuppressWarnings("unchecked")
-	public SleepRecord(final Cursor cursor) throws StreamCorruptedException,
-			IllegalArgumentException, IOException, ClassNotFoundException {
+	public SleepRecord(final Cursor cursor) {
 
 		title = cursor.getString(cursor.getColumnIndexOrThrow(KEY_TITLE));
-
-		chartData = (List<PointD>) byteArrayToObject(cursor.getBlob(cursor
-				.getColumnIndexOrThrow(KEY_SLEEP_DATA)));
+		chartData = null;
+		try {
+			chartData = (List<PointD>) byteArrayToObject(cursor.getBlob(cursor
+					.getColumnIndexOrThrow(KEY_SLEEP_DATA)));
+		} catch (StreamCorruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		min = cursor.getDouble(cursor.getColumnIndexOrThrow(KEY_MIN));
 		alarm = cursor.getDouble(cursor.getColumnIndexOrThrow(KEY_ALARM));
@@ -172,6 +380,36 @@ public class SleepRecord {
 
 	public long getStartTime() {
 		return Math.round(chartData.get(0).x);
+	}
+	
+	public int getStartTimeOfDay()
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(getStartTime());
+		return cal.get(Calendar.MINUTE) + (cal.get(Calendar.HOUR_OF_DAY)*60);
+	}
+	
+	public int getStartJulianDay()
+	{
+        Time local = new Time();
+		return Time.getJulianDay(getStartTime(), local.gmtoff);
+	}
+
+	public long getEndTime() {
+		return Math.round(chartData.get(chartData.size() - 1).x);
+	}
+	
+	public int getEndTimeOfDay()
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(getEndTime());
+		return cal.get(Calendar.MINUTE) + (cal.get(Calendar.HOUR_OF_DAY)*60);
+	}
+
+	public int getEndJulianDay()
+	{
+        Time local = new Time();
+		return Time.getJulianDay(getEndTime(), local.gmtoff);
 	}
 
 	private Calendar getTimeDiffCalendar(final long time) {

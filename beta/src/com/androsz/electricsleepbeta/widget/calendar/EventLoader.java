@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.androsz.electricsleepbeta.db.SleepRecord;
 import com.androsz.electricsleepbeta.widget.calendar.Event;
 
 public class EventLoader {
@@ -117,11 +118,11 @@ public class EventLoader {
         public int id;
         public long startMillis;
         public int numDays;
-        public ArrayList<Event> events;
+        public ArrayList<SleepRecord> events;
         public Runnable successCallback;
         public Runnable cancelCallback;
 
-        public LoadEventsRequest(int id, long startMillis, int numDays, ArrayList<Event> events,
+        public LoadEventsRequest(int id, long startMillis, int numDays, ArrayList<SleepRecord> events,
                 final Runnable successCallback, final Runnable cancelCallback) {
             this.id = id;
             this.startMillis = startMillis;
@@ -132,7 +133,7 @@ public class EventLoader {
         }
 
         public void processRequest(EventLoader eventLoader) {
-            Event.loadEvents(eventLoader.mContext, events, startMillis,
+            SleepRecord.loadEvents(eventLoader.mContext, events, startMillis,
                     numDays, id, eventLoader.mSequenceNumber);
 
             // Check if we are still the most recent request.
@@ -227,7 +228,7 @@ public class EventLoader {
      * created are used, and the most recent call's worth of data is loaded into events and posted
      * via the uiCallback.
      */
-    void loadEventsInBackground(final int numDays, final ArrayList<Event> events,
+    void loadEventsInBackground(final int numDays, final ArrayList<SleepRecord> events,
             long start, final Runnable successCallback, final Runnable cancelCallback) {
 
         // Increment the sequence number for requests.  We don't care if the

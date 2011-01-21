@@ -16,6 +16,7 @@
 
 package com.androsz.electricsleepbeta.widget.calendar;
 
+import com.androsz.electricsleepbeta.db.SleepRecord;
 import com.androsz.electricsleepbeta.widget.calendar.Event;
 
 import android.graphics.Rect;
@@ -49,18 +50,18 @@ public class EventGeometry {
 
     // Computes the rectangle coordinates of the given event on the screen.
     // Returns true if the rectangle is visible on the screen.
-    boolean computeEventRect(int date, int left, int top, int cellWidth, Event event) {
+    boolean computeEventRect(int date, int left, int top, int cellWidth, SleepRecord event) {
 
         float cellMinuteHeight = mMinuteHeight;
-        int startDay = event.startDay;
-        int endDay = event.endDay;
+        int startDay = event.getStartJulianDay();
+        int endDay = event.getEndJulianDay();
 
         if (startDay > date || endDay < date) {
             return false;
         }
 
-        int startTime = event.startTime;
-        int endTime = event.endTime;
+        long startTime = event.getStartTimeOfDay();
+        long endTime = event.getEndTimeOfDay();
 
         // If the event started on a previous day, then show it starting
         // at the beginning of this day.
@@ -76,8 +77,8 @@ public class EventGeometry {
 
         int col = event.getColumn();
         int maxCols = event.getMaxColumns();
-        int startHour = startTime / 60;
-        int endHour = endTime / 60;
+        int startHour = (int) (startTime / 60);
+        int endHour = (int) (endTime / 60);
 
         // If the end point aligns on a cell boundary then count it as
         // ending in the previous cell so that we don't cross the border

@@ -30,6 +30,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
@@ -54,6 +55,8 @@ import java.util.Calendar;
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.R.color;
 import com.androsz.electricsleepbeta.app.ReviewSleepActivity;
+import com.androsz.electricsleepbeta.db.SleepContentProvider;
+import com.androsz.electricsleepbeta.db.SleepRecord;
 
 public class MonthView extends View {
 
@@ -72,7 +75,7 @@ public class MonthView extends View {
 	private static int EVENT_DOT_W_H = 10;
 	private static int EVENT_NUM_DAYS = 31;
 	private static int TEXT_TOP_MARGIN = 7;
-	private static int BUSY_BITS_WIDTH = 6;
+	private static int BUSY_BITS_WIDTH = 8;
 	private static int BUSY_BITS_MARGIN = 4;
 	private static int DAY_NUMBER_OFFSET = 10;
 
@@ -159,7 +162,7 @@ public class MonthView extends View {
 
 	private final EventLoader mEventLoader;
 
-	private ArrayList<Event> mEvents = new ArrayList<Event>();
+	private ArrayList<SleepRecord> mEvents = new ArrayList<SleepRecord>();
 
 	private Drawable mTodayBackground;
 
@@ -381,8 +384,32 @@ public class MonthView extends View {
 							int x = (int) e.getX();
 							int y = (int) e.getY();
 							long millis = getSelectedMillisFor(x, y);
-							Utils.startActivity(getContext(),
-									ReviewSleepActivity.class, millis);
+							Time t = new Time();
+							t.set(millis);
+							ArrayList<SleepRecord> applicableEvents = new ArrayList<SleepRecord>();
+							final long ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
+							for (SleepRecord event : mEvents) {
+								long startTime = event.getStartTime() - millis;
+								long endTime = event.getEndTime() - millis;
+								// boolean one = (startTime <= 0 &&);
+								// boolean two = (startTime >= 0 && endTime >=
+								// 0);
+								// boolean three = startTime <= ONE_DAY_IN_MS;
+								if ((endTime > 0)
+										&& ((startTime <= ONE_DAY_IN_MS && startTime > 0) || startTime < 0)) {
+									applicableEvents.add(event);
+								}
+							}
+							/*final Intent reviewSleepIntent = new Intent(
+									getContext(),
+									ReviewSleepActivity.class);
+							final Uri data = Uri.withAppendedPath(
+									SleepContentProvider.CONTENT_URI,
+									String.valueOf(applicableEvents.get(0).));
+							reviewSleepIntent.setData(data);
+							startActivity(reviewSleepIntent);
+							 Utils.startActivity(getContext(),
+							 ReviewSleepActivity.class, millis);*/
 						}
 
 						return true;
@@ -403,7 +430,7 @@ public class MonthView extends View {
 		// Load the days with events in the background
 		mParentActivity.showProgress();
 
-		final ArrayList<Event> events = new ArrayList<Event>();
+		final ArrayList<SleepRecord> events = new ArrayList<SleepRecord>();
 		mEventLoader.loadEventsInBackground(EVENT_NUM_DAYS, events, millis,
 				new Runnable() {
 					public void run() {
@@ -419,9 +446,11 @@ public class MonthView extends View {
 
 						// Compute the new set of days with events
 						for (int i = 0; i < numEvents; i++) {
-							Event event = events.get(i);
-							int startDay = event.startDay - mFirstJulianDay;
-							int endDay = event.endDay - mFirstJulianDay + 1;
+							SleepRecord event = events.get(i);
+							int startDay = event.getStartJulianDay()
+									- mFirstJulianDay;
+							int endDay = event.getEndJulianDay()
+									- mFirstJulianDay + 1;
 							if (startDay < 31 || endDay >= 0) {
 								if (startDay < 0) {
 									startDay = 0;
@@ -553,6 +582,7 @@ public class MonthView extends View {
 		DayOfMonthCursor c = mCursor;
 		Time time = mTempTime;
 		time.set(mViewCalendar);
+		time.set(0, 0, 0, time.monthDay, time.month, time.year);
 
 		// Compute the day number from the row and column. If the row and
 		// column are in a different month from the current one, then the
@@ -788,7 +818,7 @@ public class MonthView extends View {
 		int top = rect.top + TEXT_TOP_MARGIN + BUSY_BITS_MARGIN;
 		int left = rect.right - BUSY_BITS_MARGIN - BUSY_BITS_WIDTH;
 
-		ArrayList<Event> events = mEvents;
+		ArrayList<SleepRecord> events = mEvents;
 		int numEvents = events.size();
 		EventGeometry geometry = mEventGeometry;
 
@@ -799,13 +829,13 @@ public class MonthView extends View {
 			rf.bottom = rect.bottom - BUSY_BITS_MARGIN;
 			rf.top = top;
 
-			p.setColor(R.color.primary1);
+			p.setColor(this.mMonthOtherMonthColor);
 			p.setStyle(Style.FILL);
 			canvas.drawRect(rf, p);
 		}
 
 		for (int i = 0; i < numEvents; i++) {
-			Event event = events.get(i);
+			SleepRecord event = events.get(i);
 			if (!geometry.computeEventRect(date, left, top, BUSY_BITS_WIDTH,
 					event)) {
 				continue;
@@ -816,7 +846,8 @@ public class MonthView extends View {
 	}
 
 	// Draw busybits for a single event
-	private RectF drawEventRect(Rect rect, Event event, Canvas canvas, Paint p) {
+	private RectF drawEventRect(Rect rect, SleepRecord event, Canvas canvas,
+			Paint p) {
 
 		p.setColor(mBusybitsColor);
 
@@ -949,7 +980,7 @@ public class MonthView extends View {
 		}
 
 		getHandler().removeCallbacks(mDismissPopup);
-		ArrayList<Event> events = mEvents;
+		ArrayList<SleepRecord> events = mEvents;
 		int numEvents = events.size();
 		if (numEvents == 0) {
 			mPopup.dismiss();
@@ -958,9 +989,10 @@ public class MonthView extends View {
 
 		int eventIndex = 0;
 		for (int i = 0; i < numEvents; i++) {
-			Event event = events.get(i);
+			SleepRecord event = events.get(i);
 
-			if (event.startDay > date || event.endDay < date) {
+			if (event.getStartJulianDay() > date
+					|| event.getEndJulianDay() < date) {
 				continue;
 			}
 
@@ -983,10 +1015,10 @@ public class MonthView extends View {
 			String timeRange;
 			if (showEndTime) {
 				timeRange = DateUtils.formatDateRange(mParentActivity,
-						event.startMillis, event.endMillis, flags);
+						event.getStartTime(), event.getEndTime(), flags);
 			} else {
 				timeRange = DateUtils.formatDateRange(mParentActivity,
-						event.startMillis, event.startMillis, flags);
+						event.getStartTime(), event.getStartTime(), flags);
 			}
 
 			TextView timeView = null;
@@ -1164,9 +1196,7 @@ public class MonthView extends View {
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_ENTER:
 			long millis = getSelectedTimeInMillis();
-			Utils
-					.startActivity(getContext(), ReviewSleepActivity.class,
-							millis);
+			Utils.startActivity(getContext(), ReviewSleepActivity.class, millis);
 			return true;
 		case KeyEvent.KEYCODE_DPAD_UP:
 			if (mCursor.up()) {

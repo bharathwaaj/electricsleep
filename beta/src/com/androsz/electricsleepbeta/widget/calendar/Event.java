@@ -44,26 +44,6 @@ import com.androsz.electricsleepbeta.db.SleepRecord;
 // TODO: should Event be Parcelable so it can be passed via Intents?
 public class Event implements Comparable<Event>, Cloneable {
 
-    private static final boolean PROFILE = false;
-
-    private static final String[] PROJECTION = new String[] {
-            /*Instances.TITLE,                 // 0
-            Instances.EVENT_LOCATION,        // 1
-            Instances.ALL_DAY,               // 2
-            Instances.COLOR,                 // 3
-            Instances.EVENT_TIMEZONE,        // 4
-            Instances.EVENT_ID,              // 5
-            Instances.BEGIN,                 // 6
-            Instances.END,                   // 7
-            Instances._ID,                   // 8
-            Instances.START_DAY,             // 9
-            Instances.END_DAY,               // 10
-            Instances.START_MINUTE,          // 11
-            Instances.END_MINUTE,            // 12
-            Instances.RRULE,                 // 14
-            Instances.RDATE,                 // 15*/
-    };
-
     // The indices for the projection array above.
     private static final int PROJECTION_TITLE_INDEX = 0;
     private static final int PROJECTION_LOCATION_INDEX = 1;
@@ -84,7 +64,6 @@ public class Event implements Comparable<Event>, Cloneable {
     private static final int PROJECTION_ORGANIZER_INDEX = 17;
     private static final int PROJECTION_GUESTS_CAN_INVITE_OTHERS_INDEX = 18;
 
-    public long id;
     public CharSequence title;
 
     public int startDay;       // start Julian day
@@ -120,7 +99,6 @@ public class Event implements Comparable<Event>, Cloneable {
     }
 
     public final void copyTo(Event dest) {
-        dest.id = id;
         dest.title = title;
         dest.startDay = startDay;
         dest.endDay = endDay;
@@ -133,7 +111,6 @@ public class Event implements Comparable<Event>, Cloneable {
     public static final Event newInstance() {
         Event e = new Event();
 
-        e.id = 0;
         e.title = null;
         e.startDay = 0;
         e.endDay = 0;
@@ -203,10 +180,6 @@ public class Event implements Comparable<Event>, Cloneable {
     public static void loadEvents(Context context, ArrayList<Event> events,
             long start, int days, int requestId, AtomicInteger sequenceNumber) {
 
-        if (PROFILE) {
-            Debug.startMethodTracing("loadEvents");
-        }
-
         Cursor c = null;
 
         events.clear();
@@ -236,13 +209,13 @@ public class Event implements Comparable<Event>, Cloneable {
             // the same then we sort alphabetically on the title.  This isn't
             // required for correctness, it just adds a nice touch.
 
-            String orderBy = "";//Instances.SORT_CALENDAR_VIEW;
+            //String orderBy = "";//Instances.SORT_CALENDAR_VIEW;
             SleepHistoryDatabase shdb = new SleepHistoryDatabase(context);
             //TODO: hook this into sleep db
             
             c = shdb.getSleepMatches(context.getString(R.string.to), new String[] {
-						BaseColumns._ID, SleepRecord.KEY_TITLE });//Instances.query(context.getContentResolver(), PROJECTION,
-                    //start - DateUtils.DAY_IN_MILLIS, end + DateUtils.DAY_IN_MILLIS, null, orderBy);
+						BaseColumns._ID, SleepRecord.KEY_TITLE });
+            
              shdb.close();
              
             if (c == null) {
@@ -265,13 +238,8 @@ public class Event implements Comparable<Event>, Cloneable {
             Resources res = context.getResources();
             while (c.moveToNext()) {
                 Event e = new Event();
-
-                e.id = c.getLong(PROJECTION_EVENT_ID_INDEX);
-                e.title = c.getString(PROJECTION_TITLE_INDEX);
-
-                if (e.title == null || e.title.length() == 0) {
-                    e.title = res.getString(R.string.no_title_label);
-                }
+                
+                e.title = c.getString(c.getColumnIndexOrThrow(SleepRecord.KEY_TITLE));
 
                 long eStart = c.getLong(PROJECTION_BEGIN_INDEX);
                 long eEnd = c.getLong(PROJECTION_END_INDEX);
@@ -295,9 +263,6 @@ public class Event implements Comparable<Event>, Cloneable {
         } finally {
             if (c != null) {
                 c.close();
-            }
-            if (PROFILE) {
-                Debug.stopMethodTracing();
             }
         }
     }
@@ -379,16 +344,6 @@ public class Event implements Comparable<Event>, Cloneable {
                 return ii;
         }
         return 64;
-    }
-
-    public final void dump() {
-        Log.e("Cal", "+-----------------------------------------+");
-        Log.e("Cal", "+        id = " + id);
-        Log.e("Cal", "+     title = " + title);
-        Log.e("Cal", "+  startDay = " + startDay);
-        Log.e("Cal", "+    endDay = " + endDay);
-        Log.e("Cal", "+ startTime = " + startTime);
-        Log.e("Cal", "+   endTime = " + endTime);
     }
 
     public final boolean intersects(int julianDay, int startMinute,
