@@ -31,6 +31,8 @@ import com.androsz.electricsleepbeta.widget.SleepHistoryCursorAdapter;
 
 public class HistoryActivity extends CustomTitlebarTabActivity {
 
+	public static final String SEARCH_FOR = "searchFor";
+
 	private class DeleteSleepTask extends AsyncTask<Long, Void, Void> {
 
 		@Override
@@ -67,10 +69,11 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 
 		@Override
 		protected Void doInBackground(final Void... params) {
-
+			if (searchFor == null) {
+				searchFor = getString(R.string.to);
+			}
 			cursor = managedQuery(SleepContentProvider.CONTENT_URI, null, null,
-					new String[] { getString(R.string.to) },
-					SleepRecord.KEY_TITLE);
+					new String[] { searchFor }, SleepRecord.KEY_TITLE);
 			return null;
 		}
 
@@ -217,6 +220,8 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 		return R.layout.activity_history;
 	}
 
+	String searchFor = null;
+
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -273,6 +278,12 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 			startActivity(reviewIntent);
 			finish();
 		} else {
+			// set searchFor parameter if it exists
+			searchFor = intent.getStringExtra(SEARCH_FOR);
+			if (searchFor != null) {
+				HistoryActivity.this.setTitle(HistoryActivity.this.getTitle()
+						+ " " + searchFor);
+			}
 			new QuerySleepTask().execute(null);
 		}
 

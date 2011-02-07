@@ -28,7 +28,7 @@ import android.view.View;
  */
 public abstract class ChartView extends View {
 	/** The chart to be drawn. */
-	private AbstractChart mChart;
+	protected AbstractChart mChart;
 	/** The chart renderer. */
 	private XYMultipleSeriesRenderer mRenderer;
 	/** The view bounds. */

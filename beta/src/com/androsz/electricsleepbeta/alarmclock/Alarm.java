@@ -106,6 +106,15 @@ public final class Alarm implements Parcelable {
 		public static final String ALERT = "alert";
 
 		/**
+		 * Time to ignore - used for ignoring alarms that would normally happen
+		 * after smart alarm
+		 * <P>
+		 * Type: STRING
+		 * </P>
+		 */
+		public static final String TIME_TO_IGNORE = "timeToIgnore";
+
+		/**
 		 * The default sort order for this table
 		 */
 		public static final String DEFAULT_SORT_ORDER = HOUR + ", " + MINUTES
@@ -115,7 +124,8 @@ public final class Alarm implements Parcelable {
 		public static final String WHERE_ENABLED = ENABLED + "=1";
 
 		static final String[] ALARM_QUERY_COLUMNS = { _ID, HOUR, MINUTES,
-				DAYS_OF_WEEK, ALARM_TIME, ENABLED, VIBRATE, MESSAGE, ALERT };
+				DAYS_OF_WEEK, ALARM_TIME, ENABLED, VIBRATE, MESSAGE, ALERT,
+				TIME_TO_IGNORE };
 
 		/**
 		 * These save calls to cursor.getColumnIndexOrThrow() THEY MUST BE KEPT
@@ -130,6 +140,8 @@ public final class Alarm implements Parcelable {
 		public static final int ALARM_VIBRATE_INDEX = 6;
 		public static final int ALARM_MESSAGE_INDEX = 7;
 		public static final int ALARM_ALERT_INDEX = 8;
+		public static final int ALARM_TIME_TO_IGNORE_INDEX = 9;
+		
 	}
 
 	/*
@@ -284,6 +296,7 @@ public final class Alarm implements Parcelable {
 	public String label;
 	public Uri alert;
 	public boolean silent;
+	public long timeToIgnore;
 
 	// Creates a default alarm at the current time.
 	public Alarm() {
@@ -295,6 +308,8 @@ public final class Alarm implements Parcelable {
 		vibrate = true;
 		daysOfWeek = new DaysOfWeek(0);
 		alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+		timeToIgnore = 0;
+		
 	}
 
 	public Alarm(final Cursor c) {
@@ -306,6 +321,7 @@ public final class Alarm implements Parcelable {
 		time = c.getLong(Columns.ALARM_TIME_INDEX);
 		vibrate = c.getInt(Columns.ALARM_VIBRATE_INDEX) == 1;
 		label = c.getString(Columns.ALARM_MESSAGE_INDEX);
+		timeToIgnore = c.getLong(Columns.ALARM_TIME_TO_IGNORE_INDEX);
 		final String alertString = c.getString(Columns.ALARM_ALERT_INDEX);
 		if (Alarms.ALARM_ALERT_SILENT.equals(alertString)) {
 			if (Log.LOGV) {
@@ -337,6 +353,7 @@ public final class Alarm implements Parcelable {
 		label = p.readString();
 		alert = (Uri) p.readParcelable(null);
 		silent = p.readInt() == 1;
+		timeToIgnore = p.readLong();
 	}
 
 	@Override
@@ -363,5 +380,6 @@ public final class Alarm implements Parcelable {
 		p.writeString(label);
 		p.writeParcelable(alert, flags);
 		p.writeInt(silent ? 1 : 0);
+		p.writeLong(timeToIgnore);
 	}
 }

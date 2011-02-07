@@ -7,7 +7,6 @@ import java.io.StreamCorruptedException;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
 import com.androsz.electricsleepbeta.R;
@@ -37,7 +36,8 @@ public class SleepChart extends ChartView implements Serializable {
 	public XYSeries xySeriesCalibration;
 	public XYSeriesRenderer xySeriesCalibrationRenderer;
 
-	protected double calibrationLevel = SettingsActivity.DEFAULT_ALARM_SENSITIVITY;
+	protected double calibrationLevel;// =
+										// SettingsActivity.DEFAULT_ALARM_SENSITIVITY;
 
 	public int rating;
 
@@ -53,7 +53,8 @@ public class SleepChart extends ChartView implements Serializable {
 	protected AbstractChart buildChart() {
 		if (xySeriesMovement == null) {
 			// set up sleep movement series/renderer
-			xySeriesMovement = new XYSeries(getContext().getString(R.string.legend_movement));
+			xySeriesMovement = new XYSeries(getContext().getString(
+					R.string.legend_movement));
 			xySeriesMovementRenderer = new XYSeriesRenderer();
 			xySeriesMovementRenderer.setFillBelowLine(true);
 			xySeriesMovementRenderer.setFillBelowLineColor(getResources()
@@ -62,7 +63,8 @@ public class SleepChart extends ChartView implements Serializable {
 					R.color.primary1));
 
 			// set up calibration line series/renderer
-			xySeriesCalibration = new XYSeries(getContext().getString(R.string.legend_light_sleep_trigger));
+			xySeriesCalibration = new XYSeries(getContext().getString(
+					R.string.legend_light_sleep_trigger));
 			xySeriesCalibrationRenderer = new XYSeriesRenderer();
 			xySeriesCalibrationRenderer.setFillBelowLine(true);
 			xySeriesCalibrationRenderer.setFillBelowLineColor(getResources()
@@ -143,6 +145,11 @@ public class SleepChart extends ChartView implements Serializable {
 
 				xySeriesCalibration.add(firstX, calibrationLevel);
 				xySeriesCalibration.add(lastX, calibrationLevel);
+			}
+
+			final int HOUR_IN_MS = 1000 * 60 * 60;
+			if (lastX - firstX > HOUR_IN_MS) {
+				((TimeChart) mChart).setDateFormat("h a");
 			}
 
 			xyMultipleSeriesRenderer.setXAxisMin(firstX);

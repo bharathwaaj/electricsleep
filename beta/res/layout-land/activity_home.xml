@@ -31,7 +31,6 @@
 
 	<com.androsz.electricsleepbeta.widget.SleepChart
 		android:id="@+id/home_sleep_chart" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:layout_margin="4dip"
-		android:layout_toRightOf="@+id/home_button_container"
-		android:layout_below="@+id/home_review_title_text" />
+		android:layout_height="fill_parent" android:layout_toRightOf="@+id/home_button_container"
+		android:layout_below="@+id/home_review_title_text" android:visibility="gone" android:layout_marginLeft="20dip" android:layout_marginRight="4dip" android:layout_marginTop="4dip"/>
 </RelativeLayout>

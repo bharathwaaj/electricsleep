@@ -27,8 +27,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Parcel;
+import android.os.PowerManager;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.util.SharedWakeLock;
 
 /**
  * Glue class: connects AlarmAlert IntentReceiver to AlarmAlert activity. Passes
@@ -97,7 +99,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 		// Maintain a cpu wake lock until the AlarmAlert and AlarmKlaxon can
 		// pick it up.
-		AlarmAlertWakeLock.acquireCpuWakeLock(context);
+		SharedWakeLock.acquire(context,
+				PowerManager.PARTIAL_WAKE_LOCK
+						| PowerManager.ACQUIRE_CAUSES_WAKEUP
+						| PowerManager.ON_AFTER_RELEASE);
 
 		/* Close dialogs and window shade */
 		final Intent closeDialogs = new Intent(
@@ -131,7 +136,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 		} else {
 			// Enable the next alert if there is one. The above call to
 			// enableAlarm will call setNextAlert so avoid calling it twice.
-			Alarms.setNextAlert(context, alarm.time);
+			Alarms.setTimeToIgnore(context, alarm, alarm.time);
+			Alarms.setNextAlert(context);
 		}
 
 		// Play the alarm alert and vibrate the device.

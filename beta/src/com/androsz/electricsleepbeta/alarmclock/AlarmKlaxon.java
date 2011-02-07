@@ -29,11 +29,13 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.Vibrator;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.util.SharedWakeLock;
 
 /**
  * Manages alarms and vibe. Runs as a service so that it can continue to play if
@@ -117,7 +119,9 @@ public class AlarmKlaxon extends Service {
 		mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		mTelephonyManager.listen(mPhoneStateListener,
 				PhoneStateListener.LISTEN_CALL_STATE);
-		AlarmAlertWakeLock.acquireCpuWakeLock(this);
+		SharedWakeLock.acquire(this, PowerManager.PARTIAL_WAKE_LOCK
+				| PowerManager.ACQUIRE_CAUSES_WAKEUP
+				| PowerManager.ON_AFTER_RELEASE);
 	}
 
 	@Override
@@ -125,7 +129,7 @@ public class AlarmKlaxon extends Service {
 		stop();
 		// Stop listening for incoming calls.
 		mTelephonyManager.listen(mPhoneStateListener, 0);
-		AlarmAlertWakeLock.releaseCpuLock();
+		SharedWakeLock.release();
 	}
 
 	@Override

@@ -32,7 +32,7 @@ import android.text.TextUtils;
 public class AlarmProvider extends ContentProvider {
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		private static final String DATABASE_NAME = "alarms.db";
-		private static final int DATABASE_VERSION = 5;
+		private static final int DATABASE_VERSION = 6;
 
 		public DatabaseHelper(final Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -44,14 +44,15 @@ public class AlarmProvider extends ContentProvider {
 					+ "hour INTEGER, " + "minutes INTEGER, "
 					+ "daysofweek INTEGER, " + "alarmtime INTEGER, "
 					+ "enabled INTEGER, " + "vibrate INTEGER, "
-					+ "message TEXT, " + "alert TEXT);");
+					+ "message TEXT, " + "alert TEXT, "
+					+ "timeToIgnore INTEGER);");
 
 			// insert default alarms
 			final String insertMe = "INSERT INTO alarms "
-					+ "(hour, minutes, daysofweek, alarmtime, enabled, vibrate, message, alert) "
+					+ "(hour, minutes, daysofweek, alarmtime, enabled, vibrate, message, alert, timeToIgnore) "
 					+ "VALUES ";
-			db.execSQL(insertMe + "(8, 30, 31, 0, 0, 1, '', '');");
-			db.execSQL(insertMe + "(9, 00, 96, 0, 0, 1, '', '');");
+			db.execSQL(insertMe + "(8, 30, 31, 0, 0, 1, '', '', 0);");
+			db.execSQL(insertMe + "(9, 00, 96, 0, 0, 1, '', '', 0);");
 		}
 
 		@Override
@@ -59,11 +60,15 @@ public class AlarmProvider extends ContentProvider {
 				final int currentVersion) {
 			if (Log.LOGV) {
 				Log.v("Upgrading alarms database from version " + oldVersion
-						+ " to " + currentVersion
-						+ ", which will destroy all old data");
+						+ " to " + currentVersion);
 			}
-			db.execSQL("DROP TABLE IF EXISTS alarms");
-			onCreate(db);
+			if (oldVersion == 5 && currentVersion == 6) {
+				db.execSQL("ALTER TABLE alarms ADD COLUMN "
+						+ Alarm.Columns.TIME_TO_IGNORE + " INTEGER");
+			} else {
+				db.execSQL("DROP TABLE IF EXISTS alarms");
+				onCreate(db);
+			}
 		}
 	}
 

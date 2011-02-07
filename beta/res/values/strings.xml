@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="legend_light_sleep_trigger">Light Sleep Trigger</string>
-    <string name="legend_movement">Movement</string>
+	<string name="legend_light_sleep_trigger">Light Sleep Trigger</string>
+	<string name="legend_movement">Movement</string>
 	<string name="warming_up">Warming up sensors, please wait.</string>
 	<string name="go_into_standy">Press your device\'s standby button</string>
 	<string name="calibrate_directions_force_screen_on">
@@ -31,7 +31,8 @@
 	<string name="analysis_x_axis_values">X Axis Values</string>
 	<string name="list">List</string>
 	<string name="chart_view">Sleep Score Over Time</string>
-	<string name="changes_made_to_these_settings">Changes to these settings will not take effect during this session.</string>
+	<string name="changes_made_to_these_settings">Changes to these settings will not take effect
+		during this session.</string>
 	<string name="gfx_designers">Graphic Designers</string>
 	<string name="project_lead">Project Lead</string>
 	<string name="developers">Developers</string>
@@ -682,15 +683,33 @@
 		<item>Went to sleep time</item>
 		<item>Wake up time</item>
 	</string-array>
-	
-    <!-- Title of event when no explicit title is specified by the user -->
-    <string name="no_title_label">(No title)</string>
-    <!-- This string is used in a popup window when there are more events than
-         can be displayed so it displays the events that it can and then displays
-         this line so that the user knows how many more events there are that
-         could not be displayed.  For example, if there are 6 events but we can
-         only display 4 events then we will display the first 4 events and then
-         show 'plus 2 more' to indicate that there are two more events that we
-         could not display because of lack of room. -->
-    <string name="plus_N_more">"(plus <xliff:g id="more_count">%d</xliff:g> more \u2026)"</string>
+
+	<!-- Title of event when no explicit title is specified by the user -->
+	<string name="no_title_label">(No title)</string>
+	<!-- This string is used in a popup window when there are more events than 
+		can be displayed so it displays the events that it can and then displays 
+		this line so that the user knows how many more events there are that could 
+		not be displayed. For example, if there are 6 events but we can only display 
+		4 events then we will display the first 4 events and then show 'plus 2 more' 
+		to indicate that there are two more events that we could not display because 
+		of lack of room. -->
+	<string name="plus_N_more">
+		(plus
+		<xliff:g id="more_count">%d</xliff:g>
+		more \u2026)
+	</string>
+	<string name="sleep_dim">Your device does not support turning its screen off
+		during sleep. The screen must stay on but will be dimmed.</string>
+	<string name="sleep_plugged_in">You are not connected to a charger. It is highly
+		recommended to plug in, or elsewise enter airplane mode to conserve
+		energy.</string>
+	<string name="not_bound_to_any_alarms">Not bound to any alarms.</string>
+	<string name="you_will_be_awoken_before">
+		Smart alarm will go off between
+		<xliff:g id="pre">%s</xliff:g>
+		and
+		<xliff:g id="post">%s</xliff:g>
+	</string>
+	<string name="sleep_no_alarm">No alarm has been set. ElectricSleep will not wake
+		you up.</string>
 </resources>

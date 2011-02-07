@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -32,6 +33,7 @@ import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
+import android.provider.BaseColumns;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.text.format.Time;
@@ -51,11 +53,15 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.R.color;
+import com.androsz.electricsleepbeta.app.HistoryActivity;
 import com.androsz.electricsleepbeta.app.ReviewSleepActivity;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
+import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 import com.androsz.electricsleepbeta.db.SleepRecord;
 
 public class MonthView extends View {
@@ -384,8 +390,7 @@ public class MonthView extends View {
 							int x = (int) e.getX();
 							int y = (int) e.getY();
 							long millis = getSelectedMillisFor(x, y);
-							Time t = new Time();
-							t.set(millis);
+
 							ArrayList<SleepRecord> applicableEvents = new ArrayList<SleepRecord>();
 							final long ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
 							for (SleepRecord event : mEvents) {
@@ -400,16 +405,54 @@ public class MonthView extends View {
 									applicableEvents.add(event);
 								}
 							}
-							/*final Intent reviewSleepIntent = new Intent(
-									getContext(),
-									ReviewSleepActivity.class);
-							final Uri data = Uri.withAppendedPath(
-									SleepContentProvider.CONTENT_URI,
-									String.valueOf(applicableEvents.get(0).));
-							reviewSleepIntent.setData(data);
-							startActivity(reviewSleepIntent);
-							 Utils.startActivity(getContext(),
-							 ReviewSleepActivity.class, millis);*/
+
+							// if we have more than one applicable entry, then
+							// open the history activity and show all entries
+							// for the selected date
+							if (applicableEvents.size() == 1) {
+								final Intent reviewSleepIntent = new Intent(
+										getContext(), ReviewSleepActivity.class);
+								SleepHistoryDatabase shdb = new SleepHistoryDatabase(
+										getContext());
+								// TODO: hook this into sleep db
+
+								Cursor c = shdb.getSleepMatches(
+										applicableEvents.get(0).title,
+										new String[] {
+												BaseColumns._ID,
+												SleepRecord.KEY_TITLE,
+												SleepRecord.KEY_ALARM,
+												SleepRecord.KEY_DURATION,
+												SleepRecord.KEY_MIN,
+												SleepRecord.KEY_NOTE,
+												SleepRecord.KEY_RATING,
+												SleepRecord.KEY_SLEEP_DATA,
+												SleepRecord.KEY_SPIKES,
+												SleepRecord.KEY_SLEEP_DATA,
+												SleepRecord.KEY_TIME_FELL_ASLEEP });
+
+								shdb.close();
+								final Uri data = Uri.withAppendedPath(
+										SleepContentProvider.CONTENT_URI,
+										String.valueOf(c.getLong(0)));
+								reviewSleepIntent.setData(data);
+								getContext().startActivity(reviewSleepIntent);
+							} else if (applicableEvents.size() > 1) {
+								final java.text.DateFormat sdf = java.text.DateFormat
+										.getDateInstance(
+												java.text.DateFormat.SHORT,
+												Locale.getDefault());
+								Calendar calendar = Calendar.getInstance();
+								calendar.setTimeInMillis(millis);
+								getContext()
+										.startActivity(
+												new Intent(getContext(),
+														HistoryActivity.class)
+														.putExtra(
+																HistoryActivity.SEARCH_FOR,
+																sdf.format((calendar
+																		.getTime()))));
+							}
 						}
 
 						return true;

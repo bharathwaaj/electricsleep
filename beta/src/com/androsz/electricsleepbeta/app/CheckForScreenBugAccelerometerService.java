@@ -1,5 +1,7 @@
 package com.androsz.electricsleepbeta.app;
 
+import com.androsz.electricsleepbeta.util.SharedWakeLock;
+
 import android.R;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -57,20 +59,10 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 	public static final String BUG_PRESENT = "BUG_PRESENT";
 	private ScreenReceiver screenOnOffReceiver;
 
-	private WakeLock partialWakeLock;
-
 	private boolean bugPresent = true;
 	private boolean screenIsOff = false;
 
 	private PowerManager powerManager;
-
-	private void obtainWakeLock() {
-		powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		partialWakeLock = powerManager.newWakeLock(
-				PowerManager.PARTIAL_WAKE_LOCK, LOCK_TAG);
-		partialWakeLock.acquire();
-		partialWakeLock.setReferenceCounted(false);
-	}
 
 	@Override
 	public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
@@ -86,7 +78,7 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 	@Override
 	public int onStartCommand(final Intent intent, final int flags,
 			final int startId) {
-		if (intent != null) {
+		if (startId == 1) {
 			bugPresent = true;
 			screenIsOff = false;
 			final IntentFilter filter = new IntentFilter(
@@ -94,7 +86,8 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 			filter.addAction(Intent.ACTION_SCREEN_OFF);
 			screenOnOffReceiver = new ScreenReceiver();
 			registerReceiver(screenOnOffReceiver, filter);
-			obtainWakeLock();
+			powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+			SharedWakeLock.acquire(this, PowerManager.PARTIAL_WAKE_LOCK);
 			registerAccelerometerListener();
 		}
 		return startId;
@@ -110,9 +103,7 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 		serviceHandler.removeCallbacks(setScreenIsOffRunnable);
 		serviceHandler.removeCallbacks(turnScreenOnFallbackRunnable);
 
-		if (partialWakeLock != null && partialWakeLock.isHeld()) {
-			partialWakeLock.release();
-		}
+		SharedWakeLock.release();
 
 		super.onDestroy();
 	}
@@ -135,19 +126,10 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 	}
 
 	private void turnScreenOn() {
-		if (partialWakeLock != null && partialWakeLock.isHeld()) {
-			partialWakeLock.release();
-		}
-		powerManager.userActivity(SystemClock.uptimeMillis() + 100, false);
-
-		final WakeLock wakeLock = powerManager.newWakeLock(
-				PowerManager.SCREEN_DIM_WAKE_LOCK
-						| PowerManager.ACQUIRE_CAUSES_WAKEUP
-						| PowerManager.ON_AFTER_RELEASE, LOCK_TAG
-						+ java.lang.Math.random());
-		wakeLock.setReferenceCounted(false);
-		// this should be long enough for the user to interact.
-		wakeLock.acquire(5000);
+		SharedWakeLock.release();
+		SharedWakeLock.acquire(this, PowerManager.SCREEN_DIM_WAKE_LOCK
+				| PowerManager.ACQUIRE_CAUSES_WAKEUP
+				| PowerManager.ON_AFTER_RELEASE, 5000);
 		stopSelf();
 	}
 

@@ -9,11 +9,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
@@ -26,30 +30,19 @@ import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class SleepActivity extends CustomTitlebarActivity {
 
-	private class WaitForSeriesDataProgressDialog extends ProgressDialog {
-		public WaitForSeriesDataProgressDialog(final Context context) {
-			super(context);
-		}
-
-		public WaitForSeriesDataProgressDialog(final Context context,
-				final int theme) {
-			// super(context);
-			super(context, theme);
-		}
-
-		@Override
-		public void onBackPressed() {
-			SleepActivity.this.onBackPressed();
-		}
-	}
+	private static final String SLEEP_CHART = "sleepChart";
 
 	public static final String UPDATE_CHART = "com.androsz.electricsleepbeta.UPDATE_CHART";
 
 	public static final String SYNC_CHART = "com.androsz.electricsleepbeta.SYNC_CHART";
 
 	private SleepChart sleepChart;
-
-	private ProgressDialog waitForSeriesData;
+	private LinearLayout waitForSleepData;
+	private TextView textSleepNoAlarm;
+	private View divSleepNoAlarm;
+	private TextView textSleepPluggedIn;
+	private View divSleepPluggedIn;
+	private TextView textSleepDim;
 
 	private final BroadcastReceiver updateChartReceiver = new BroadcastReceiver() {
 		@Override
@@ -62,11 +55,30 @@ public class SleepActivity extends CustomTitlebarActivity {
 						intent.getDoubleExtra(StartSleepReceiver.EXTRA_ALARM,
 								SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 
-				if (sleepChart.makesSenseToDisplay()
-						&& waitForSeriesData != null) {
-					waitForSeriesData.dismiss();
+				if (sleepChart.makesSenseToDisplay()) {
+					sleepChart.setVisibility(View.VISIBLE);
+					waitForSleepData.setVisibility(View.GONE);
+				} else {
+					sleepChart.setVisibility(View.GONE);
+					waitForSleepData.setVisibility(View.VISIBLE);
 				}
 			}
+		}
+	};
+
+	private final BroadcastReceiver batteryChangedReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(final Context context, final Intent intent) {
+			boolean pluggedIn = intent.getIntExtra(
+					BatteryManager.EXTRA_PLUGGED, 0) > 0;
+			int visibility = View.VISIBLE;
+			visibility = (pluggedIn ? View.GONE : View.VISIBLE);
+			if (textSleepPluggedIn == null || divSleepPluggedIn == null) {
+				textSleepPluggedIn = (TextView) findViewById(R.id.text_sleep_plugged_in);
+				divSleepPluggedIn = findViewById(R.id.div_sleep_plugged_in);
+			}
+			textSleepPluggedIn.setVisibility(visibility);
+			divSleepPluggedIn.setVisibility(visibility);
 		}
 	};
 
@@ -76,13 +88,18 @@ public class SleepActivity extends CustomTitlebarActivity {
 		public void onReceive(final Context context, final Intent intent) {
 
 			sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
+			waitForSleepData = (LinearLayout) findViewById(R.id.wait_for_sleep_data);
+			textSleepNoAlarm = (TextView) findViewById(R.id.text_sleep_no_alarm);
+			divSleepNoAlarm = findViewById(R.id.div_sleep_no_alarm);
+			textSleepDim = (TextView) findViewById(R.id.text_sleep_dim);
 
 			// inlined for efficiency
 			sleepChart.xySeriesMovement.xyList = (List<PointD>) intent
-					.getSerializableExtra("sleepData");
+					.getSerializableExtra(SleepMonitoringService.SLEEP_DATA);
 
 			final double alarmTriggerSensitivity = intent.getDoubleExtra(
-					StartSleepReceiver.EXTRA_ALARM, SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
+					StartSleepReceiver.EXTRA_ALARM,
+					SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
 			sleepChart.setCalibrationLevel(alarmTriggerSensitivity);
 			sleepChart.reconfigure();
 			sleepChart.repaint();
@@ -102,38 +119,49 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 						java.text.DateFormat df = DateFormat
 								.getDateFormat(context);
-						String dateTime = df.format(alarmTime.getTime());
 						df = DateFormat.getTimeFormat(context);
-						dateTime = df.format(alarmTime.getTime()) + " on "
-								+ dateTime;
-
-						Toast.makeText(context, "Bound to alarm @ " + dateTime,
-								Toast.LENGTH_LONG).show();
+						String dateTime = df.format(alarmTime.getTime());
+						final int alarmWindow = intent.getIntExtra(
+								StartSleepReceiver.EXTRA_FORCE_SCREEN_ON, 30);
+						alarmTime.add(Calendar.MINUTE, -1 * alarmWindow);
+						String dateTimePre = df.format(alarmTime.getTime());
+						sleepChart.xyMultipleSeriesRenderer
+								.setChartTitle(context.getString(R.string.you_will_be_awoken_before, dateTimePre, dateTime));
+						textSleepNoAlarm.setVisibility(View.GONE);
+						divSleepNoAlarm.setVisibility(View.GONE);
+					} else {
+						sleepChart.xyMultipleSeriesRenderer.setChartTitle("");
+						textSleepNoAlarm.setVisibility(View.VISIBLE);
+						divSleepNoAlarm.setVisibility(View.VISIBLE);
 					}
 				} catch (final Exception e) {
 
 				}
 			} else {
-				Toast.makeText(context, "Not bound to any alarms.",
-						Toast.LENGTH_LONG).show();
+				sleepChart.xyMultipleSeriesRenderer.setChartTitle("");
+				textSleepNoAlarm.setVisibility(View.VISIBLE);
+				divSleepNoAlarm.setVisibility(View.VISIBLE);
 			}
 
 			// dims the screen while in this activity and forceScreenOn is
 			// enabled
 			if (forceScreenOn) {
-				final Window win = getWindow();
-				final WindowManager.LayoutParams winParams = win
-						.getAttributes();
-				winParams.flags |= WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+				textSleepDim.setVisibility(View.VISIBLE);
+				// final Window win = getWindow();
+				// final WindowManager.LayoutParams winParams = win
+				// .getAttributes();
+				// winParams.flags |=
+				// WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
 				// winParams.screenBrightness = 0.01f;
-				// winParams.buttonBrightness = WindowManager.LayoutParams.;
 
-				win.setAttributes(winParams);
+				// win.setAttributes(winParams);
+			} else {
+				textSleepDim.setVisibility(View.GONE);
 			}
 
-			if (sleepChart.makesSenseToDisplay() && waitForSeriesData != null) {
-				waitForSeriesData.dismiss();
-				waitForSeriesData = null;
+			if (sleepChart.makesSenseToDisplay()) {
+				sleepChart.setVisibility(View.VISIBLE);
+				waitForSleepData.setVisibility(View.GONE);
 			} else {
 				showWaitForSeriesDataIfNeeded();
 			}
@@ -171,11 +199,9 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 	@Override
 	protected void onPause() {
-		if (waitForSeriesData != null && waitForSeriesData.isShowing()) {
-			waitForSeriesData.dismiss();
-		}
 		unregisterReceiver(updateChartReceiver);
 		unregisterReceiver(syncChartReceiver);
+		unregisterReceiver(batteryChangedReceiver);
 		super.onPause();
 	}
 
@@ -188,7 +214,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 			// sendBroadcast(new
 			// Intent(SleepMonitoringService.POKE_SYNC_CHART));
 		}
-		sleepChart = (SleepChart) savedState.getSerializable("sleepChart");
+		sleepChart = (SleepChart) savedState.getSerializable(SLEEP_CHART);
 
 	}
 
@@ -198,13 +224,15 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 		registerReceiver(updateChartReceiver, new IntentFilter(UPDATE_CHART));
 		registerReceiver(syncChartReceiver, new IntentFilter(SYNC_CHART));
+		registerReceiver(batteryChangedReceiver, new IntentFilter(
+				Intent.ACTION_BATTERY_CHANGED));
 		sendBroadcast(new Intent(SleepMonitoringService.POKE_SYNC_CHART));
 	}
 
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putSerializable("sleepChart", sleepChart);
+		outState.putSerializable(SLEEP_CHART, sleepChart);
 	}
 
 	public void onTitleButton1Click(final View v) {
@@ -219,36 +247,8 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 	private void showWaitForSeriesDataIfNeeded() {
 		if (sleepChart == null || !sleepChart.makesSenseToDisplay()) {
-			if (waitForSeriesData == null || !waitForSeriesData.isShowing()) {
-				waitForSeriesData = new WaitForSeriesDataProgressDialog(this);
-				waitForSeriesData
-						.setMessage(getText(R.string.dialog_wait_for_sleep_data_message));
-				// waitForSeriesData.setContentView(R.layout.dialog_wait_for_data);
-				waitForSeriesData.setButton(DialogInterface.BUTTON_NEGATIVE,
-						getString(R.string.stop),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(final DialogInterface arg0,
-									final int arg1) {
-
-								stopService(new Intent(SleepActivity.this,
-										SleepMonitoringService.class));
-								SleepActivity.this.finish();
-							}
-						});
-				waitForSeriesData.setButton(DialogInterface.BUTTON_NEUTRAL,
-						getString(R.string.dismiss),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(final DialogInterface arg0,
-									final int arg1) {
-								if (waitForSeriesData.isShowing()) {
-									waitForSeriesData.dismiss();
-								}
-							}
-						});
-				waitForSeriesData.show();
-			}
+			sleepChart.setVisibility(View.GONE);
+			waitForSleepData.setVisibility(View.VISIBLE);
 		}
 	}
 }

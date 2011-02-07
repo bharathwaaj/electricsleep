@@ -19,6 +19,8 @@ import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 
+	private static final String SLEEP_CHART = "sleepChart";
+
 	SleepChart sleepChart;
 
 	private final BroadcastReceiver updateChartReceiver = new BroadcastReceiver() {
@@ -54,7 +56,7 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 
 			// inlined for efficiency
 			sleepChart.xySeriesMovement.xyList = (List<PointD>) intent
-					.getSerializableExtra("sleepData");
+					.getSerializableExtra(SleepMonitoringService.SLEEP_DATA);
 			sleepChart.reconfigure();
 			sleepChart.repaint();
 		}
@@ -72,7 +74,6 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 		setContentView(R.layout.activity_calibrate_alarm);
 
 		sleepChart = (SleepChart) findViewById(R.id.calibration_sleep_chart);
-
 		final DecimalSeekBar seekBar = (DecimalSeekBar) findViewById(R.id.calibration_level_seekbar);
 		seekBar.setMax((int) SettingsActivity.MAX_ALARM_SENSITIVITY);
 		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
@@ -94,13 +95,17 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 			public void onStopTrackingTouch(final SeekBar seekBar) {
 			}
 		});
+		
+		sleepChart
+				.setCalibrationLevel(SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	public void onDoneClick(final View v) {
 		CalibrateAlarmActivity.this.setResult(CALIBRATION_SUCCEEDED,
-				new Intent().putExtra("y", sleepChart.getCalibrationLevel()));
+				new Intent().putExtra(SleepMonitoringService.EXTRA_Y,
+						sleepChart.getCalibrationLevel()));
 		finish();
 	}
 
@@ -120,8 +125,7 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 			// sendBroadcast(new
 			// Intent(SleepMonitoringService.POKE_SYNC_CHART));
 		}
-		sleepChart = (SleepChart) savedState
-				.getSerializable("sleepChart");
+		sleepChart = (SleepChart) savedState.getSerializable(SLEEP_CHART);
 	}
 
 	@Override
@@ -137,7 +141,7 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putSerializable("sleepChart", sleepChart);
+		outState.putSerializable(SLEEP_CHART, sleepChart);
 	}
 
 }

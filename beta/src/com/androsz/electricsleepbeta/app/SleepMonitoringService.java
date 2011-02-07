@@ -35,6 +35,7 @@ import com.androsz.electricsleepbeta.alarmclock.Alarm;
 import com.androsz.electricsleepbeta.alarmclock.Alarms;
 import com.androsz.electricsleepbeta.content.StartSleepReceiver;
 import com.androsz.electricsleepbeta.util.PointD;
+import com.androsz.electricsleepbeta.util.SharedWakeLock;
 
 public class SleepMonitoringService extends Service implements
 		SensorEventListener {
@@ -63,7 +64,8 @@ public class SleepMonitoringService extends Service implements
 				fos.write(PointD.toByteArray(sleepPoint));
 				fos.close();
 			} catch (final IOException e) {
-				Toast.makeText(SleepMonitoringService.this, "Please report this: ", Toast.LENGTH_LONG);
+				Toast.makeText(SleepMonitoringService.this,
+						"Please report this: ", Toast.LENGTH_LONG);
 				e.printStackTrace();
 			}
 
@@ -75,17 +77,7 @@ public class SleepMonitoringService extends Service implements
 
 			maxNetForce = 0;
 
-			if (triggerAlarmIfNecessary(currentTime, y)) {
-			} else if (forceScreenOn) {
-				final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-
-				final WakeLock forceScreenOnWakeLock = powerManager
-						.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
-								| PowerManager.ON_AFTER_RELEASE
-								| PowerManager.ACQUIRE_CAUSES_WAKEUP, LOCK_TAG
-								+ "1");
-				forceScreenOnWakeLock.acquire(3000);
-			}
+			triggerAlarmIfNecessary(currentTime, y);
 		}
 	}
 
@@ -94,6 +86,7 @@ public class SleepMonitoringService extends Service implements
 	public static final String EXTRA_Y = "y";
 	public static final String EXTRA_X = "x";
 	public static final String EXTRA_NAME = "name";
+	public static final String EXTRA_ALARM_WINDOW = "alarmWindow";
 	public static final String SERVICE_IS_RUNNING = "serviceIsRunning";
 	public static final String SLEEP_DATA = "sleepData";
 	private static final String LOCK_TAG = "com.androsz.electricsleepbeta.app.SleepMonitoringService";
@@ -116,7 +109,10 @@ public class SleepMonitoringService extends Service implements
 				i.putExtra(SLEEP_DATA, sleepData);
 				i.putExtra(StartSleepReceiver.EXTRA_ALARM,
 						alarmTriggerSensitivity);
+				i.putExtra(EXTRA_ALARM_WINDOW, alarmWindow);
 				i.putExtra(StartSleepReceiver.EXTRA_USE_ALARM, useAlarm);
+				i.putExtra(StartSleepReceiver.EXTRA_FORCE_SCREEN_ON,
+						forceScreenOn);
 				i.putExtra(StartSleepReceiver.EXTRA_FORCE_SCREEN_ON,
 						forceScreenOn);
 				sendBroadcast(i);
@@ -139,8 +135,6 @@ public class SleepMonitoringService extends Service implements
 	private Date dateStarted;
 
 	private double maxNetForce = SettingsActivity.DEFAULT_MIN_SENSITIVITY;
-
-	private WakeLock partialWakeLock;
 
 	private int testModeRate = Integer.MIN_VALUE;
 
@@ -229,18 +223,17 @@ public class SleepMonitoringService extends Service implements
 		final CharSequence contentTitle = getText(R.string.notification_sleep_title);
 		final CharSequence contentText = getText(R.string.notification_sleep_text);
 		Intent notificationIntent = null;
-		
-		//prevents the user from entering SleepActivity from the notification when in test mode
+
+		// prevents the user from entering SleepActivity from the notification
+		// when in test mode
 		if (this.testModeRate == Integer.MIN_VALUE) {
 			notificationIntent = new Intent(this, SleepActivity.class);
-		}
-		else
-		{
+		} else {
 			notificationIntent = new Intent();
 		}
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
 				| Intent.FLAG_ACTIVITY_NEW_TASK);
-		
+
 		final PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 				notificationIntent, 0);
 
@@ -252,10 +245,18 @@ public class SleepMonitoringService extends Service implements
 
 	private void obtainWakeLock() {
 		final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		partialWakeLock = powerManager.newWakeLock(
-				PowerManager.PARTIAL_WAKE_LOCK, LOCK_TAG);
-		partialWakeLock.acquire();
-		partialWakeLock.setReferenceCounted(false);
+
+		//if forcescreenon is on, hold a dim wakelock, otherwise, partial.
+		int wakeLockType = forceScreenOn ? PowerManager.SCREEN_DIM_WAKE_LOCK
+				| PowerManager.ON_AFTER_RELEASE
+				| PowerManager.ACQUIRE_CAUSES_WAKEUP
+				
+				: PowerManager.PARTIAL_WAKE_LOCK;
+		
+		SharedWakeLock.acquire(this, wakeLockType);
+		//partialWakeLock = powerManager.newWakeLock(wakeLockType, LOCK_TAG);
+		//partialWakeLock.setReferenceCounted(false);
+		//partialWakeLock.acquire();
 	}
 
 	@Override
@@ -289,9 +290,7 @@ public class SleepMonitoringService extends Service implements
 	public void onDestroy() {
 		unregisterAccelerometerListener();
 
-		if (partialWakeLock != null && partialWakeLock.isHeld()) {
-			partialWakeLock.release();
-		}
+		SharedWakeLock.release();
 
 		unregisterReceiver(serviceReceiver);
 
@@ -380,7 +379,7 @@ public class SleepMonitoringService extends Service implements
 					StartSleepReceiver.EXTRA_FORCE_SCREEN_ON, false);
 
 			startForeground(NOTIFICATION_ID, createServiceNotification());
-			
+
 			obtainWakeLock();
 			registerAccelerometerListener();
 
@@ -398,8 +397,9 @@ public class SleepMonitoringService extends Service implements
 	private void registerAccelerometerListener() {
 		final SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-		sensorManager.registerListener(this, sensorManager
-				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), sensorDelay);
+		sensorManager.registerListener(this,
+				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+				sensorDelay);
 	}
 
 	private void toggleAirplaneMode(final boolean enabling) {
@@ -442,7 +442,7 @@ public class SleepMonitoringService extends Service implements
 					// if not already snoozing off the same alarm, trigger the
 					// alarm
 					if (id != alarm.id) {
-						partialWakeLock.release();
+						SharedWakeLock.release();
 						Alarms.enableAlert(this, alarm, currentTime);
 					}
 					return true;
