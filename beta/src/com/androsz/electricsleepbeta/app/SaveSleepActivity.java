@@ -1,9 +1,11 @@
 package com.androsz.electricsleepbeta.app;
 
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -82,11 +84,31 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 	}
 
 	public void onDiscardClick(final View v) {
-		final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(getIntent().getExtras().getInt(
-				SleepMonitoringService.EXTRA_ID));
-		deleteFile(SleepMonitoringService.SLEEP_DATA);
-		finish();
+		final AlertDialog.Builder dialog = new AlertDialog.Builder(this)
+				.setMessage(getString(R.string.delete_sleep_record))
+				.setPositiveButton(getString(R.string.ok),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(final DialogInterface dialog,
+									final int id) {
+								final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+								notificationManager
+										.cancel(getIntent()
+												.getExtras()
+												.getInt(SleepMonitoringService.EXTRA_ID));
+								deleteFile(SleepMonitoringService.SLEEP_DATA);
+								finish();
+							}
+						})
+				.setNegativeButton(getString(R.string.cancel),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(final DialogInterface dialog,
+									final int id) {
+								dialog.cancel();
+							}
+						});
+		dialog.show();
 	}
 
 	@Override

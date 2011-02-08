@@ -29,7 +29,7 @@ import com.androsz.electricsleepbeta.util.DeviceUtil;
 import com.androsz.electricsleepbeta.widget.DailySleepComparisonChart;
 import com.androsz.electricsleepbeta.widget.SleepHistoryCursorAdapter;
 
-public class HistoryActivity extends CustomTitlebarTabActivity {
+public class HistoryActivity extends CustomTitlebarActivity {
 
 	public static final String SEARCH_FOR = "searchFor";
 
@@ -85,21 +85,6 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 				mTextView.setText(getString(R.string.no_results));
 				mListView.setVisibility(View.GONE);
 			} else {
-				try {
-					addChartView(cursor);
-				} catch (final StreamCorruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (final IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (final IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (final ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				mTextView.setVisibility(View.GONE);
 				mListView.setVisibility(View.VISIBLE);
 
@@ -193,28 +178,6 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 
 	private ListView mListView;
 
-	private DailySleepComparisonChart sleepChart;
-
-	private void addChartView(Cursor cursor) throws StreamCorruptedException,
-			IllegalArgumentException, IOException, ClassNotFoundException {
-		if (sleepChart != null) {
-			sleepChart.xySeriesMovement.clear();
-		}
-		sleepChart = (DailySleepComparisonChart) findViewById(R.id.chart);
-
-		if (cursor == null) {
-			sleepChart.setVisibility(View.GONE);
-		} else {
-			sleepChart.setVisibility(View.VISIBLE);
-			cursor.moveToFirst();
-			do {
-				final SleepRecord sleepRecord = new SleepRecord(cursor);
-				sleepChart.sync((double) sleepRecord.getStartTime(),
-						(double) sleepRecord.getSleepScore(), 0, 100);
-			} while (cursor.moveToNext());
-		}
-	}
-
 	@Override
 	protected int getContentAreaLayoutId() {
 		return R.layout.activity_history;
@@ -230,40 +193,7 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 
 		mTextView = (TextView) findViewById(R.id.text);
 		mListView = (ListView) findViewById(R.id.list);
-		((Spinner) findViewById(R.id.sleep_history_analysis_x_axis_spinner))
-				.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-					@Override
-					public void onItemSelected(final AdapterView<?> parentView,
-							final View selectedItemView, final int position,
-							final long id) {
-						Toast.makeText(
-								HistoryActivity.this,
-								"Value changing is not implemented yet; this currently only displays sleep score over time.",
-								Toast.LENGTH_LONG).show();
-					}
-
-					@Override
-					public void onNothingSelected(final AdapterView<?> arg0) {
-					}
-				});
-		((Spinner) findViewById(R.id.sleep_history_analysis_y_axis_spinner))
-				.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-					@Override
-					public void onItemSelected(final AdapterView<?> parentView,
-							final View selectedItemView, final int position,
-							final long id) {
-						Toast.makeText(
-								HistoryActivity.this,
-								"Value changing is not implemented yet; this currently only displays sleep score over time.",
-								Toast.LENGTH_LONG).show();
-					}
-
-					@Override
-					public void onNothingSelected(final AdapterView<?> arg0) {
-					}
-				});
+		
 		mListView.setVerticalFadingEdgeEnabled(false);
 		mListView.setScrollbarFadingEnabled(false);
 
@@ -286,11 +216,6 @@ public class HistoryActivity extends CustomTitlebarTabActivity {
 			}
 			new QuerySleepTask().execute(null);
 		}
-
-		addTab(R.id.sleep_history_list, R.string.list);
-		addTab(R.id.sleep_history_analysis, R.string.analysis);
-		// tabHost.setCurrentTab(1);
-		// tabHost.setCurrentTab(0);
 	}
 
 	@Override

@@ -149,7 +149,7 @@ public class SleepChart extends ChartView implements Serializable {
 
 			final int HOUR_IN_MS = 1000 * 60 * 60;
 			if (lastX - firstX > HOUR_IN_MS) {
-				((TimeChart) mChart).setDateFormat("h a");
+				((TimeChart) mChart).setDateFormat("h");
 			}
 
 			xyMultipleSeriesRenderer.setXAxisMin(firstX);

@@ -23,7 +23,7 @@ public class ReviewSleepChart extends SleepChart {
 	@Override
 	protected AbstractChart buildChart() {
 		TimeChart chart = (TimeChart) super.buildChart();
-		chart.setDateFormat("h a");
+		chart.setDateFormat("h");
 		return chart;
 	}
 
