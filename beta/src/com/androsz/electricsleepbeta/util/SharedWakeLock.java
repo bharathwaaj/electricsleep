@@ -35,8 +35,12 @@ public class SharedWakeLock {
 	}
 
 	public static void release() {
-		if (sCpuWakeLock != null && sCpuWakeLock.isHeld()) {
+		if (isHeld()) {
 			sCpuWakeLock.release();
 		}
+	}
+	
+	public static boolean isHeld() {
+		return sCpuWakeLock != null && sCpuWakeLock.isHeld();
 	}
 }

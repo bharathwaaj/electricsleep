@@ -71,7 +71,7 @@ public class MonthView extends View {
 	private static int WEEK_GAP = 0;
 	private static int MONTH_DAY_GAP = 1;
 	private static float HOUR_GAP = 0f;
-	private static float MIN_EVENT_HEIGHT = 2f;
+	private static float MIN_EVENT_HEIGHT = 1f;
 	private static int MONTH_DAY_TEXT_SIZE = 20;
 	private static int WEEK_BANNER_HEIGHT = 17;
 	private static int WEEK_TEXT_SIZE = 15;

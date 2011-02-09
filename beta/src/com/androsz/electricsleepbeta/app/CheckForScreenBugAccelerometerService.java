@@ -103,8 +103,10 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 		serviceHandler.removeCallbacks(setScreenIsOffRunnable);
 		serviceHandler.removeCallbacks(turnScreenOnFallbackRunnable);
 
-		SharedWakeLock.release();
-
+		//check here so that certain devices keep their screen on for at least 5 seconds (from turnScreenOn)
+		if (didNotTurnScreenOn) {
+			SharedWakeLock.release();
+		}
 		super.onDestroy();
 	}
 
@@ -125,8 +127,9 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 				SensorManager.SENSOR_DELAY_FASTEST);
 	}
 
+	boolean didNotTurnScreenOn = true;
 	private void turnScreenOn() {
-		SharedWakeLock.release();
+		didNotTurnScreenOn = false;
 		SharedWakeLock.acquire(this, PowerManager.SCREEN_DIM_WAKE_LOCK
 				| PowerManager.ACQUIRE_CAUSES_WAKEUP
 				| PowerManager.ON_AFTER_RELEASE, 5000);

@@ -2,6 +2,8 @@ package com.androsz.electricsleepbeta.app;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -9,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -29,6 +32,8 @@ import com.androsz.electricsleepbeta.util.PointD;
 import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class SleepActivity extends CustomTitlebarActivity {
+
+	private static final int DIM_SCREEN_AFTER_MS = 15000;
 
 	private static final String SLEEP_CHART = "sleepChart";
 
@@ -87,12 +92,6 @@ public class SleepActivity extends CustomTitlebarActivity {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 
-			sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
-			waitForSleepData = (LinearLayout) findViewById(R.id.wait_for_sleep_data);
-			textSleepNoAlarm = (TextView) findViewById(R.id.text_sleep_no_alarm);
-			divSleepNoAlarm = findViewById(R.id.div_sleep_no_alarm);
-			textSleepDim = (TextView) findViewById(R.id.text_sleep_dim);
-
 			// inlined for efficiency
 			sleepChart.xySeriesMovement.xyList = (List<PointD>) intent
 					.getSerializableExtra(SleepMonitoringService.SLEEP_DATA);
@@ -126,7 +125,9 @@ public class SleepActivity extends CustomTitlebarActivity {
 						alarmTime.add(Calendar.MINUTE, -1 * alarmWindow);
 						String dateTimePre = df.format(alarmTime.getTime());
 						sleepChart.xyMultipleSeriesRenderer
-								.setChartTitle(context.getString(R.string.you_will_be_awoken_before, dateTimePre, dateTime));
+								.setChartTitle(context.getString(
+										R.string.you_will_be_awoken_before,
+										dateTimePre, dateTime));
 						textSleepNoAlarm.setVisibility(View.GONE);
 						divSleepNoAlarm.setVisibility(View.GONE);
 					} else {
@@ -147,14 +148,14 @@ public class SleepActivity extends CustomTitlebarActivity {
 			// enabled
 			if (forceScreenOn) {
 				textSleepDim.setVisibility(View.VISIBLE);
-				// final Window win = getWindow();
-				// final WindowManager.LayoutParams winParams = win
-				// .getAttributes();
-				// winParams.flags |=
-				// WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
-				// winParams.screenBrightness = 0.01f;
 
-				// win.setAttributes(winParams);
+				// queue the dim screen task
+				if (dimScreenTask != null) {
+					dimScreenTask.cancel(true);
+				}
+				dimScreenTask = new DimScreenTask();
+				dimScreenTask.execute(null);
+
 			} else {
 				textSleepDim.setVisibility(View.GONE);
 			}
@@ -167,6 +168,37 @@ public class SleepActivity extends CustomTitlebarActivity {
 			}
 		}
 	};
+
+	AsyncTask<Void, Void, Void> dimScreenTask;
+
+	private class DimScreenTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(final Void... params) {
+			// just wait without blocking the main thread!
+			try {
+				Thread.sleep(DIM_SCREEN_AFTER_MS);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// notify the user that we've received that they need a dimmed
+			// screen
+			Toast.makeText(SleepActivity.this,
+					"Screen will dim in 15 seconds.", Toast.LENGTH_LONG).show();
+		}
+
+		@Override
+		protected void onPostExecute(final Void results) {
+			// after we have waited, dim the screen on the main thread!
+			startActivity(new Intent(SleepActivity.this, DimSleepActivity.class));
+		}
+	}
 
 	private final BroadcastReceiver sleepStoppedReceiver = new BroadcastReceiver() {
 		@Override
@@ -189,6 +221,12 @@ public class SleepActivity extends CustomTitlebarActivity {
 		showTitleButton2(R.drawable.ic_title_alarm);
 		registerReceiver(sleepStoppedReceiver, new IntentFilter(
 				SleepMonitoringService.SLEEP_STOPPED));
+
+		sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
+		waitForSleepData = (LinearLayout) findViewById(R.id.wait_for_sleep_data);
+		textSleepNoAlarm = (TextView) findViewById(R.id.text_sleep_no_alarm);
+		divSleepNoAlarm = findViewById(R.id.div_sleep_no_alarm);
+		textSleepDim = (TextView) findViewById(R.id.text_sleep_dim);
 	}
 
 	@Override
@@ -202,6 +240,10 @@ public class SleepActivity extends CustomTitlebarActivity {
 		unregisterReceiver(updateChartReceiver);
 		unregisterReceiver(syncChartReceiver);
 		unregisterReceiver(batteryChangedReceiver);
+		// cancel the dim screen task if it hasn't completed
+		if (dimScreenTask != null) {
+			dimScreenTask.cancel(true);
+		}
 		super.onPause();
 	}
 

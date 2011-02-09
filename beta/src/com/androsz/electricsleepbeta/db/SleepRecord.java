@@ -392,7 +392,9 @@ public class SleepRecord {
 	public int getStartJulianDay()
 	{
         Time local = new Time();
-		return Time.getJulianDay(getStartTime(), local.gmtoff);
+        local.set(getStartTime());
+		long millis = local.normalize(true /* ignore DST */);
+		return Time.getJulianDay(millis, local.gmtoff);
 	}
 
 	public long getEndTime() {
@@ -409,7 +411,9 @@ public class SleepRecord {
 	public int getEndJulianDay()
 	{
         Time local = new Time();
-		return Time.getJulianDay(getEndTime(), local.gmtoff);
+        local.set(getEndTime());
+		long millis = local.normalize(true /* ignore DST */);
+		return Time.getJulianDay(millis, local.gmtoff);
 	}
 
 	private Calendar getTimeDiffCalendar(final long time) {

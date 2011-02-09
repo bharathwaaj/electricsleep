@@ -44,8 +44,7 @@ public class SleepMonitoringService extends Service implements
 		@Override
 		public void run() {
 			final long currentTime = System.currentTimeMillis();
-			// re-post this runner every 5 seconds.
-			// serviceHandler.postDelayed(updateTimerRunnable, updateInterval);
+			
 			final double x = currentTime;
 			final double y = java.lang.Math.min(
 					SettingsActivity.MAX_ALARM_SENSITIVITY, maxNetForce);
@@ -244,8 +243,6 @@ public class SleepMonitoringService extends Service implements
 	}
 
 	private void obtainWakeLock() {
-		final PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-
 		//if forcescreenon is on, hold a dim wakelock, otherwise, partial.
 		int wakeLockType = forceScreenOn ? PowerManager.SCREEN_DIM_WAKE_LOCK
 				| PowerManager.ON_AFTER_RELEASE
@@ -254,9 +251,6 @@ public class SleepMonitoringService extends Service implements
 				: PowerManager.PARTIAL_WAKE_LOCK;
 		
 		SharedWakeLock.acquire(this, wakeLockType);
-		//partialWakeLock = powerManager.newWakeLock(wakeLockType, LOCK_TAG);
-		//partialWakeLock.setReferenceCounted(false);
-		//partialWakeLock.acquire();
 	}
 
 	@Override
@@ -321,8 +315,6 @@ public class SleepMonitoringService extends Service implements
 					updateTimer.scheduleAtFixedRate(new UpdateTimerTask(),
 							updateInterval, updateInterval);
 				}
-				// serviceHandler.postDelayed(updateTimerRunnable,
-				// updateInterval);
 
 				gravity[0] = event.values[0];
 				gravity[1] = event.values[1];

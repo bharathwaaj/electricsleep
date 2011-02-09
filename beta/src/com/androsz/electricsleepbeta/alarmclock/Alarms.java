@@ -193,9 +193,9 @@ public class Alarms {
 					if (a.time < minTime) {
 						if (a.time == a.timeToIgnore) {
 							a.time = calculateAlarmIgnoringNext(a);
+							alarm = a;
 						}
 						minTime = a.time;
-						alarm = a;
 					}
 				} while (cursor.moveToNext());
 			}
