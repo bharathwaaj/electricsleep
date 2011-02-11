@@ -1,8 +1,5 @@
 package com.androsz.electricsleepbeta.app;
 
-import java.io.IOException;
-import java.io.StreamCorruptedException;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -15,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
-import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 import com.androsz.electricsleepbeta.db.SleepRecord;
 import com.androsz.electricsleepbeta.widget.SleepChart;
@@ -28,7 +24,7 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 		protected Void doInBackground(final Void... params) {
 			final SleepHistoryDatabase shdb = new SleepHistoryDatabase(
 					ReviewSleepActivity.this);
-			shdb.deleteRow(rowId);
+			shdb.deleteRow(Long.parseLong(uri.getLastPathSegment()));
 			shdb.close();
 			return null;
 		}
@@ -53,57 +49,49 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 	}
 
 	ProgressDialog progress;
-
 	private SleepChart sleepChart;
+	LoadSleepChartTask loadSleepChartTask;
 
-	private long rowId;
+	private class LoadSleepChartTask extends AsyncTask<Uri, Void, Cursor> {
 
-	private void addChartView() throws StreamCorruptedException,
-			IllegalArgumentException, IOException, ClassNotFoundException {
-		sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
-
-		final Uri uri = getIntent().getData();
-		Cursor cursor;
-		if (uri == null) {
-			final long uriEnding = getIntent().getLongExtra("position", -1);
-			cursor = managedQuery(SleepContentProvider.CONTENT_URI, null, null,
-					new String[] { getString(R.string.to) },
-					SleepRecord.KEY_TITLE);
-			if (cursor == null) {
-				finish();
-				return;
-			} else {
-				cursor.moveToPosition((int) uriEnding);
-				rowId = cursor.getPosition();
-
-			}
-		} else {
-			cursor = managedQuery(uri, null, null, null, null);
-
-			if (cursor == null) {
-				finish();
-				return;
-			} else {
-				rowId = Long.parseLong(uri.getLastPathSegment());
-				showTitleButton1(android.R.drawable.ic_menu_delete);
-				cursor.moveToFirst();
-			}
+		@Override
+		protected Cursor doInBackground(Uri... params) {
+			return managedQuery(params[0], null, null, null, null);
 		}
-		final SleepRecord sleepRecord = new SleepRecord(cursor);
 
-		((TextView) findViewById(R.id.value_score_text)).setText(sleepRecord
-				.getSleepScore() + "%");
-		((TextView) findViewById(R.id.value_duration_text)).setText(sleepRecord
-				.getDurationText(getResources()));
-		((TextView) findViewById(R.id.value_spikes_text))
-				.setText(sleepRecord.spikes + "");
-		((TextView) findViewById(R.id.value_fell_asleep_text))
-				.setText(sleepRecord.getFellAsleepText(getResources()));
-		((TextView) findViewById(R.id.value_note_text))
-				.setText(sleepRecord.note);
+		@Override
+		protected void onPreExecute() {
+			sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
+		}
 
-		sleepChart.sync(sleepRecord);
+		@Override
+		protected void onPostExecute(final Cursor cursor) {
+			if (cursor == null) {
+				finish();
+				return;
+			}
+			cursor.moveToFirst();
+
+			final SleepRecord sleepRecord = new SleepRecord(cursor);
+
+			((TextView) findViewById(R.id.value_score_text))
+					.setText(sleepRecord.getSleepScore() + "%");
+			((TextView) findViewById(R.id.value_duration_text))
+					.setText(sleepRecord.getDurationText(getResources()));
+			((TextView) findViewById(R.id.value_spikes_text))
+					.setText(sleepRecord.spikes + "");
+			((TextView) findViewById(R.id.value_fell_asleep_text))
+					.setText(sleepRecord.getFellAsleepText(getResources()));
+			((TextView) findViewById(R.id.value_note_text))
+					.setText(sleepRecord.note);
+
+			sleepChart.sync(sleepRecord);
+		}
+
 	}
+
+	private Uri uri;
+
 
 	@Override
 	protected int getContentAreaLayoutId() {
@@ -114,8 +102,10 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		progress = new ProgressDialog(this);
+		showTitleButton1(android.R.drawable.ic_menu_delete);
 		addTab(R.id.sleep_movement_chart, R.string.sleep_chart);
 		addTab(R.id.sleep_analysis_table, R.string.analysis);
+		uri = getIntent().getData();
 	}
 
 	@Override
@@ -125,42 +115,33 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 		if (progress != null && progress.isShowing()) {
 			progress.dismiss();
 		}
+
+		if (loadSleepChartTask != null) {
+			loadSleepChartTask.cancel(true);
+		}
 	}
 
 	@Override
 	protected void onRestoreInstanceState(final Bundle savedState) {
-		try {
-			super.onRestoreInstanceState(savedState);
-			sleepChart = (SleepChart) savedState.getSerializable("sleepChart");
-		} catch (final RuntimeException re) {
-
-		}
+		super.onRestoreInstanceState(savedState);
+		uri = Uri.parse(savedState.getString("uri"));
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		try {
-			addChartView();
-		} catch (final StreamCorruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+		if (loadSleepChartTask != null) {
+			loadSleepChartTask.cancel(true);
 		}
+		loadSleepChartTask = new LoadSleepChartTask();
+		loadSleepChartTask.execute(uri);
 	}
 
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putSerializable("sleepChart", sleepChart);
+		outState.putString("uri", uri.toString());
 	}
 
 	public void onTitleButton1Click(final View v) {

@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,21 +53,18 @@ public class SleepActivity extends CustomTitlebarActivity {
 	private final BroadcastReceiver updateChartReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
+			sleepChart.sync(intent.getDoubleExtra(
+					SleepMonitoringService.EXTRA_X, 0), intent.getDoubleExtra(
+					SleepMonitoringService.EXTRA_Y, 0), intent.getDoubleExtra(
+					StartSleepReceiver.EXTRA_ALARM,
+					SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
 
-			if (sleepChart != null) {
-				sleepChart.sync(intent.getDoubleExtra(
-						SleepMonitoringService.EXTRA_X, 0), intent
-						.getDoubleExtra(SleepMonitoringService.EXTRA_Y, 0),
-						intent.getDoubleExtra(StartSleepReceiver.EXTRA_ALARM,
-								SettingsActivity.DEFAULT_ALARM_SENSITIVITY));
-
-				if (sleepChart.makesSenseToDisplay()) {
-					sleepChart.setVisibility(View.VISIBLE);
-					waitForSleepData.setVisibility(View.GONE);
-				} else {
-					sleepChart.setVisibility(View.GONE);
-					waitForSleepData.setVisibility(View.VISIBLE);
-				}
+			if (sleepChart.makesSenseToDisplay()) {
+				sleepChart.setVisibility(View.VISIBLE);
+				waitForSleepData.setVisibility(View.GONE);
+			} else {
+				sleepChart.setVisibility(View.GONE);
+				waitForSleepData.setVisibility(View.VISIBLE);
 			}
 		}
 	};
@@ -76,22 +74,37 @@ public class SleepActivity extends CustomTitlebarActivity {
 		public void onReceive(final Context context, final Intent intent) {
 			boolean pluggedIn = intent.getIntExtra(
 					BatteryManager.EXTRA_PLUGGED, 0) > 0;
-			int visibility = View.VISIBLE;
-			visibility = (pluggedIn ? View.GONE : View.VISIBLE);
-			if (textSleepPluggedIn == null || divSleepPluggedIn == null) {
-				textSleepPluggedIn = (TextView) findViewById(R.id.text_sleep_plugged_in);
-				divSleepPluggedIn = findViewById(R.id.div_sleep_plugged_in);
-			}
+			int visibility = (pluggedIn ? View.GONE : View.VISIBLE);
+
 			textSleepPluggedIn.setVisibility(visibility);
 			divSleepPluggedIn.setVisibility(visibility);
+
+			showOrHideWarnings();
 		}
 	};
+
+	private void showOrHideWarnings() {
+		// hide warnings panel if there's no warnings.
+		ScrollView landscapeWarnings = (ScrollView) findViewById(R.id.sleep_landscape_warnings);
+		// make sure we're in landscape. portrait doesn't have this problem.
+		if (landscapeWarnings != null) {
+			int visibility = textSleepPluggedIn.getVisibility()
+					+ textSleepDim.getVisibility()
+					+ textSleepNoAlarm.getVisibility();
+
+			//if all are gone...
+			visibility = visibility == 24 ? View.GONE : View.VISIBLE;
+			landscapeWarnings.setVisibility(visibility);
+		}
+	}
 
 	private final BroadcastReceiver syncChartReceiver = new BroadcastReceiver() {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 
+			// sleepChart = (SleepChart)
+			// findViewById(R.id.sleep_movement_chart);
 			// inlined for efficiency
 			sleepChart.xySeriesMovement.xyList = (List<PointD>) intent
 					.getSerializableExtra(SleepMonitoringService.SLEEP_DATA);
@@ -166,6 +179,8 @@ public class SleepActivity extends CustomTitlebarActivity {
 			} else {
 				showWaitForSeriesDataIfNeeded();
 			}
+
+			showOrHideWarnings();
 		}
 	};
 
@@ -179,7 +194,6 @@ public class SleepActivity extends CustomTitlebarActivity {
 			try {
 				Thread.sleep(DIM_SCREEN_AFTER_MS);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return null;
@@ -189,8 +203,8 @@ public class SleepActivity extends CustomTitlebarActivity {
 		protected void onPreExecute() {
 			// notify the user that we've received that they need a dimmed
 			// screen
-			Toast.makeText(SleepActivity.this,
-					"Screen will dim in 15 seconds.", Toast.LENGTH_LONG).show();
+			Toast.makeText(SleepActivity.this, R.string.screen_will_dim,
+					Toast.LENGTH_LONG).show();
 		}
 
 		@Override
@@ -221,12 +235,6 @@ public class SleepActivity extends CustomTitlebarActivity {
 		showTitleButton2(R.drawable.ic_title_alarm);
 		registerReceiver(sleepStoppedReceiver, new IntentFilter(
 				SleepMonitoringService.SLEEP_STOPPED));
-
-		sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
-		waitForSleepData = (LinearLayout) findViewById(R.id.wait_for_sleep_data);
-		textSleepNoAlarm = (TextView) findViewById(R.id.text_sleep_no_alarm);
-		divSleepNoAlarm = findViewById(R.id.div_sleep_no_alarm);
-		textSleepDim = (TextView) findViewById(R.id.text_sleep_dim);
 	}
 
 	@Override
@@ -249,26 +257,27 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 	@Override
 	protected void onRestoreInstanceState(final Bundle savedState) {
-
-		try {
-			super.onRestoreInstanceState(savedState);
-		} catch (final java.lang.RuntimeException rte) {
-			// sendBroadcast(new
-			// Intent(SleepMonitoringService.POKE_SYNC_CHART));
-		}
 		sleepChart = (SleepChart) savedState.getSerializable(SLEEP_CHART);
-
+		super.onRestoreInstanceState(savedState);
 	}
 
 	@Override
 	protected void onResume() {
-		super.onResume();
+		sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
+		waitForSleepData = (LinearLayout) findViewById(R.id.wait_for_sleep_data);
+		textSleepNoAlarm = (TextView) findViewById(R.id.text_sleep_no_alarm);
+		divSleepNoAlarm = findViewById(R.id.div_sleep_no_alarm);
+		textSleepDim = (TextView) findViewById(R.id.text_sleep_dim);
+		textSleepPluggedIn = (TextView) findViewById(R.id.text_sleep_plugged_in);
+		divSleepPluggedIn = findViewById(R.id.div_sleep_plugged_in);
 
 		registerReceiver(updateChartReceiver, new IntentFilter(UPDATE_CHART));
 		registerReceiver(syncChartReceiver, new IntentFilter(SYNC_CHART));
 		registerReceiver(batteryChangedReceiver, new IntentFilter(
 				Intent.ACTION_BATTERY_CHANGED));
 		sendBroadcast(new Intent(SleepMonitoringService.POKE_SYNC_CHART));
+
+		super.onResume();
 	}
 
 	@Override

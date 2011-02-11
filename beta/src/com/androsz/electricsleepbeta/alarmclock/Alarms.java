@@ -171,12 +171,17 @@ public class Alarms {
 				alarm.time + 1).getTimeInMillis();
 	}
 
+	/**
+	 * @param context
+	 * @return
+	 */
 	public static Alarm calculateNextAlert(final Context context) {
 		Alarm alarm = null;
 		long minTime = Long.MAX_VALUE;
 		final long now = System.currentTimeMillis();
 		final Cursor cursor = getFilteredAlarmsCursor(context
 				.getContentResolver());
+		
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -193,8 +198,8 @@ public class Alarms {
 					if (a.time < minTime) {
 						if (a.time == a.timeToIgnore) {
 							a.time = calculateAlarmIgnoringNext(a);
-							alarm = a;
 						}
+						alarm = a;
 						minTime = a.time;
 					}
 				} while (cursor.moveToNext());

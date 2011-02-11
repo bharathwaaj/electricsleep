@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.R.string;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 import com.androsz.electricsleepbeta.db.SleepRecord;
@@ -47,7 +48,7 @@ public class HistoryActivity extends CustomTitlebarActivity {
 		@Override
 		protected void onPostExecute(final Void results) {
 			mListView.removeAllViewsInLayout();
-			new QuerySleepTask().execute(null);
+			new QuerySleepTask().execute(searchFor);
 			Toast.makeText(HistoryActivity.this,
 					getString(R.string.deleted_sleep_record),
 					Toast.LENGTH_SHORT).show();
@@ -64,21 +65,20 @@ public class HistoryActivity extends CustomTitlebarActivity {
 		}
 	}
 
-	private class QuerySleepTask extends AsyncTask<Void, Void, Void> {
-		Cursor cursor;
+	private class QuerySleepTask extends AsyncTask<String, Void, Cursor> {
 
 		@Override
-		protected Void doInBackground(final Void... params) {
-			if (searchFor == null) {
-				searchFor = getString(R.string.to);
+		protected Cursor doInBackground(final String... params) {
+			if (params[0] == null) {
+				searchFor = params[0];
 			}
-			cursor = managedQuery(SleepContentProvider.CONTENT_URI, null, null,
+
+			return managedQuery(SleepContentProvider.CONTENT_URI, null, null,
 					new String[] { searchFor }, SleepRecord.KEY_TITLE);
-			return null;
 		}
 
 		@Override
-		protected void onPostExecute(final Void results) {
+		protected void onPostExecute(final Cursor cursor) {
 			if (cursor == null) {
 				// There are no results
 				mTextView.setVisibility(View.VISIBLE);
@@ -193,7 +193,7 @@ public class HistoryActivity extends CustomTitlebarActivity {
 
 		mTextView = (TextView) findViewById(R.id.text);
 		mListView = (ListView) findViewById(R.id.list);
-		
+
 		mListView.setVerticalFadingEdgeEnabled(false);
 		mListView.setScrollbarFadingEnabled(false);
 
@@ -213,8 +213,12 @@ public class HistoryActivity extends CustomTitlebarActivity {
 			if (searchFor != null) {
 				HistoryActivity.this.setTitle(HistoryActivity.this.getTitle()
 						+ " " + searchFor);
+				//do exact searches only.
+				searchFor = "\"" + searchFor + "\"";
+			} else {
+				searchFor = getString(string.to);
 			}
-			new QuerySleepTask().execute(null);
+			new QuerySleepTask().execute(searchFor);
 		}
 	}
 

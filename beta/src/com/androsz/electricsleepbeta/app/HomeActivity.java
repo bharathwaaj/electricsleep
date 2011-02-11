@@ -8,10 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
@@ -28,26 +30,54 @@ import com.androsz.electricsleepbeta.widget.calendar.MonthActivity;
 public class HomeActivity extends CustomTitlebarActivity {
 
 	private SleepChart sleepChart;
+	LoadLastSleepChartTask loadLastSleepChartTask;
 
-	private void addChartView() throws StreamCorruptedException,
-			IllegalArgumentException, IOException, ClassNotFoundException {
-		sleepChart = (SleepChart) findViewById(R.id.home_sleep_chart);
+	private class LoadLastSleepChartTask extends AsyncTask<String, Void, Cursor> {
 
-		final Cursor cursor = managedQuery(SleepContentProvider.CONTENT_URI,
-				null, null, new String[] { getString(R.string.to) },
-				SleepRecord.KEY_TITLE);
-		final TextView reviewTitleText = (TextView) findViewById(R.id.home_review_title_text);
-		if (cursor == null) {
-			sleepChart.setVisibility(View.GONE);
-			reviewTitleText
-					.setText(getString(R.string.home_review_title_text_empty));
-		} else {
-			cursor.moveToLast();
-			sleepChart.setVisibility(View.VISIBLE);
-			sleepChart.sync(cursor);
-			reviewTitleText.setText(getString(R.string.home_review_title_text));
+		@Override
+		protected Cursor doInBackground(String... params) {
+			return managedQuery(SleepContentProvider.CONTENT_URI, null, null,
+					new String[] { params[0] },
+					SleepRecord.KEY_TITLE);
 		}
+
+		@Override
+		protected void onPreExecute() {
+			sleepChart = (SleepChart) findViewById(R.id.home_sleep_chart);
+		}
+
+		@Override
+		protected void onPostExecute(final Cursor cursor) {
+			final TextView reviewTitleText = (TextView) findViewById(R.id.home_review_title_text);
+			if (cursor == null) {
+				sleepChart.setVisibility(View.GONE);
+				reviewTitleText
+						.setText(getString(R.string.home_review_title_text_empty));
+			} else {
+				cursor.moveToLast();
+				sleepChart.setVisibility(View.VISIBLE);
+				try {
+					sleepChart.sync(cursor);
+				} catch (StreamCorruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				reviewTitleText
+						.setText(getString(R.string.home_review_title_text));
+			}
+		}
+
 	}
+
 
 	@Override
 	protected int getContentAreaLayoutId() {
@@ -93,49 +123,29 @@ public class HomeActivity extends CustomTitlebarActivity {
 		// do nothing b/c home is home!
 	}
 
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		if (loadLastSleepChartTask != null) {
+			loadLastSleepChartTask.cancel(true);
+		}
+		loadLastSleepChartTask = new LoadLastSleepChartTask();
+		loadLastSleepChartTask.execute(getString(R.string.to));
+		
+	}
+
 	@Override
 	protected void onPause() {
 		super.onPause();
-		// removeChartView();
-	}
-
-	@Override
-	protected void onRestoreInstanceState(final Bundle savedState) {
-		try {
-			super.onRestoreInstanceState(savedState);
-		} catch (final RuntimeException re) {
+		
+		if (loadLastSleepChartTask != null) {
+			loadLastSleepChartTask.cancel(true);
 		}
-		sleepChart = (SleepChart) savedState.getSerializable("sleepChart");
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		try {
-			addChartView();
-		} catch (final StreamCorruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	protected void onSaveInstanceState(final Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putSerializable("sleepChart", sleepChart);
 	}
 
 	public void onSleepClick(final View v) throws Exception {
-
 		sendBroadcast(new Intent(StartSleepReceiver.START_SLEEP));
 	}
 }

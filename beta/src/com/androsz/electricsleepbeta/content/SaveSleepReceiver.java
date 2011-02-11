@@ -1,8 +1,10 @@
 package com.androsz.electricsleepbeta.content;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,24 +46,30 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 				final int rating = intent.getIntExtra(EXTRA_RATING, 5);
 				final String note = intent.getStringExtra(EXTRA_NOTE);
 
-				FileInputStream fis;
+				// FileInputStream fis;
+				RandomAccessFile raFile;
 				List<PointD> originalData = null;
 				try {
-					fis = context
-							.openFileInput(SleepMonitoringService.SLEEP_DATA);
-					final long length = context.getFileStreamPath(
-							SleepMonitoringService.SLEEP_DATA).length();
-					final int chunkSize = 16;
-					originalData = new ArrayList<PointD>((int) (length
-							/ chunkSize / 2));
-					if (length >= chunkSize) {
-						final byte[] buffer = new byte[(int) length];
-						fis.read(buffer);
-						fis.close();
-						final byte[] chunk = new byte[chunkSize];
-						for (int i = 0; i < buffer.length; i += chunkSize) {
-							System.arraycopy(buffer, i, chunk, 0, chunkSize);
-							originalData.add(PointD.fromByteArray(chunk));
+					// fis = context
+					// .openFileInput(SleepMonitoringService.SLEEP_DATA);
+					synchronized (SleepMonitoringService.sDataLock) {
+						File dataFile = context
+								.getFileStreamPath(SleepMonitoringService.SLEEP_DATA);
+						raFile = new RandomAccessFile(dataFile, "r");
+						final long length = dataFile.length();
+						final int chunkSize = 16;
+						originalData = new ArrayList<PointD>((int) (length
+								/ chunkSize / 2));
+						if (length >= chunkSize) {
+							//just do one giant IO operation to load whole file into memory
+							final byte[] buffer = new byte[(int) length];
+							raFile.read(buffer);
+							raFile.close();
+							final byte[] chunk = new byte[chunkSize];
+							for (int i = 0; i < buffer.length; i += chunkSize) {
+								System.arraycopy(buffer, i, chunk, 0, chunkSize);
+								originalData.add(PointD.fromByteArray(chunk));
+							}
 						}
 					}
 				} catch (final FileNotFoundException e) {
@@ -161,9 +169,10 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 					try {
 						shdb.addSleep(context, new SleepRecord(name,
-								lessDetailedData, SettingsActivity.DEFAULT_MIN_SENSITIVITY, alarm, rating, endTime
-										- startTime, numberOfSpikes,
-								timeOfFirstSleep, note));
+								lessDetailedData,
+								SettingsActivity.DEFAULT_MIN_SENSITIVITY,
+								alarm, rating, endTime - startTime,
+								numberOfSpikes, timeOfFirstSleep, note));
 					} catch (final IOException e) {
 						shdb.close();
 						context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED)
@@ -196,9 +205,10 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 					}
 					try {
 						shdb.addSleep(context, new SleepRecord(name,
-								originalData, SettingsActivity.DEFAULT_MIN_SENSITIVITY, alarm, rating, endTime
-										- startTime, numberOfSpikes,
-								timeOfFirstSleep, note));
+								originalData,
+								SettingsActivity.DEFAULT_MIN_SENSITIVITY,
+								alarm, rating, endTime - startTime,
+								numberOfSpikes, timeOfFirstSleep, note));
 					} catch (final IOException e) {
 						shdb.close();
 						context.sendBroadcast(new Intent(SAVE_SLEEP_COMPLETED)

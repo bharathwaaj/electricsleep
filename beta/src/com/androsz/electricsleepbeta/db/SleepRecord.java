@@ -294,7 +294,7 @@ public class SleepRecord {
 
 	@SuppressWarnings("unchecked")
 	public SleepRecord(final Cursor cursor) {
-
+		
 		title = cursor.getString(cursor.getColumnIndexOrThrow(KEY_TITLE));
 		chartData = null;
 		try {

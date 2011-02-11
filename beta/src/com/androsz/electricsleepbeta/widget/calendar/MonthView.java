@@ -391,68 +391,7 @@ public class MonthView extends View {
 							int y = (int) e.getY();
 							long millis = getSelectedMillisFor(x, y);
 
-							ArrayList<SleepRecord> applicableEvents = new ArrayList<SleepRecord>();
-							final long ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
-							for (SleepRecord event : mEvents) {
-								long startTime = event.getStartTime() - millis;
-								long endTime = event.getEndTime() - millis;
-								// boolean one = (startTime <= 0 &&);
-								// boolean two = (startTime >= 0 && endTime >=
-								// 0);
-								// boolean three = startTime <= ONE_DAY_IN_MS;
-								if ((endTime > 0)
-										&& ((startTime <= ONE_DAY_IN_MS && startTime > 0) || startTime < 0)) {
-									applicableEvents.add(event);
-								}
-							}
-
-							// if we have more than one applicable entry, then
-							// open the history activity and show all entries
-							// for the selected date
-							if (applicableEvents.size() == 1) {
-								final Intent reviewSleepIntent = new Intent(
-										getContext(), ReviewSleepActivity.class);
-								SleepHistoryDatabase shdb = new SleepHistoryDatabase(
-										getContext());
-								// TODO: hook this into sleep db
-
-								Cursor c = shdb.getSleepMatches(
-										applicableEvents.get(0).title,
-										new String[] {
-												BaseColumns._ID,
-												SleepRecord.KEY_TITLE,
-												SleepRecord.KEY_ALARM,
-												SleepRecord.KEY_DURATION,
-												SleepRecord.KEY_MIN,
-												SleepRecord.KEY_NOTE,
-												SleepRecord.KEY_RATING,
-												SleepRecord.KEY_SLEEP_DATA,
-												SleepRecord.KEY_SPIKES,
-												SleepRecord.KEY_SLEEP_DATA,
-												SleepRecord.KEY_TIME_FELL_ASLEEP });
-
-								shdb.close();
-								final Uri data = Uri.withAppendedPath(
-										SleepContentProvider.CONTENT_URI,
-										String.valueOf(c.getLong(0)));
-								reviewSleepIntent.setData(data);
-								getContext().startActivity(reviewSleepIntent);
-							} else if (applicableEvents.size() > 1) {
-								final java.text.DateFormat sdf = java.text.DateFormat
-										.getDateInstance(
-												java.text.DateFormat.SHORT,
-												Locale.getDefault());
-								Calendar calendar = Calendar.getInstance();
-								calendar.setTimeInMillis(millis);
-								getContext()
-										.startActivity(
-												new Intent(getContext(),
-														HistoryActivity.class)
-														.putExtra(
-																HistoryActivity.SEARCH_FOR,
-																sdf.format((calendar
-																		.getTime()))));
-							}
+							reviewSleepIfNecessary(millis);
 						}
 
 						return true;
@@ -1047,7 +986,7 @@ public class MonthView extends View {
 			}
 
 			int flags;
-			boolean showEndTime = false;
+			boolean showEndTime = true;
 
 			flags = DateUtils.FORMAT_SHOW_TIME
 					| DateUtils.FORMAT_CAP_NOON_MIDNIGHT;
@@ -1196,8 +1135,8 @@ public class MonthView extends View {
 			// Check the duration to determine if this was a short press
 			if (duration < ViewConfiguration.getLongPressTimeout()) {
 				long millis = getSelectedTimeInMillis();
-				Utils.startActivity(getContext(), ReviewSleepActivity.class,
-						millis);
+
+				reviewSleepIfNecessary(millis);
 			} else {
 				mSelectionMode = SELECTION_LONGPRESS;
 				mRedrawScreen = true;
@@ -1239,7 +1178,7 @@ public class MonthView extends View {
 		switch (keyCode) {
 		case KeyEvent.KEYCODE_ENTER:
 			long millis = getSelectedTimeInMillis();
-			Utils.startActivity(getContext(), ReviewSleepActivity.class, millis);
+			reviewSleepIfNecessary(millis); 
 			return true;
 		case KeyEvent.KEYCODE_DPAD_UP:
 			if (mCursor.up()) {
@@ -1326,6 +1265,77 @@ public class MonthView extends View {
 		Handler handler = getHandler();
 		if (handler != null) {
 			handler.removeCallbacks(mDismissPopup);
+		}
+	}
+
+	private void reviewSleepIfNecessary(long millis) {
+		ArrayList<SleepRecord> applicableEvents = new ArrayList<SleepRecord>();
+		final long ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
+		for (SleepRecord event : mEvents) {
+			long startTime = event.getStartTime() - millis;
+			long endTime = event.getEndTime() - millis;
+			if ((endTime > 0)
+					&& ((startTime <= ONE_DAY_IN_MS && startTime > 0) || startTime < 0)) {
+				
+				applicableEvents.add(event);
+			}
+		}
+
+		// if we have more than one applicable entry, then
+		// open the history activity and show all entries
+		// for the selected date
+		if (applicableEvents.size() == 1) {
+			final Intent reviewSleepIntent = new Intent(
+					getContext(), ReviewSleepActivity.class);
+			SleepHistoryDatabase shdb = new SleepHistoryDatabase(
+					getContext());
+			// TODO: hook this into sleep db
+
+			Cursor c = shdb.getSleepMatches(
+					applicableEvents.get(0).title,
+					new String[] {
+							BaseColumns._ID,
+							SleepRecord.KEY_TITLE,
+							SleepRecord.KEY_ALARM,
+							SleepRecord.KEY_DURATION,
+							SleepRecord.KEY_MIN,
+							SleepRecord.KEY_NOTE,
+							SleepRecord.KEY_RATING,
+							SleepRecord.KEY_SLEEP_DATA,
+							SleepRecord.KEY_SPIKES,
+							SleepRecord.KEY_SLEEP_DATA,
+							SleepRecord.KEY_TIME_FELL_ASLEEP });
+
+			shdb.close();
+			
+			if(c == null)
+			{
+				//we may have lost the cursor since the applicableEvents were loaded.
+				//do nothing
+				return;
+			}
+			final Uri data = Uri.withAppendedPath(
+					SleepContentProvider.CONTENT_URI,
+					String.valueOf(c.getLong(0)));
+			c.close();
+			reviewSleepIntent.setData(data);
+			getContext().startActivity(reviewSleepIntent);
+		} else if (applicableEvents.size() > 1) {
+		final java.text.DateFormat sdf = java.text.DateFormat
+					.getDateInstance(
+							java.text.DateFormat.SHORT,
+							Locale.getDefault());
+			Calendar calendar = Calendar.getInstance();;
+			calendar.setTimeInMillis(millis);
+			String formattedMDY = sdf.format((calendar
+					.getTime()));
+			getContext()
+					.startActivity(
+							new Intent(getContext(),
+									HistoryActivity.class)
+									.putExtra(
+											HistoryActivity.SEARCH_FOR,
+											formattedMDY));
 		}
 	}
 }

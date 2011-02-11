@@ -1,7 +1,9 @@
 package com.androsz.electricsleepbeta.app;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,12 +41,14 @@ import com.androsz.electricsleepbeta.util.SharedWakeLock;
 
 public class SleepMonitoringService extends Service implements
 		SensorEventListener {
+	// Object for intrinsic lock
+	public static final Object[] sDataLock = new Object[0];
 
 	private final class UpdateTimerTask extends TimerTask {
 		@Override
 		public void run() {
 			final long currentTime = System.currentTimeMillis();
-			
+
 			final double x = currentTime;
 			final double y = java.lang.Math.min(
 					SettingsActivity.MAX_ALARM_SENSITIVITY, maxNetForce);
@@ -58,10 +62,12 @@ public class SleepMonitoringService extends Service implements
 			}
 			// append the two doubles in sleepPoint to file
 			try {
-				final FileOutputStream fos = openFileOutput(SLEEP_DATA,
-						Context.MODE_APPEND);
-				fos.write(PointD.toByteArray(sleepPoint));
-				fos.close();
+				synchronized (sDataLock) {
+					final FileOutputStream fos = openFileOutput(SLEEP_DATA,
+							Context.MODE_APPEND);
+					fos.write(PointD.toByteArray(sleepPoint));
+					fos.close();
+				}
 			} catch (final IOException e) {
 				Toast.makeText(SleepMonitoringService.this,
 						"Please report this: ", Toast.LENGTH_LONG);
@@ -88,7 +94,6 @@ public class SleepMonitoringService extends Service implements
 	public static final String EXTRA_ALARM_WINDOW = "alarmWindow";
 	public static final String SERVICE_IS_RUNNING = "serviceIsRunning";
 	public static final String SLEEP_DATA = "sleepData";
-	private static final String LOCK_TAG = "com.androsz.electricsleepbeta.app.SleepMonitoringService";
 	private static final int NOTIFICATION_ID = 0x1337a;
 
 	public static final String POKE_SYNC_CHART = "com.androsz.electricsleepbeta.POKE_SYNC_CHART";
@@ -243,13 +248,13 @@ public class SleepMonitoringService extends Service implements
 	}
 
 	private void obtainWakeLock() {
-		//if forcescreenon is on, hold a dim wakelock, otherwise, partial.
+		// if forcescreenon is on, hold a dim wakelock, otherwise, partial.
 		int wakeLockType = forceScreenOn ? PowerManager.SCREEN_DIM_WAKE_LOCK
 				| PowerManager.ON_AFTER_RELEASE
 				| PowerManager.ACQUIRE_CAUSES_WAKEUP
-				
-				: PowerManager.PARTIAL_WAKE_LOCK;
-		
+
+		: PowerManager.PARTIAL_WAKE_LOCK;
+
 		SharedWakeLock.acquire(this, wakeLockType);
 	}
 
@@ -378,6 +383,9 @@ public class SleepMonitoringService extends Service implements
 			toggleSilentMode(true);
 			toggleAirplaneMode(true);
 
+			//TODO: doesn't happen more than once? right?
+			//deleteFile(SleepMonitoringService.SLEEP_DATA);
+
 			final SharedPreferences.Editor ed = getSharedPreferences(
 					SERVICE_IS_RUNNING, Context.MODE_PRIVATE).edit();
 			ed.putBoolean(SERVICE_IS_RUNNING, true);
@@ -419,22 +427,20 @@ public class SleepMonitoringService extends Service implements
 
 	private boolean triggerAlarmIfNecessary(final long currentTime,
 			final double y) {
-		if (useAlarm) {
-			final Alarm alarm = Alarms.calculateNextAlert(this);// adb.getNearestEnabledAlarm();
+		if (useAlarm && y >= alarmTriggerSensitivity) {
+			final Alarm alarm = Alarms.calculateNextAlert(this);
 			if (alarm != null) {
 				final Calendar alarmTime = Calendar.getInstance();
 				alarmTime.setTimeInMillis(alarm.time);
 				alarmTime.add(Calendar.MINUTE, alarmWindow * -1);
 				final long alarmMillis = alarmTime.getTimeInMillis();
-				if (currentTime >= alarmMillis && y >= alarmTriggerSensitivity) {
-					// alarm.time = currentTime;
+				if (currentTime >= alarmMillis) {
 					final SharedPreferences alarmPrefs = getSharedPreferences(
 							SettingsActivity.PREFERENCES, 0);
 					final int id = alarmPrefs.getInt(Alarms.PREF_SNOOZE_ID, -1);
 					// if not already snoozing off the same alarm, trigger the
 					// alarm
 					if (id != alarm.id) {
-						SharedWakeLock.release();
 						Alarms.enableAlert(this, alarm, currentTime);
 					}
 					return true;

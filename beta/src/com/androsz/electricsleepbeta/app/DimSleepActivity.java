@@ -22,7 +22,7 @@ public class DimSleepActivity extends Activity {
 
 		final Window win = getWindow();
 		final WindowManager.LayoutParams winParams = win.getAttributes();
-		winParams.flags |= WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+		winParams.flags |= WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 				| WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
 				| WindowManager.LayoutParams.FLAG_FULLSCREEN;
 
