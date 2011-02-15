@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.TableLayout.LayoutParams;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.widget.ViewFlipperBugfix;

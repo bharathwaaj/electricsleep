@@ -22,45 +22,47 @@ import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRende
  * Abstract class for being extended by graphical view tools.
  */
 public abstract class AbstractTool {
-  /** The chart. */
-  protected XYChart mChart;
-  /** The renderer. */
-  protected XYMultipleSeriesRenderer mRenderer;
+	/** The chart. */
+	protected XYChart mChart;
+	/** The renderer. */
+	protected XYMultipleSeriesRenderer mRenderer;
 
-  /**
-   * Abstract tool constructor.
-   * @param chart the chart
-   */
-  public AbstractTool(XYChart chart) {
-    mChart = chart;
-    mRenderer = chart.getRenderer();
-  }
+	/**
+	 * Abstract tool constructor.
+	 * 
+	 * @param chart
+	 *            the chart
+	 */
+	public AbstractTool(XYChart chart) {
+		mChart = chart;
+		mRenderer = chart.getRenderer();
+	}
 
-  public double[] getRange() {
-    double minX = mRenderer.getXAxisMin();
-    double maxX = mRenderer.getXAxisMax();
-    double minY = mRenderer.getYAxisMin();
-    double maxY = mRenderer.getYAxisMax();
-    return new double[] { minX, maxX, minY, maxY };
-  }
+	public void checkRange(double[] range) {
+		final double[] calcRange = mChart.getCalcRange();
+		if (!mRenderer.isMinXSet()) {
+			range[0] = calcRange[0];
+			mRenderer.setXAxisMin(range[0]);
+		}
+		if (!mRenderer.isMaxXSet()) {
+			range[1] = calcRange[1];
+			mRenderer.setXAxisMax(range[1]);
+		}
+		if (!mRenderer.isMinYSet()) {
+			range[2] = calcRange[2];
+			mRenderer.setYAxisMin(range[2]);
+		}
+		if (!mRenderer.isMaxYSet()) {
+			range[3] = calcRange[3];
+			mRenderer.setYAxisMax(range[3]);
+		}
+	}
 
-  public void checkRange(double[] range) {
-    double[] calcRange = mChart.getCalcRange();
-    if (!mRenderer.isMinXSet()) {
-      range[0] = calcRange[0];
-      mRenderer.setXAxisMin(range[0]);
-    }
-    if (!mRenderer.isMaxXSet()) {
-      range[1] = calcRange[1];
-      mRenderer.setXAxisMax(range[1]);
-    }
-    if (!mRenderer.isMinYSet()) {
-      range[2] = calcRange[2];
-      mRenderer.setYAxisMin(range[2]);
-    }
-    if (!mRenderer.isMaxYSet()) {
-      range[3] = calcRange[3];
-      mRenderer.setYAxisMax(range[3]);
-    }
-  }
+	public double[] getRange() {
+		final double minX = mRenderer.getXAxisMin();
+		final double maxX = mRenderer.getXAxisMax();
+		final double minY = mRenderer.getYAxisMin();
+		final double maxY = mRenderer.getYAxisMax();
+		return new double[] { minX, maxX, minY, maxY };
+	}
 }

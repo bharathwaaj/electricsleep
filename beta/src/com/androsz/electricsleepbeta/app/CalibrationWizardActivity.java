@@ -119,11 +119,11 @@ public class CalibrationWizardActivity extends CustomTitlebarWizardActivity {
 		ed.commit();
 
 		final SharedPreferences.Editor ed2 = getSharedPreferences(
-				SettingsActivity.PREFS_VERSION, Context.MODE_PRIVATE).edit();
-		ed2.putInt(SettingsActivity.PREFS_VERSION,
-				getResources().getInteger(R.integer.prefs_version));
+				SettingsActivity.PREFERENCES_ENVIRONMENT, Context.MODE_PRIVATE)
+				.edit();
+		ed2.putInt(SettingsActivity.PREFERENCES_ENVIRONMENT, getResources()
+				.getInteger(R.integer.prefs_version));
 		ed2.commit();
-		ed.commit();
 
 		trackEvent("alarm-level",
 				(int) Math.round(alarmTriggerCalibration * 100));

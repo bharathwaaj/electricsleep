@@ -1,8 +1,5 @@
 package com.androsz.electricsleepbeta.app;
 
-import com.androsz.electricsleepbeta.util.SharedWakeLock;
-
-import android.R;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,12 +9,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.os.SystemClock;
-import android.os.PowerManager.WakeLock;
+
+import com.androsz.electricsleepbeta.util.SharedWakeLock;
 
 public class CheckForScreenBugAccelerometerService extends Service implements
 		SensorEventListener {
@@ -64,6 +60,8 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 
 	private PowerManager powerManager;
 
+	boolean didNotTurnScreenOn = true;
+
 	@Override
 	public void onAccuracyChanged(final Sensor sensor, final int accuracy) {
 		// Not used.
@@ -73,6 +71,33 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 	public IBinder onBind(final Intent intent) {
 		// Not used
 		return null;
+	}
+
+	@Override
+	public void onDestroy() {
+
+		unregisterAccelerometerListener();
+
+		unregisterReceiver(screenOnOffReceiver);
+
+		serviceHandler.removeCallbacks(setScreenIsOffRunnable);
+		serviceHandler.removeCallbacks(turnScreenOnFallbackRunnable);
+
+		// check here so that certain devices keep their screen on for at least
+		// 5 seconds (from turnScreenOn)
+		if (didNotTurnScreenOn) {
+			SharedWakeLock.release();
+		}
+		super.onDestroy();
+	}
+
+	@Override
+	public void onSensorChanged(final SensorEvent event) {
+		if (!powerManager.isScreenOn() && screenIsOff && bugPresent) {
+			CheckForScreenBugActivity.BUG_PRESENT_INTENT = new Intent(
+					BUG_NOT_PRESENT);
+			turnScreenOn();
+		}
 	}
 
 	@Override
@@ -93,32 +118,6 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 		return startId;
 	}
 
-	@Override
-	public void onDestroy() {
-
-		unregisterAccelerometerListener();
-
-		unregisterReceiver(screenOnOffReceiver);
-
-		serviceHandler.removeCallbacks(setScreenIsOffRunnable);
-		serviceHandler.removeCallbacks(turnScreenOnFallbackRunnable);
-
-		//check here so that certain devices keep their screen on for at least 5 seconds (from turnScreenOn)
-		if (didNotTurnScreenOn) {
-			SharedWakeLock.release();
-		}
-		super.onDestroy();
-	}
-
-	@Override
-	public void onSensorChanged(final SensorEvent event) {
-		if (!powerManager.isScreenOn() && screenIsOff && bugPresent) {
-			CheckForScreenBugActivity.BUG_PRESENT_INTENT = new Intent(
-					BUG_NOT_PRESENT);
-			turnScreenOn();
-		}
-	}
-
 	private void registerAccelerometerListener() {
 		final SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -127,7 +126,6 @@ public class CheckForScreenBugAccelerometerService extends Service implements
 				SensorManager.SENSOR_DELAY_FASTEST);
 	}
 
-	boolean didNotTurnScreenOn = true;
 	private void turnScreenOn() {
 		didNotTurnScreenOn = false;
 		SharedWakeLock.acquire(this, PowerManager.SCREEN_DIM_WAKE_LOCK

@@ -130,17 +130,15 @@ public class AlarmProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(final Uri url, final ContentValues initialValues) {
-		if (sURLMatcher.match(url) != ALARMS) {
+		if (sURLMatcher.match(url) != ALARMS)
 			throw new IllegalArgumentException("Cannot insert into URL: " + url);
-		}
 
 		final ContentValues values = new ContentValues(initialValues);
 
 		final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		final long rowId = db.insert("alarms", Alarm.Columns.MESSAGE, values);
-		if (rowId < 0) {
+		if (rowId < 0)
 			throw new SQLException("Failed to insert row into " + url);
-		}
 		if (Log.LOGV) {
 			Log.v("Added alarm rowId = " + rowId);
 		}

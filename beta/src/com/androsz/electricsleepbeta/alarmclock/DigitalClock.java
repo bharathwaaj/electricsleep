@@ -120,9 +120,8 @@ public class DigitalClock extends LinearLayout {
 			Log.v("onAttachedToWindow " + this);
 		}
 
-		if (mAttached) {
+		if (mAttached)
 			return;
-		}
 		mAttached = true;
 
 		if (mLive) {
@@ -146,9 +145,8 @@ public class DigitalClock extends LinearLayout {
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
 
-		if (!mAttached) {
+		if (!mAttached)
 			return;
-		}
 		mAttached = false;
 
 		if (mLive) {

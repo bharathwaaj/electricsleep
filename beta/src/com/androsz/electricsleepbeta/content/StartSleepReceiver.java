@@ -10,8 +10,8 @@ import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.app.SettingsActivity;
-import com.androsz.electricsleepbeta.app.SleepMonitoringService;
 import com.androsz.electricsleepbeta.app.SleepActivity;
+import com.androsz.electricsleepbeta.app.SleepMonitoringService;
 
 public class StartSleepReceiver extends BroadcastReceiver {
 
@@ -29,9 +29,9 @@ public class StartSleepReceiver extends BroadcastReceiver {
 	public static void enforceCalibrationBeforeStartingSleep(
 			final Context context, final Intent service, final Intent activity) {
 		final SharedPreferences userPrefs = context.getSharedPreferences(
-				SettingsActivity.PREFS_VERSION, Context.MODE_PRIVATE);
+				SettingsActivity.PREFERENCES_ENVIRONMENT, Context.MODE_PRIVATE);
 		final int prefsVersion = userPrefs.getInt(
-				SettingsActivity.PREFS_VERSION, 0);
+				SettingsActivity.PREFERENCES_ENVIRONMENT, 0);
 		String message = "";
 		if (prefsVersion == 0) {
 			message = context.getString(R.string.message_not_calibrated);

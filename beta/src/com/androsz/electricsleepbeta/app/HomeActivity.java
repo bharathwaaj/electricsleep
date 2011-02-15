@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.StreamCorruptedException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -13,7 +16,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
@@ -29,21 +31,13 @@ import com.androsz.electricsleepbeta.widget.calendar.MonthActivity;
  */
 public class HomeActivity extends CustomTitlebarActivity {
 
-	private SleepChart sleepChart;
-	LoadLastSleepChartTask loadLastSleepChartTask;
-
-	private class LoadLastSleepChartTask extends AsyncTask<String, Void, Cursor> {
+	private class LoadLastSleepChartTask extends
+			AsyncTask<String, Void, Cursor> {
 
 		@Override
 		protected Cursor doInBackground(String... params) {
 			return managedQuery(SleepContentProvider.CONTENT_URI, null, null,
-					new String[] { params[0] },
-					SleepRecord.KEY_TITLE);
-		}
-
-		@Override
-		protected void onPreExecute() {
-			sleepChart = (SleepChart) findViewById(R.id.home_sleep_chart);
+					new String[] { params[0] }, SleepRecord.KEY_TITLE);
 		}
 
 		@Override
@@ -58,16 +52,16 @@ public class HomeActivity extends CustomTitlebarActivity {
 				sleepChart.setVisibility(View.VISIBLE);
 				try {
 					sleepChart.sync(cursor);
-				} catch (StreamCorruptedException e) {
+				} catch (final StreamCorruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
+				} catch (final IllegalArgumentException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
+				} catch (final ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -76,8 +70,16 @@ public class HomeActivity extends CustomTitlebarActivity {
 			}
 		}
 
+		@Override
+		protected void onPreExecute() {
+			sleepChart = (SleepChart) findViewById(R.id.home_sleep_chart);
+		}
+
 	}
 
+	private SleepChart sleepChart;
+
+	LoadLastSleepChartTask loadLastSleepChartTask;
 
 	@Override
 	protected int getContentAreaLayoutId() {
@@ -100,16 +102,46 @@ public class HomeActivity extends CustomTitlebarActivity {
 		setHomeButtonAsLogo();
 
 		final SharedPreferences userPrefs = getSharedPreferences(
-				SettingsActivity.PREFS_VERSION, Context.MODE_PRIVATE);
+				SettingsActivity.PREFERENCES_ENVIRONMENT, Context.MODE_PRIVATE);
 		final int prefsVersion = userPrefs.getInt(
-				SettingsActivity.PREFS_VERSION, 0);
+				SettingsActivity.PREFERENCES_ENVIRONMENT, 0);
 		if (prefsVersion == 0) {
 			startActivity(new Intent(this, WelcomeTutorialWizardActivity.class)
 					.putExtra("required", true));
 		} else {
 
-			WelcomeTutorialWizardActivity
-					.enforceCalibrationBeforeStartingSleep(this);
+			if (!WelcomeTutorialWizardActivity
+					.enforceCalibrationBeforeStartingSleep(this)) {
+				// we've already calibrated... now show the beta-ending-donate
+				// message
+
+				final AlertDialog.Builder dialog = new AlertDialog.Builder(this)
+						.setMessage(getString(R.string.delete_sleep_record))
+						.setPositiveButton(getString(R.string.ok),
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(
+											final DialogInterface dialog,
+											final int id) {
+										final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+										notificationManager
+												.cancel(getIntent()
+														.getExtras()
+														.getInt(SleepMonitoringService.EXTRA_ID));
+										finish();
+									}
+								})
+						.setNegativeButton(getString(R.string.cancel),
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(
+											final DialogInterface dialog,
+											final int id) {
+										dialog.cancel();
+									}
+								});
+				dialog.show();
+			}
 
 		}
 	}
@@ -123,26 +155,24 @@ public class HomeActivity extends CustomTitlebarActivity {
 		// do nothing b/c home is home!
 	}
 
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		if (loadLastSleepChartTask != null) {
+			loadLastSleepChartTask.cancel(true);
+		}
+	}
 
 	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
 		super.onResume();
 		if (loadLastSleepChartTask != null) {
 			loadLastSleepChartTask.cancel(true);
 		}
 		loadLastSleepChartTask = new LoadLastSleepChartTask();
 		loadLastSleepChartTask.execute(getString(R.string.to));
-		
-	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		
-		if (loadLastSleepChartTask != null) {
-			loadLastSleepChartTask.cancel(true);
-		}
 	}
 
 	public void onSleepClick(final View v) throws Exception {

@@ -17,6 +17,7 @@ import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.Toast;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.alarmclock.Alarms;
 import com.androsz.electricsleepbeta.content.SaveSleepReceiver;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
 
@@ -36,6 +37,9 @@ public class SaveSleepActivity extends CustomTitlebarActivity implements
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 
+			// makes sure the next alert is set (fixes a bug with snoozing
+			// disabling repeated alarms)
+			Alarms.setNextAlert(context);
 			final Intent reviewSleepIntent = new Intent(context,
 					ReviewSleepActivity.class);
 			if (!intent.getBooleanExtra(SaveSleepReceiver.EXTRA_SUCCESS, false)) {

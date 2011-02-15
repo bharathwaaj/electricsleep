@@ -23,8 +23,11 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 	public static double DEFAULT_ALARM_SENSITIVITY = 0.33;
 	public static double MAX_ALARM_SENSITIVITY = 1;
 
-	public static final String PREFS_VERSION = "prefsVersion";
+	// name of the preferences file that holds environmental preferences
+	// example: show the user a donate message once
+	public static final String PREFERENCES_ENVIRONMENT = "prefsVersion";
 
+	// name of the preferences file that holds ElectricSleep's main preferences
 	// this is actually what android uses as default..
 	public static String PREFERENCES = "com.androsz.electricsleepbeta_preferences";
 
@@ -60,12 +63,9 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 				});
 
 		final SharedPreferences serviceIsRunningPrefs = getSharedPreferences(
-				SleepMonitoringService.SERVICE_IS_RUNNING,
-				Context.MODE_PRIVATE);
+				SleepMonitoringService.SERVICE_IS_RUNNING, Context.MODE_PRIVATE);
 		if (serviceIsRunningPrefs.getBoolean("serviceIsRunning", false)) {
-			Toast.makeText(
-					this,
-					R.string.changes_made_to_these_settings,
+			Toast.makeText(this, R.string.changes_made_to_these_settings,
 					Toast.LENGTH_LONG).show();
 		}
 	}
@@ -79,8 +79,8 @@ public class SettingsActivity extends CustomTitlebarPreferenceActivity
 			@Override
 			public void run() {
 				final SharedPreferences.Editor ed = getSharedPreferences(
-						PREFS_VERSION, Context.MODE_PRIVATE).edit();
-				ed.putInt(PREFS_VERSION,
+						PREFERENCES_ENVIRONMENT, Context.MODE_PRIVATE).edit();
+				ed.putInt(PREFERENCES_ENVIRONMENT,
 						getResources().getInteger(R.integer.prefs_version));
 				ed.commit();
 			}

@@ -32,7 +32,7 @@
 				android:layout_width="wrap_content" android:layout_toRightOf="@+id/imgConfigure"
 				android:layout_alignTop="@+id/imgConfigure" android:text="@string/how_configure"
 				style="@style/TextHeaderTwo"></TextView>
-				
+
 			<ImageView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:layout_toRightOf="@+id/welcomeTitle"
 				android:src="@drawable/home_btn_sleep" android:layout_below="@+id/imgConfigure"
@@ -41,7 +41,7 @@
 				android:layout_width="wrap_content" android:layout_toRightOf="@+id/imgConfigure"
 				android:layout_alignTop="@+id/imgSleep" android:text="@string/how_sleep"
 				style="@style/TextHeaderTwo"></TextView>
-				
+
 			<ImageView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:layout_toRightOf="@+id/welcomeTitle"
 				android:layout_margin="15dip" android:id="@+id/imgAlarm"
@@ -51,7 +51,7 @@
 				android:layout_width="wrap_content" style="@style/TextHeaderTwo"
 				android:layout_toRightOf="@+id/imgConfigure"
 				android:layout_alignTop="@+id/imgAlarm" android:text="@string/how_wake"></TextView>
-				
+
 			<ImageView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:layout_toRightOf="@+id/welcomeTitle"
 				android:layout_margin="10dip" android:id="@+id/imgReview"

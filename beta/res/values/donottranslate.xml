@@ -42,7 +42,7 @@
 		<item>115</item>
 		<item>120</item>
 	</string-array>
-    <!-- Order of month year label in month view -->
-    <string name="month_year">%B %Y</string>
+	<!-- Order of month year label in month view -->
+	<string name="month_year">%B %Y</string>
 
 </resources>

@@ -130,23 +130,23 @@
 		<item name="android:layout_height">68dip</item>
 	</style>
 
-	<!-- calendar  -->
-    <style name="MonthView_DayLabel">
-        <item name="android:layout_width">29dip</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:gravity">center</item>
-        <item name="android:paddingTop">2dip</item>
-        <item name="android:paddingBottom">2dip</item>
-        <item name="android:textAppearance">@style/TextAppearance_MonthView_DayLabel</item>
-    </style>
-    <style name="TextAppearance_MonthView_DayLabel">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/daynames_text_color</item>
-    </style>
-    <style name="CalendarTheme" parent="android:Theme.Black">
-          <item name="android:windowContentOverlay">@null</item>
-    </style>
+	<!-- calendar -->
+	<style name="MonthView_DayLabel">
+		<item name="android:layout_width">29dip</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="android:layout_weight">1</item>
+		<item name="android:gravity">center</item>
+		<item name="android:paddingTop">2dip</item>
+		<item name="android:paddingBottom">2dip</item>
+		<item name="android:textAppearance">@style/TextAppearance_MonthView_DayLabel</item>
+	</style>
+	<style name="TextAppearance_MonthView_DayLabel">
+		<item name="android:textSize">14sp</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:textColor">@color/daynames_text_color</item>
+	</style>
+	<style name="CalendarTheme" parent="android:Theme.Black">
+		<item name="android:windowContentOverlay">@null</item>
+	</style>
 
 </resources>

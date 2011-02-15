@@ -48,20 +48,11 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 		}
 	}
 
-	ProgressDialog progress;
-	private SleepChart sleepChart;
-	LoadSleepChartTask loadSleepChartTask;
-
 	private class LoadSleepChartTask extends AsyncTask<Uri, Void, Cursor> {
 
 		@Override
 		protected Cursor doInBackground(Uri... params) {
 			return managedQuery(params[0], null, null, null, null);
-		}
-
-		@Override
-		protected void onPreExecute() {
-			sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
 		}
 
 		@Override
@@ -88,10 +79,19 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 			sleepChart.sync(sleepRecord);
 		}
 
+		@Override
+		protected void onPreExecute() {
+			sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
+		}
+
 	}
 
-	private Uri uri;
+	ProgressDialog progress;
+	private SleepChart sleepChart;
 
+	LoadSleepChartTask loadSleepChartTask;
+
+	private Uri uri;
 
 	@Override
 	protected int getContentAreaLayoutId() {

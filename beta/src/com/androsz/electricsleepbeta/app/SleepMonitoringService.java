@@ -1,9 +1,7 @@
 package com.androsz.electricsleepbeta.app;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,7 +26,6 @@ import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
 import android.widget.Toast;
 
@@ -41,9 +38,6 @@ import com.androsz.electricsleepbeta.util.SharedWakeLock;
 
 public class SleepMonitoringService extends Service implements
 		SensorEventListener {
-	// Object for intrinsic lock
-	public static final Object[] sDataLock = new Object[0];
-
 	private final class UpdateTimerTask extends TimerTask {
 		@Override
 		public void run() {
@@ -85,6 +79,9 @@ public class SleepMonitoringService extends Service implements
 			triggerAlarmIfNecessary(currentTime, y);
 		}
 	}
+
+	// Object for intrinsic lock
+	public static final Object[] sDataLock = new Object[0];
 
 	public static int MAX_POINTS_IN_A_GRAPH = 200;
 	public static final String EXTRA_ID = "id";
@@ -249,11 +246,11 @@ public class SleepMonitoringService extends Service implements
 
 	private void obtainWakeLock() {
 		// if forcescreenon is on, hold a dim wakelock, otherwise, partial.
-		int wakeLockType = forceScreenOn ? PowerManager.SCREEN_DIM_WAKE_LOCK
+		final int wakeLockType = forceScreenOn ? PowerManager.SCREEN_DIM_WAKE_LOCK
 				| PowerManager.ON_AFTER_RELEASE
 				| PowerManager.ACQUIRE_CAUSES_WAKEUP
 
-		: PowerManager.PARTIAL_WAKE_LOCK;
+				: PowerManager.PARTIAL_WAKE_LOCK;
 
 		SharedWakeLock.acquire(this, wakeLockType);
 	}
@@ -383,8 +380,8 @@ public class SleepMonitoringService extends Service implements
 			toggleSilentMode(true);
 			toggleAirplaneMode(true);
 
-			//TODO: doesn't happen more than once? right?
-			//deleteFile(SleepMonitoringService.SLEEP_DATA);
+			// TODO: doesn't happen more than once? right?
+			// deleteFile(SleepMonitoringService.SLEEP_DATA);
 
 			final SharedPreferences.Editor ed = getSharedPreferences(
 					SERVICE_IS_RUNNING, Context.MODE_PRIVATE).edit();
@@ -425,9 +422,9 @@ public class SleepMonitoringService extends Service implements
 		}
 	}
 
-	private boolean triggerAlarmIfNecessary(final long currentTime,
-			final double y) {
+	private void triggerAlarmIfNecessary(final long currentTime, final double y) {
 		if (useAlarm && y >= alarmTriggerSensitivity) {
+			// TODO: stop calling calculateNextAlert here... battery waster
 			final Alarm alarm = Alarms.calculateNextAlert(this);
 			if (alarm != null) {
 				final Calendar alarmTime = Calendar.getInstance();
@@ -441,13 +438,14 @@ public class SleepMonitoringService extends Service implements
 					// if not already snoozing off the same alarm, trigger the
 					// alarm
 					if (id != alarm.id) {
-						Alarms.enableAlert(this, alarm, currentTime);
+						// add 1 second delay to make it less likely that we
+						// skip the alarm
+						Alarms.enableAlert(this, alarm,
+								System.currentTimeMillis() + 1000);
 					}
-					return true;
 				}
 			}
 		}
-		return false;
 	}
 
 	private void unregisterAccelerometerListener() {

@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.Paint.Align;
+import android.graphics.Typeface;
 
 /**
  * An abstract renderer to be extended by the multiple series classes.
@@ -62,7 +62,7 @@ public class DefaultRenderer implements Serializable {
 	/** If the grid should be displayed. */
 	private boolean mShowGrid = false;
 	/** The simple renderers that are included in this multiple series renderer. */
-	private List<SimpleSeriesRenderer> mRenderers = new ArrayList<SimpleSeriesRenderer>();
+	private final List<SimpleSeriesRenderer> mRenderers = new ArrayList<SimpleSeriesRenderer>();
 	/** The antialiasing flag. */
 	private boolean antialiasing = true;
 	/** The X axis labels alignment. */
@@ -85,13 +85,67 @@ public class DefaultRenderer implements Serializable {
 	}
 
 	/**
-	 * Removes a simple renderer from the multiple renderer.
+	 * Returns the axes color.
 	 * 
-	 * @param renderer
-	 *            the renderer to be removed
+	 * @return the axes color
 	 */
-	public void removeSeriesRenderer(SimpleSeriesRenderer renderer) {
-		mRenderers.remove(renderer);
+	public int getAxesColor() {
+		return mAxesColor;
+	}
+
+	/**
+	 * Returns the background color.
+	 * 
+	 * @return the background color
+	 */
+	public int getBackgroundColor() {
+		return mBackgroundColor;
+	}
+
+	/**
+	 * Returns the labels color.
+	 * 
+	 * @return the labels color
+	 */
+	public int getLabelsColor() {
+		return mLabelsColor;
+	}
+
+	/**
+	 * Returns the labels text size.
+	 * 
+	 * @return the labels text size
+	 */
+	public float getLabelsTextSize() {
+		return mLabelsTextSize;
+	}
+
+	/**
+	 * Returns the legend height.
+	 * 
+	 * @return the legend height
+	 */
+	public int getLegendHeight() {
+		return mLegendHeight;
+	}
+
+	/**
+	 * Returns the legend text size.
+	 * 
+	 * @return the legend text size
+	 */
+	public float getLegendTextSize() {
+		return mLegendTextSize;
+	}
+
+	/**
+	 * Returns the margin sizes. An array containing the margins in this order:
+	 * top, left, bottom, right
+	 * 
+	 * @return the margin sizes
+	 */
+	public int[] getMargins() {
+		return mMargins;
 	}
 
 	/**
@@ -124,177 +178,6 @@ public class DefaultRenderer implements Serializable {
 	}
 
 	/**
-	 * Returns the background color.
-	 * 
-	 * @return the background color
-	 */
-	public int getBackgroundColor() {
-		return mBackgroundColor;
-	}
-
-	/**
-	 * Sets the background color.
-	 * 
-	 * @param color
-	 *            the background color
-	 */
-	public void setBackgroundColor(int color) {
-		mBackgroundColor = color;
-	}
-
-	/**
-	 * Returns if the background color should be applied.
-	 * 
-	 * @return the apply flag for the background color.
-	 */
-	public boolean isApplyBackgroundColor() {
-		return mApplyBackgroundColor;
-	}
-
-	/**
-	 * Sets if the background color should be applied.
-	 * 
-	 * @param apply
-	 *            the apply flag for the background color
-	 */
-	public void setApplyBackgroundColor(boolean apply) {
-		mApplyBackgroundColor = apply;
-	}
-
-	/**
-	 * Returns the axes color.
-	 * 
-	 * @return the axes color
-	 */
-	public int getAxesColor() {
-		return mAxesColor;
-	}
-
-	/**
-	 * Sets the axes color.
-	 * 
-	 * @param color
-	 *            the axes color
-	 */
-	public void setAxesColor(int color) {
-		mAxesColor = color;
-	}
-
-	/**
-	 * Returns the labels color.
-	 * 
-	 * @return the labels color
-	 */
-	public int getLabelsColor() {
-		return mLabelsColor;
-	}
-
-	/**
-	 * Sets the labels color.
-	 * 
-	 * @param color
-	 *            the labels color
-	 */
-	public void setLabelsColor(int color) {
-		mLabelsColor = color;
-	}
-
-	/**
-	 * Returns the labels text size.
-	 * 
-	 * @return the labels text size
-	 */
-	public float getLabelsTextSize() {
-		return mLabelsTextSize;
-	}
-
-	/**
-	 * Sets the labels text size.
-	 * 
-	 * @param textSize
-	 *            the labels text size
-	 */
-	public void setLabelsTextSize(float textSize) {
-		mLabelsTextSize = textSize;
-	}
-
-	/**
-	 * Returns if the axes should be visible.
-	 * 
-	 * @return the visibility flag for the axes
-	 */
-	public boolean isShowAxes() {
-		return mShowAxes;
-	}
-
-	/**
-	 * Sets if the axes should be visible.
-	 * 
-	 * @param showAxes
-	 *            the visibility flag for the axes
-	 */
-	public void setShowAxes(boolean showAxes) {
-		mShowAxes = showAxes;
-	}
-
-	/**
-	 * Returns if the labels should be visible.
-	 * 
-	 * @return the visibility flag for the labels
-	 */
-	public boolean isShowLabels() {
-		return mShowLabels;
-	}
-
-	/**
-	 * Sets if the labels should be visible.
-	 * 
-	 * @param showLabels
-	 *            the visibility flag for the labels
-	 */
-	public void setShowLabels(boolean showLabels) {
-		mShowLabels = showLabels;
-	}
-
-	/**
-	 * Returns if the grid should be visible.
-	 * 
-	 * @return the visibility flag for the grid
-	 */
-	public boolean isShowGrid() {
-		return mShowGrid;
-	}
-
-	/**
-	 * Sets if the grid should be visible.
-	 * 
-	 * @param showGrid
-	 *            the visibility flag for the grid
-	 */
-	public void setShowGrid(boolean showGrid) {
-		mShowGrid = showGrid;
-	}
-
-	/**
-	 * Returns if the legend should be visible.
-	 * 
-	 * @return the visibility flag for the legend
-	 */
-	public boolean isShowLegend() {
-		return mShowLegend;
-	}
-
-	/**
-	 * Sets if the legend should be visible.
-	 * 
-	 * @param showLegend
-	 *            the visibility flag for the legend
-	 */
-	public void setShowLegend(boolean showLegend) {
-		mShowLegend = showLegend;
-	}
-
-	/**
 	 * Returns the text typeface name.
 	 * 
 	 * @return the text typeface name
@@ -313,12 +196,155 @@ public class DefaultRenderer implements Serializable {
 	}
 
 	/**
-	 * Returns the legend text size.
+	 * Returns the X axis labels alignment.
 	 * 
-	 * @return the legend text size
+	 * @return X labels alignment
 	 */
-	public float getLegendTextSize() {
-		return mLegendTextSize;
+	public Align getXLabelsAlign() {
+		return xLabelsAlign;
+	}
+
+	/**
+	 * Returns the Y axis labels alignment.
+	 * 
+	 * @return Y labels alignment
+	 */
+	public Align getYLabelsAlign() {
+		return yLabelsAlign;
+	}
+
+	/**
+	 * Returns the antialiasing flag value.
+	 * 
+	 * @return the antialiasing value
+	 */
+	public boolean isAntialiasing() {
+		return antialiasing;
+	}
+
+	/**
+	 * Returns if the background color should be applied.
+	 * 
+	 * @return the apply flag for the background color.
+	 */
+	public boolean isApplyBackgroundColor() {
+		return mApplyBackgroundColor;
+	}
+
+	/**
+	 * Returns if the axes should be visible.
+	 * 
+	 * @return the visibility flag for the axes
+	 */
+	public boolean isShowAxes() {
+		return mShowAxes;
+	}
+
+	/**
+	 * Returns if the grid should be visible.
+	 * 
+	 * @return the visibility flag for the grid
+	 */
+	public boolean isShowGrid() {
+		return mShowGrid;
+	}
+
+	/**
+	 * Returns if the labels should be visible.
+	 * 
+	 * @return the visibility flag for the labels
+	 */
+	public boolean isShowLabels() {
+		return mShowLabels;
+	}
+
+	/**
+	 * Returns if the legend should be visible.
+	 * 
+	 * @return the visibility flag for the legend
+	 */
+	public boolean isShowLegend() {
+		return mShowLegend;
+	}
+
+	/**
+	 * Removes a simple renderer from the multiple renderer.
+	 * 
+	 * @param renderer
+	 *            the renderer to be removed
+	 */
+	public void removeSeriesRenderer(SimpleSeriesRenderer renderer) {
+		mRenderers.remove(renderer);
+	}
+
+	/**
+	 * Sets the antialiasing value.
+	 * 
+	 * @param antialiasing
+	 *            the antialiasing
+	 */
+	public void setAntialiasing(boolean antialiasing) {
+		this.antialiasing = antialiasing;
+	}
+
+	/**
+	 * Sets if the background color should be applied.
+	 * 
+	 * @param apply
+	 *            the apply flag for the background color
+	 */
+	public void setApplyBackgroundColor(boolean apply) {
+		mApplyBackgroundColor = apply;
+	}
+
+	/**
+	 * Sets the axes color.
+	 * 
+	 * @param color
+	 *            the axes color
+	 */
+	public void setAxesColor(int color) {
+		mAxesColor = color;
+	}
+
+	/**
+	 * Sets the background color.
+	 * 
+	 * @param color
+	 *            the background color
+	 */
+	public void setBackgroundColor(int color) {
+		mBackgroundColor = color;
+	}
+
+	/**
+	 * Sets the labels color.
+	 * 
+	 * @param color
+	 *            the labels color
+	 */
+	public void setLabelsColor(int color) {
+		mLabelsColor = color;
+	}
+
+	/**
+	 * Sets the labels text size.
+	 * 
+	 * @param textSize
+	 *            the labels text size
+	 */
+	public void setLabelsTextSize(float textSize) {
+		mLabelsTextSize = textSize;
+	}
+
+	/**
+	 * Sets the legend height, in pixels.
+	 * 
+	 * @param height
+	 *            the legend height
+	 */
+	public void setLegendHeight(int height) {
+		mLegendHeight = height;
 	}
 
 	/**
@@ -329,6 +355,57 @@ public class DefaultRenderer implements Serializable {
 	 */
 	public void setLegendTextSize(float textSize) {
 		mLegendTextSize = textSize;
+	}
+
+	/**
+	 * Sets the margins, in pixels.
+	 * 
+	 * @param margins
+	 *            an array containing the margin size values, in this order:
+	 *            top, left, bottom, right
+	 */
+	public void setMargins(int[] margins) {
+		mMargins = margins;
+	}
+
+	/**
+	 * Sets if the axes should be visible.
+	 * 
+	 * @param showAxes
+	 *            the visibility flag for the axes
+	 */
+	public void setShowAxes(boolean showAxes) {
+		mShowAxes = showAxes;
+	}
+
+	/**
+	 * Sets if the grid should be visible.
+	 * 
+	 * @param showGrid
+	 *            the visibility flag for the grid
+	 */
+	public void setShowGrid(boolean showGrid) {
+		mShowGrid = showGrid;
+	}
+
+	/**
+	 * Sets if the labels should be visible.
+	 * 
+	 * @param showLabels
+	 *            the visibility flag for the labels
+	 */
+	public void setShowLabels(boolean showLabels) {
+		mShowLabels = showLabels;
+	}
+
+	/**
+	 * Sets if the legend should be visible.
+	 * 
+	 * @param showLegend
+	 *            the visibility flag for the legend
+	 */
+	public void setShowLegend(boolean showLegend) {
+		mShowLegend = showLegend;
 	}
 
 	/**
@@ -345,34 +422,6 @@ public class DefaultRenderer implements Serializable {
 	}
 
 	/**
-	 * Returns the antialiasing flag value.
-	 * 
-	 * @return the antialiasing value
-	 */
-	public boolean isAntialiasing() {
-		return antialiasing;
-	}
-
-	/**
-	 * Sets the antialiasing value.
-	 * 
-	 * @param antialiasing
-	 *            the antialiasing
-	 */
-	public void setAntialiasing(boolean antialiasing) {
-		this.antialiasing = antialiasing;
-	}
-
-	/**
-	 * Returns the X axis labels alignment.
-	 * 
-	 * @return X labels alignment
-	 */
-	public Align getXLabelsAlign() {
-		return xLabelsAlign;
-	}
-
-	/**
 	 * Sets the X axis labels alignment.
 	 * 
 	 * @param align
@@ -383,15 +432,6 @@ public class DefaultRenderer implements Serializable {
 	}
 
 	/**
-	 * Returns the Y axis labels alignment.
-	 * 
-	 * @return Y labels alignment
-	 */
-	public Align getYLabelsAlign() {
-		return yLabelsAlign;
-	}
-
-	/**
 	 * Sets the Y axis labels alignment.
 	 * 
 	 * @param align
@@ -399,46 +439,6 @@ public class DefaultRenderer implements Serializable {
 	 */
 	public void setYLabelsAlign(Align align) {
 		yLabelsAlign = align;
-	}
-
-	/**
-	 * Returns the legend height.
-	 * 
-	 * @return the legend height
-	 */
-	public int getLegendHeight() {
-		return mLegendHeight;
-	}
-
-	/**
-	 * Sets the legend height, in pixels.
-	 * 
-	 * @param height
-	 *            the legend height
-	 */
-	public void setLegendHeight(int height) {
-		mLegendHeight = height;
-	}
-
-	/**
-	 * Returns the margin sizes. An array containing the margins in this order:
-	 * top, left, bottom, right
-	 * 
-	 * @return the margin sizes
-	 */
-	public int[] getMargins() {
-		return mMargins;
-	}
-
-	/**
-	 * Sets the margins, in pixels.
-	 * 
-	 * @param margins
-	 *            an array containing the margin size values, in this order:
-	 *            top, left, bottom, right
-	 */
-	public void setMargins(int[] margins) {
-		mMargins = margins;
 	}
 
 }

@@ -181,14 +181,13 @@ public class Alarms {
 		final long now = System.currentTimeMillis();
 		final Cursor cursor = getFilteredAlarmsCursor(context
 				.getContentResolver());
-		
+
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
 				do {
 					final Alarm a = new Alarm(cursor);
-					// A time of 0 indicates this is a repeating alarm, so
-					// calculate the time to get the next alert.
-					if (a.time == 0) {
+					// repeating alarm... calculate the true time
+					if (a.daysOfWeek.isRepeatSet() || a.time == 0) {
 						a.time = calculateAlarm(a);
 					} else if (a.time < now) {
 						// Expired alarm, disable it and move along.
@@ -199,8 +198,10 @@ public class Alarms {
 						if (a.time == a.timeToIgnore) {
 							a.time = calculateAlarmIgnoringNext(a);
 						}
-						alarm = a;
-						minTime = a.time;
+						if (a.time < minTime) {
+							alarm = a;
+							minTime = a.time;
+						}
 					}
 				} while (cursor.moveToNext());
 			}
@@ -327,10 +328,10 @@ public class Alarms {
 		final SharedPreferences prefs = context.getSharedPreferences(
 				SettingsActivity.PREFERENCES, 0);
 		final int snoozeId = prefs.getInt(PREF_SNOOZE_ID, -1);
-		if (snoozeId == -1) {
+		if (snoozeId == -1)
 			// No snooze set, do nothing.
 			return;
-		} else if (snoozeId == id) {
+		else if (snoozeId == id) {
 			// This is the same id so clear the shared prefs.
 			clearSnoozePreference(context, prefs);
 		}
@@ -353,9 +354,8 @@ public class Alarms {
 
 	private static void enableAlarmInternal(final Context context,
 			final Alarm alarm, final boolean enabled) {
-		if (alarm == null) {
+		if (alarm == null)
 			return;
-		}
 		final ContentResolver resolver = context.getContentResolver();
 
 		final ContentValues values = new ContentValues(2);
@@ -369,6 +369,8 @@ public class Alarms {
 				time = calculateAlarm(alarm);
 			}
 			values.put(Alarm.Columns.ALARM_TIME, time);
+			// reset the time to ignore
+			values.put(Alarm.Columns.TIME_TO_IGNORE, 0);
 		} else {
 			// Clear the snooze if the id matches.
 			disableSnoozeAlert(context, alarm.id);
@@ -442,16 +444,14 @@ public class Alarms {
 				SettingsActivity.PREFERENCES, 0);
 
 		final int id = prefs.getInt(PREF_SNOOZE_ID, -1);
-		if (id == -1) {
+		if (id == -1)
 			return false;
-		}
 		final long time = prefs.getLong(PREF_SNOOZE_TIME, -1);
 
 		// Get the alarm from the db.
 		final Alarm alarm = getAlarm(context.getContentResolver(), id);
-		if (alarm == null) {
+		if (alarm == null)
 			return false;
-		}
 		// The time in the database is either 0 (repeating) or a specific time
 		// for a non-repeating alarm. Update this value so the AlarmReceiver
 		// has the right time to compare.
@@ -583,16 +583,6 @@ public class Alarms {
 
 		return timeInMillis;
 	}
-	
-	public static void setTimeToIgnore(final Context context, final Alarm alarm, final long timeToIgnore)
-	{
-		ContentValues values = createContentValues(alarm);
-		values.put(Alarm.Columns.TIME_TO_IGNORE, timeToIgnore);
-		final ContentResolver resolver = context.getContentResolver();
-		resolver.update(
-				ContentUris.withAppendedId(Alarm.Columns.CONTENT_URI, alarm.id),
-				values, null, null);
-	}
 
 	/**
 	 * Called at system startup, on time/timezone change, and whenever the user
@@ -619,5 +609,15 @@ public class Alarms {
 				"android.intent.action.ALARM_CHANGED");
 		alarmChanged.putExtra("alarmSet", enabled);
 		context.sendBroadcast(alarmChanged);
+	}
+
+	public static void setTimeToIgnore(final Context context,
+			final Alarm alarm, final long timeToIgnore) {
+		final ContentValues values = createContentValues(alarm);
+		values.put(Alarm.Columns.TIME_TO_IGNORE, timeToIgnore);
+		final ContentResolver resolver = context.getContentResolver();
+		resolver.update(
+				ContentUris.withAppendedId(Alarm.Columns.CONTENT_URI, alarm.id),
+				values, null, null);
 	}
 }

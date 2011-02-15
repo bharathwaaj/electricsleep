@@ -46,7 +46,7 @@ public class AlarmKlaxon extends Service {
 	/** Play alarm up to 10 minutes before silencing */
 	private static final int ALARM_TIMEOUT_SECONDS = 10 * 60;
 
-	private static final long[] sVibratePattern = new long[] { (long) (java.lang.Math.random()* 500), (long) (java.lang.Math.random()* 500) };
+	private static final long[] sVibratePattern = new long[] { 500, 500 };
 
 	private boolean mPlaying = false;
 	private Vibrator mVibrator;
@@ -150,9 +150,8 @@ public class AlarmKlaxon extends Service {
 			return START_NOT_STICKY;
 		}
 
-		if (startId != 1) {
+		if (startId != 1)
 			return START_NOT_STICKY;
-		}
 
 		if (mCurrentAlarm != null) {
 			sendKillBroadcast(mCurrentAlarm);
@@ -272,7 +271,7 @@ public class AlarmKlaxon extends Service {
 		if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
 			player.setAudioStreamType(AudioManager.STREAM_ALARM);
 			player.setLooping(true);
-			//TODO: prepareAsync should be used here.
+			// TODO: prepareAsync should be used here.
 			player.prepare();
 			player.start();
 		}

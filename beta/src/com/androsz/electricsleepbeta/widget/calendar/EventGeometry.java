@@ -16,157 +16,157 @@
 
 package com.androsz.electricsleepbeta.widget.calendar;
 
-import com.androsz.electricsleepbeta.db.SleepRecord;
-import com.androsz.electricsleepbeta.widget.calendar.Event;
-
 import android.graphics.Rect;
 
+import com.androsz.electricsleepbeta.db.SleepRecord;
+
 public class EventGeometry {
-    /* package */ static final int MINUTES_PER_HOUR = 60;
-    /* package */ static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * 24;
-    // This is the space from the grid line to the event rectangle.
-    private int mCellMargin = 0;
+	/* package */static final int MINUTES_PER_HOUR = 60;
+	/* package */static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * 24;
+	// This is the space from the grid line to the event rectangle.
+	private int mCellMargin = 0;
 
-    private float mMinuteHeight;
+	private float mMinuteHeight;
 
-    private float mHourGap;
-    private float mMinEventHeight;
+	private float mHourGap;
+	private float mMinEventHeight;
 
-    void setCellMargin(int cellMargin) {
-        mCellMargin = cellMargin;
-    }
+	// Computes the rectangle coordinates of the given event on the screen.
+	// Returns true if the rectangle is visible on the screen.
+	boolean computeEventRect(int date, int left, int top, int cellWidth,
+			SleepRecord event) {
 
-    void setHourGap(float gap) {
-        mHourGap = gap;
-    }
+		final float cellMinuteHeight = mMinuteHeight;
+		final int startDay = event.getStartJulianDay();
+		final int endDay = event.getEndJulianDay();
 
-    void setMinEventHeight(float height) {
-        mMinEventHeight = height;
-    }
+		if (startDay > date || endDay < date)
+			return false;
 
-    void setHourHeight(float height) {
-        mMinuteHeight = height / 60.0f;
-    }
+		long startTime = event.getStartTimeOfDay();
+		long endTime = event.getEndTimeOfDay();
 
-    // Computes the rectangle coordinates of the given event on the screen.
-    // Returns true if the rectangle is visible on the screen.
-    boolean computeEventRect(int date, int left, int top, int cellWidth, SleepRecord event) {
+		// If the event started on a previous day, then show it starting
+		// at the beginning of this day.
+		if (startDay < date) {
+			startTime = 0;
+		}
 
-        float cellMinuteHeight = mMinuteHeight;
-        int startDay = event.getStartJulianDay();
-        int endDay = event.getEndJulianDay();
+		// If the event ends on a future day, then show it extending to
+		// the end of this day.
+		if (endDay > date) {
+			endTime = MINUTES_PER_DAY;
+		}
 
-        if (startDay > date || endDay < date) {
-            return false;
-        }
+		final int col = event.getColumn();
+		final int maxCols = event.getMaxColumns();
+		final int startHour = (int) (startTime / 60);
+		int endHour = (int) (endTime / 60);
 
-        long startTime = event.getStartTimeOfDay();
-        long endTime = event.getEndTimeOfDay();
+		// If the end point aligns on a cell boundary then count it as
+		// ending in the previous cell so that we don't cross the border
+		// between hours.
+		if (endHour * 60 == endTime) {
+			endHour -= 1;
+		}
 
-        // If the event started on a previous day, then show it starting
-        // at the beginning of this day.
-        if (startDay < date) {
-            startTime = 0;
-        }
+		event.top = top;
+		event.top += (int) (startTime * cellMinuteHeight);
+		event.top += startHour * mHourGap;
 
-        // If the event ends on a future day, then show it extending to
-        // the end of this day.
-        if (endDay > date) {
-            endTime = MINUTES_PER_DAY;
-        }
+		event.bottom = top;
+		event.bottom += (int) (endTime * cellMinuteHeight);
+		event.bottom += endHour * mHourGap;
 
-        int col = event.getColumn();
-        int maxCols = event.getMaxColumns();
-        int startHour = (int) (startTime / 60);
-        int endHour = (int) (endTime / 60);
+		// Make the rectangle be at least mMinEventHeight pixels high
+		if (event.bottom < event.top + mMinEventHeight) {
+			event.bottom = event.top + mMinEventHeight;
+		}
 
-        // If the end point aligns on a cell boundary then count it as
-        // ending in the previous cell so that we don't cross the border
-        // between hours.
-        if (endHour * 60 == endTime)
-            endHour -= 1;
+		final float colWidth = (float) (cellWidth - 2 * mCellMargin)
+				/ (float) maxCols;
+		event.left = left + mCellMargin + col * colWidth;
+		event.right = event.left + colWidth;
+		return true;
+	}
 
-        event.top = top;
-        event.top += (int) (startTime * cellMinuteHeight);
-        event.top += startHour * mHourGap;
+	/**
+	 * Returns true if this event intersects the selection region.
+	 */
+	boolean eventIntersectsSelection(Event event, Rect selection) {
+		if (event.left < selection.right && event.right >= selection.left
+				&& event.top < selection.bottom
+				&& event.bottom >= selection.top)
+			return true;
+		return false;
+	}
 
-        event.bottom = top;
-        event.bottom += (int) (endTime * cellMinuteHeight);
-        event.bottom += endHour * mHourGap;
+	/**
+	 * Computes the distance from the given point to the given event.
+	 */
+	float pointToEvent(float x, float y, Event event) {
+		final float left = event.left;
+		final float right = event.right;
+		final float top = event.top;
+		final float bottom = event.bottom;
 
-        // Make the rectangle be at least mMinEventHeight pixels high
-        if (event.bottom < event.top + mMinEventHeight) {
-            event.bottom = event.top + mMinEventHeight;
-        }
+		if (x >= left) {
+			if (x <= right) {
+				if (y >= top) {
+					if (y <= bottom)
+						// x,y is inside the event rectangle
+						return 0f;
+					// x,y is below the event rectangle
+					return y - bottom;
+				}
+				// x,y is above the event rectangle
+				return top - y;
+			}
 
-        float colWidth = (float) (cellWidth - 2 * mCellMargin) / (float) maxCols;
-        event.left = left + mCellMargin + col * colWidth;
-        event.right = event.left + colWidth;
-        return true;
-    }
+			// x > right
+			final float dx = x - right;
+			if (y < top) {
+				// the upper right corner
+				final float dy = top - y;
+				return (float) Math.sqrt(dx * dx + dy * dy);
+			}
+			if (y > bottom) {
+				// the lower right corner
+				final float dy = y - bottom;
+				return (float) Math.sqrt(dx * dx + dy * dy);
+			}
+			// x,y is to the right of the event rectangle
+			return dx;
+		}
+		// x < left
+		final float dx = left - x;
+		if (y < top) {
+			// the upper left corner
+			final float dy = top - y;
+			return (float) Math.sqrt(dx * dx + dy * dy);
+		}
+		if (y > bottom) {
+			// the lower left corner
+			final float dy = y - bottom;
+			return (float) Math.sqrt(dx * dx + dy * dy);
+		}
+		// x,y is to the left of the event rectangle
+		return dx;
+	}
 
-    /**
-     * Returns true if this event intersects the selection region.
-     */
-    boolean eventIntersectsSelection(Event event, Rect selection) {
-        if (event.left < selection.right && event.right >= selection.left
-                && event.top < selection.bottom && event.bottom >= selection.top) {
-            return true;
-        }
-        return false;
-    }
+	void setCellMargin(int cellMargin) {
+		mCellMargin = cellMargin;
+	}
 
-    /**
-     * Computes the distance from the given point to the given event.
-     */
-    float pointToEvent(float x, float y, Event event) {
-        float left = event.left;
-        float right = event.right;
-        float top = event.top;
-        float bottom = event.bottom;
+	void setHourGap(float gap) {
+		mHourGap = gap;
+	}
 
-        if (x >= left) {
-            if (x <= right) {
-                if (y >= top) {
-                    if (y <= bottom) {
-                        // x,y is inside the event rectangle
-                        return 0f;
-                    }
-                    // x,y is below the event rectangle
-                    return y - bottom;
-                }
-                // x,y is above the event rectangle
-                return top - y;
-            }
+	void setHourHeight(float height) {
+		mMinuteHeight = height / 60.0f;
+	}
 
-            // x > right
-            float dx = x - right;
-            if (y < top) {
-                // the upper right corner
-                float dy = top - y;
-                return (float) Math.sqrt(dx * dx + dy * dy);
-            }
-            if (y > bottom) {
-                // the lower right corner
-                float dy = y - bottom;
-                return (float) Math.sqrt(dx * dx + dy * dy);
-            }
-            // x,y is to the right of the event rectangle
-            return dx;
-        }
-        // x < left
-        float dx = left - x;
-        if (y < top) {
-            // the upper left corner
-            float dy = top - y;
-            return (float) Math.sqrt(dx * dx + dy * dy);
-        }
-        if (y > bottom) {
-            // the lower left corner
-            float dy = y - bottom;
-            return (float) Math.sqrt(dx * dx + dy * dy);
-        }
-        // x,y is to the left of the event rectangle
-        return dx;
-    }
+	void setMinEventHeight(float height) {
+		mMinEventHeight = height;
+	}
 }

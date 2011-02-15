@@ -15,113 +15,122 @@
  */
 package com.androsz.electricsleepbeta.achartengine.renderer;
 
-import com.androsz.electricsleepbeta.achartengine.chart.PointStyle;
-
 import android.graphics.Color;
+
+import com.androsz.electricsleepbeta.achartengine.chart.PointStyle;
 
 /**
  * A renderer for the XY type series.
  */
 public class XYSeriesRenderer extends SimpleSeriesRenderer {
-  /** If the chart points should be filled. */
-  private boolean mFillPoints = false;
-  /** If the chart should be filled below its line. */
-  private boolean mFillBelowLine = false;
-  /** The fill below the chart line color. */
-  private int mFillColor = Color.argb(125, 0, 0, 200);
-  /** The point style. */
-  private PointStyle mPointStyle = PointStyle.POINT;
-  /** The chart line width. */
-  private float mLineWidth = 1;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2191468103451057815L;
+	/** If the chart points should be filled. */
+	private boolean mFillPoints = false;
+	/** If the chart should be filled below its line. */
+	private boolean mFillBelowLine = false;
+	/** The fill below the chart line color. */
+	private int mFillColor = Color.argb(125, 0, 0, 200);
+	/** The point style. */
+	private PointStyle mPointStyle = PointStyle.POINT;
+	/** The chart line width. */
+	private float mLineWidth = 1;
 
-  /**
-   * Returns if the chart should be filled below the line.
-   * 
-   * @return the fill below line status
-   */
-  public boolean isFillBelowLine() {
-    return mFillBelowLine;
-  }
+	/**
+	 * Returns the fill below line color.
+	 * 
+	 * @return the fill below line color
+	 */
+	public int getFillBelowLineColor() {
+		return mFillColor;
+	}
 
-  /**
-   * Sets if the line chart should be filled below its line. Filling below the
-   * line transforms a line chart into an area chart.
-   * 
-   * @param fill the fill below line flag value
-   */
-  public void setFillBelowLine(boolean fill) {
-    mFillBelowLine = fill;
-  }
+	/**
+	 * Returns the chart line width.
+	 * 
+	 * @return the line width
+	 */
+	public float getLineWidth() {
+		return mLineWidth;
+	}
 
-  /**
-   * Returns if the chart points should be filled.
-   * 
-   * @return the points fill status
-   */
-  public boolean isFillPoints() {
-    return mFillPoints;
-  }
+	/**
+	 * Returns the point style.
+	 * 
+	 * @return the point style
+	 */
+	public PointStyle getPointStyle() {
+		return mPointStyle;
+	}
 
-  /**
-   * Sets if the chart points should be filled.
-   * 
-   * @param fill the points fill flag value
-   */
-  public void setFillPoints(boolean fill) {
-    mFillPoints = fill;
-  }
+	/**
+	 * Returns if the chart should be filled below the line.
+	 * 
+	 * @return the fill below line status
+	 */
+	public boolean isFillBelowLine() {
+		return mFillBelowLine;
+	}
 
-  /**
-   * Returns the fill below line color.
-   * 
-   * @return the fill below line color
-   */
-  public int getFillBelowLineColor() {
-    return mFillColor;
-  }
+	/**
+	 * Returns if the chart points should be filled.
+	 * 
+	 * @return the points fill status
+	 */
+	public boolean isFillPoints() {
+		return mFillPoints;
+	}
 
-  /**
-   * Sets the fill below the line color.
-   * 
-   * @param color the fill below line color
-   */
-  public void setFillBelowLineColor(int color) {
-    mFillColor = color;
-  }
+	/**
+	 * Sets if the line chart should be filled below its line. Filling below the
+	 * line transforms a line chart into an area chart.
+	 * 
+	 * @param fill
+	 *            the fill below line flag value
+	 */
+	public void setFillBelowLine(boolean fill) {
+		mFillBelowLine = fill;
+	}
 
-  /**
-   * Returns the point style.
-   * 
-   * @return the point style
-   */
-  public PointStyle getPointStyle() {
-    return mPointStyle;
-  }
+	/**
+	 * Sets the fill below the line color.
+	 * 
+	 * @param color
+	 *            the fill below line color
+	 */
+	public void setFillBelowLineColor(int color) {
+		mFillColor = color;
+	}
 
-  /**
-   * Sets the point style.
-   * 
-   * @param style the point style
-   */
-  public void setPointStyle(PointStyle style) {
-    mPointStyle = style;
-  }
+	/**
+	 * Sets if the chart points should be filled.
+	 * 
+	 * @param fill
+	 *            the points fill flag value
+	 */
+	public void setFillPoints(boolean fill) {
+		mFillPoints = fill;
+	}
 
-  /**
-   * Returns the chart line width.
-   * 
-   * @return the line width
-   */
-  public float getLineWidth() {
-    return mLineWidth;
-  }
+	/**
+	 * Sets the chart line width.
+	 * 
+	 * @param lineWidth
+	 *            the line width
+	 */
+	public void setLineWidth(float lineWidth) {
+		mLineWidth = lineWidth;
+	}
 
-  /**
-   * Sets the chart line width.
-   * 
-   * @param lineWidth the line width
-   */
-  public void setLineWidth(float lineWidth) {
-    mLineWidth = lineWidth;
-  }
+	/**
+	 * Sets the point style.
+	 * 
+	 * @param style
+	 *            the point style
+	 */
+	public void setPointStyle(PointStyle style) {
+		mPointStyle = style;
+	}
 }

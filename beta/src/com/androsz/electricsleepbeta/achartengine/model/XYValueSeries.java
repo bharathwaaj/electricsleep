@@ -25,115 +25,132 @@ import com.androsz.electricsleepbeta.achartengine.util.MathHelper;
  * charts like bubble.
  */
 public class XYValueSeries extends XYSeries {
-  /** A list to contain the series values. */
-  private List<Double> mValue = new ArrayList<Double>();
-  /** The minimum value. */
-  private double mMinValue = MathHelper.NULL_VALUE;
-  /** The maximum value. */
-  private double mMaxValue = -MathHelper.NULL_VALUE;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6878526239622198612L;
+	/** A list to contain the series values. */
+	private final List<Double> mValue = new ArrayList<Double>();
+	/** The minimum value. */
+	private double mMinValue = MathHelper.NULL_VALUE;
+	/** The maximum value. */
+	private double mMaxValue = -MathHelper.NULL_VALUE;
 
-  /**
-   * Builds a new XY value series.
-   * 
-   * @param title the series title.
-   */
-  public XYValueSeries(String title) {
-    super(title);
-  }
+	/**
+	 * Builds a new XY value series.
+	 * 
+	 * @param title
+	 *            the series title.
+	 */
+	public XYValueSeries(String title) {
+		super(title);
+	}
 
-  /**
-   * Adds a new value to the series.
-   * 
-   * @param x the value for the X axis
-   * @param y the value for the Y axis
-   * @param value the value
-   */
-  public synchronized void add(double x, double y, double value) {
-    super.add(x, y);
-    mValue.add(value);
-    updateRange(value);
-  }
+	/**
+	 * Adds a new value to the series.
+	 * 
+	 * @param x
+	 *            the value for the X axis
+	 * @param y
+	 *            the value for the Y axis
+	 */
+	@Override
+	public synchronized void add(double x, double y) {
+		add(x, y, 0d);
+	}
 
-  /**
-   * Initializes the values range.
-   */
-  public void initRange() {
-    mMinValue = MathHelper.NULL_VALUE;
-    mMaxValue = MathHelper.NULL_VALUE;
-    int length = getItemCount();
-    for (int k = 0; k < length; k++) {
-      updateRange(getValue(k));
-    }
-  }
+	/**
+	 * Adds a new value to the series.
+	 * 
+	 * @param x
+	 *            the value for the X axis
+	 * @param y
+	 *            the value for the Y axis
+	 * @param value
+	 *            the value
+	 */
+	public synchronized void add(double x, double y, double value) {
+		super.add(x, y);
+		mValue.add(value);
+		updateRange(value);
+	}
 
-  /**
-   * Updates the values range.
-   * 
-   * @param value the new value
-   */
-  private void updateRange(double value) {
-    mMinValue = Math.min(mMinValue, value);
-    mMaxValue = Math.max(mMaxValue, value);
-  }
+	/**
+	 * Removes all the values from the series.
+	 */
+	@Override
+	public synchronized void clear() {
+		super.clear();
+		mValue.clear();
+		initRange();
+	}
 
-  /**
-   * Adds a new value to the series.
-   * 
-   * @param x the value for the X axis
-   * @param y the value for the Y axis
-   */
-  public synchronized void add(double x, double y) {
-    add(x, y, 0d);
-  }
+	/**
+	 * Returns the maximum value.
+	 * 
+	 * @return the maximum value
+	 */
+	public double getMaxValue() {
+		return mMaxValue;
+	}
 
-  /**
-   * Removes an existing value from the series.
-   * 
-   * @param index the index in the series of the value to remove
-   */
-  public synchronized void remove(int index) {
-    super.remove(index);
-    double removedValue = mValue.remove(index);
-    if (removedValue == mMinValue || removedValue == mMaxValue) {
-      initRange();
-    }
-  }
+	/**
+	 * Returns the minimum value.
+	 * 
+	 * @return the minimum value
+	 */
+	public double getMinValue() {
+		return mMinValue;
+	}
 
-  /**
-   * Removes all the values from the series.
-   */
-  public synchronized void clear() {
-    super.clear();
-    mValue.clear();
-    initRange();
-  }
+	/**
+	 * Returns the value at the specified index.
+	 * 
+	 * @param index
+	 *            the index
+	 * @return the value
+	 */
+	public synchronized double getValue(int index) {
+		return mValue.get(index);
+	}
 
-  /**
-   * Returns the value at the specified index.
-   * 
-   * @param index the index
-   * @return the value
-   */
-  public synchronized double getValue(int index) {
-    return mValue.get(index);
-  }
+	/**
+	 * Initializes the values range.
+	 */
+	@Override
+	public void initRange() {
+		mMinValue = MathHelper.NULL_VALUE;
+		mMaxValue = MathHelper.NULL_VALUE;
+		final int length = getItemCount();
+		for (int k = 0; k < length; k++) {
+			updateRange(getValue(k));
+		}
+	}
 
-  /**
-   * Returns the minimum value.
-   * 
-   * @return the minimum value
-   */
-  public double getMinValue() {
-    return mMinValue;
-  }
+	/**
+	 * Removes an existing value from the series.
+	 * 
+	 * @param index
+	 *            the index in the series of the value to remove
+	 */
+	@Override
+	public synchronized void remove(int index) {
+		super.remove(index);
+		final double removedValue = mValue.remove(index);
+		if (removedValue == mMinValue || removedValue == mMaxValue) {
+			initRange();
+		}
+	}
 
-  /**
-   * Returns the maximum value.
-   * 
-   * @return the maximum value
-   */
-  public double getMaxValue() {
-    return mMaxValue;
-  }
+	/**
+	 * Updates the values range.
+	 * 
+	 * @param value
+	 *            the new value
+	 */
+	private void updateRange(double value) {
+		mMinValue = Math.min(mMinValue, value);
+		mMaxValue = Math.max(mMaxValue, value);
+	}
 
 }

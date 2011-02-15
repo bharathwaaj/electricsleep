@@ -77,9 +77,8 @@ public class FlingableTabHost extends TabHost {
 
 	@Override
 	public boolean onInterceptTouchEvent(final MotionEvent ev) {
-		if (mGestureDetector.onTouchEvent(ev)) {
+		if (mGestureDetector.onTouchEvent(ev))
 			return true;
-		}
 		return super.onInterceptTouchEvent(ev);
 	}
 }

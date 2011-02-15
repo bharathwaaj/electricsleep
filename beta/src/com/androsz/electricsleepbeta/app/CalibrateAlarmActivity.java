@@ -95,7 +95,7 @@ public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 			public void onStopTrackingTouch(final SeekBar seekBar) {
 			}
 		});
-		
+
 		sleepChart
 				.setCalibrationLevel(SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
 

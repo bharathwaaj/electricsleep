@@ -141,7 +141,7 @@ public final class Alarm implements Parcelable {
 		public static final int ALARM_MESSAGE_INDEX = 7;
 		public static final int ALARM_ALERT_INDEX = 8;
 		public static final int ALARM_TIME_TO_IGNORE_INDEX = 9;
-		
+
 	}
 
 	/*
@@ -182,9 +182,8 @@ public final class Alarm implements Parcelable {
 		 *            must be set to today
 		 */
 		public int getNextAlarm(final Calendar c) {
-			if (mDays == 0) {
+			if (mDays == 0)
 				return -1;
-			}
 
 			final int today = (c.get(Calendar.DAY_OF_WEEK) + 5) % 7;
 
@@ -223,15 +222,13 @@ public final class Alarm implements Parcelable {
 			final StringBuilder ret = new StringBuilder();
 
 			// no days
-			if (mDays == 0) {
+			if (mDays == 0)
 				return showNever ? context.getText(R.string.never).toString()
 						: "";
-			}
 
 			// every day
-			if (mDays == 0x7f) {
+			if (mDays == 0x7f)
 				return context.getText(R.string.every_day).toString();
-			}
 
 			// count selected days
 			int dayCount = 0, days = mDays;
@@ -309,7 +306,7 @@ public final class Alarm implements Parcelable {
 		daysOfWeek = new DaysOfWeek(0);
 		alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 		timeToIgnore = 0;
-		
+
 	}
 
 	public Alarm(final Cursor c) {
@@ -362,9 +359,8 @@ public final class Alarm implements Parcelable {
 	}
 
 	public String getLabelOrDefault(final Context context) {
-		if (label == null || label.length() == 0) {
+		if (label == null || label.length() == 0)
 			return context.getString(R.string.default_label);
-		}
 		return label;
 	}
 

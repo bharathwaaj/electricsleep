@@ -15,84 +15,88 @@
  */
 package com.androsz.electricsleepbeta.achartengine.tools;
 
-import com.androsz.electricsleepbeta.achartengine.chart.XYChart;
-import com.androsz.electricsleepbeta.achartengine.renderer.XYMultipleSeriesRenderer;
-
 import android.graphics.PointF;
+
+import com.androsz.electricsleepbeta.achartengine.chart.XYChart;
 
 /**
  * The pan tool.
  */
 public class Pan extends AbstractTool {
 
-  /**
-   * Builds and instance of the pan tool.
-   * 
-   * @param chart the XY chart
-   * @param renderer the renderer
-   */
-  public Pan(XYChart chart) {
-    super(chart);
-  }
+	/**
+	 * Builds and instance of the pan tool.
+	 * 
+	 * @param chart
+	 *            the XY chart
+	 * @param renderer
+	 *            the renderer
+	 */
+	public Pan(XYChart chart) {
+		super(chart);
+	}
 
-  /**
-   * Apply the tool.
-   * 
-   * @param oldX the previous location on X axis
-   * @param oldY the previous location on Y axis
-   * @param newX the current location on X axis
-   * @param newY the current location on the Y axis
-   */
-  public void apply(float oldX, float oldY, float newX, float newY) {
-    double[] range = getRange();
-    double[] limits = mRenderer.getPanLimits();
-    boolean limited = limits != null && limits.length == 4;
-    double[] calcRange = mChart.getCalcRange();
-    if (range[0] == range[1] && calcRange[0] == calcRange[1] || range[2] == range[3]
-        && calcRange[2] == calcRange[3]) {
-      return;
-    }
-    checkRange(range);
+	/**
+	 * Apply the tool.
+	 * 
+	 * @param oldX
+	 *            the previous location on X axis
+	 * @param oldY
+	 *            the previous location on Y axis
+	 * @param newX
+	 *            the current location on X axis
+	 * @param newY
+	 *            the current location on the Y axis
+	 */
+	public void apply(float oldX, float oldY, float newX, float newY) {
+		final double[] range = getRange();
+		final double[] limits = mRenderer.getPanLimits();
+		final boolean limited = limits != null && limits.length == 4;
+		final double[] calcRange = mChart.getCalcRange();
+		if (range[0] == range[1] && calcRange[0] == calcRange[1]
+				|| range[2] == range[3] && calcRange[2] == calcRange[3])
+			return;
+		checkRange(range);
 
-    PointF realPoint = mChart.toRealPoint(oldX, oldY);
-    PointF realPoint2 = mChart.toRealPoint(newX, newY);
-    double deltaX = realPoint.x - realPoint2.x;
-    double deltaY = realPoint.y - realPoint2.y;
-    if (mRenderer.isPanXEnabled()) {
-      if (limited) {
-        if (limits[0] > range[0] + deltaX) {
-          setXRange(limits[0], limits[0] + (range[1] - range[0]));
-        } else if (limits[1] < range[1] + deltaX) {
-          setXRange(limits[1] - (range[1] - range[0]), limits[1]);
-        } else {
-          setXRange(range[0] + deltaX, range[1] + deltaX);
-        }
-      } else {
-        setXRange(range[0] + deltaX, range[1] + deltaX);
-      }
-    }
-    if (mRenderer.isPanYEnabled()) {
-      if (limited) {
-        if (limits[2] > range[2] + deltaY) {
-          setYRange(limits[2], limits[2] + (range[3] - range[2]));
-        } else if (limits[3] < range[3] + deltaY) {
-          setYRange(limits[3] - (range[3] - range[2]), limits[3]);
-        } else {
-          setYRange(range[2] + deltaY, range[3] + deltaY);
-        }
-      } else {
-        setYRange(range[2] + deltaY, range[3] + deltaY);
-      }
-    }
-  }
-  
-  private void setXRange(double min, double max) {
-    mRenderer.setXAxisMin(min);
-    mRenderer.setXAxisMax(max);
-  }
-  
-  private void setYRange(double min, double max) {
-    mRenderer.setYAxisMin(min);
-    mRenderer.setYAxisMax(max);
-  }
+		final PointF realPoint = mChart.toRealPoint(oldX, oldY);
+		final PointF realPoint2 = mChart.toRealPoint(newX, newY);
+		final double deltaX = realPoint.x - realPoint2.x;
+		final double deltaY = realPoint.y - realPoint2.y;
+		if (mRenderer.isPanXEnabled()) {
+			if (limited) {
+				if (limits[0] > range[0] + deltaX) {
+					setXRange(limits[0], limits[0] + (range[1] - range[0]));
+				} else if (limits[1] < range[1] + deltaX) {
+					setXRange(limits[1] - (range[1] - range[0]), limits[1]);
+				} else {
+					setXRange(range[0] + deltaX, range[1] + deltaX);
+				}
+			} else {
+				setXRange(range[0] + deltaX, range[1] + deltaX);
+			}
+		}
+		if (mRenderer.isPanYEnabled()) {
+			if (limited) {
+				if (limits[2] > range[2] + deltaY) {
+					setYRange(limits[2], limits[2] + (range[3] - range[2]));
+				} else if (limits[3] < range[3] + deltaY) {
+					setYRange(limits[3] - (range[3] - range[2]), limits[3]);
+				} else {
+					setYRange(range[2] + deltaY, range[3] + deltaY);
+				}
+			} else {
+				setYRange(range[2] + deltaY, range[3] + deltaY);
+			}
+		}
+	}
+
+	private void setXRange(double min, double max) {
+		mRenderer.setXAxisMin(min);
+		mRenderer.setXAxisMax(max);
+	}
+
+	private void setYRange(double min, double max) {
+		mRenderer.setYAxisMin(min);
+		mRenderer.setYAxisMax(max);
+	}
 }

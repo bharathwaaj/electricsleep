@@ -19,9 +19,9 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 			final Activity context) {
 
 		final SharedPreferences userPrefs = context.getSharedPreferences(
-				SettingsActivity.PREFS_VERSION, Context.MODE_PRIVATE);
+				SettingsActivity.PREFERENCES_ENVIRONMENT, Context.MODE_PRIVATE);
 		final int prefsVersion = userPrefs.getInt(
-				SettingsActivity.PREFS_VERSION, 0);
+				SettingsActivity.PREFERENCES_ENVIRONMENT, 0);
 		String message = "";
 		if (prefsVersion == 0) {
 			message = context.getString(R.string.message_not_calibrated);
@@ -69,9 +69,8 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 							});
 			dialog.show();
 			return false;
-		} else {
+		} else
 			return true;
-		}
 	}
 
 	private boolean required = false;
@@ -93,11 +92,10 @@ public class WelcomeTutorialWizardActivity extends CustomTitlebarWizardActivity 
 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
-		if (required) {
+		if (required)
 			return false;
-		} else {
+		else
 			return super.onCreateOptionsMenu(menu);
-		}
 	}
 
 	@Override

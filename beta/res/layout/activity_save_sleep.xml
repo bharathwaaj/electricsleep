@@ -16,10 +16,10 @@
 			android:layout_height="wrap_content" android:layout_below="@+id/save_sleep_rating_bar"
 			android:id="@+id/save_sleep_note_txt" android:text="@string/note_title"></TextView>
 		<!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
-		
+
 		<EditText android:layout_below="@+id/save_sleep_note_txt"
 			android:layout_width="fill_parent" android:id="@+id/save_sleep_note_edit"
-			android:layout_height="wrap_content" ></EditText>
+			android:layout_height="wrap_content"></EditText>
 		<RelativeLayout android:layout_width="fill_parent"
 			android:layout_gravity="bottom" android:layout_height="wrap_content">
 			<Button android:id="@+id/save_sleep_btn_save"

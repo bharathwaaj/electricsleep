@@ -23,25 +23,30 @@ import android.graphics.Color;
  * A simple series renderer.
  */
 public class SimpleSeriesRenderer implements Serializable {
-  /** The series color. */
-  private int mColor = Color.BLUE;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3672149223844105418L;
+	/** The series color. */
+	private int mColor = Color.BLUE;
 
-  /**
-   * Returns the series color.
-   * 
-   * @return the series color
-   */
-  public int getColor() {
-    return mColor;
-  }
+	/**
+	 * Returns the series color.
+	 * 
+	 * @return the series color
+	 */
+	public int getColor() {
+		return mColor;
+	}
 
-  /**
-   * Sets the series color.
-   * 
-   * @param color the series color
-   */
-  public void setColor(int color) {
-    mColor = color;
-  }
+	/**
+	 * Sets the series color.
+	 * 
+	 * @param color
+	 *            the series color
+	 */
+	public void setColor(int color) {
+		mColor = color;
+	}
 
 }

@@ -222,9 +222,9 @@ public class SleepHistoryDatabase {
 		final Cursor cursor = builder.query(db, columns, selection,
 				selectionArgs, null, null, null);
 
-		if (cursor == null) {
+		if (cursor == null)
 			return null;
-		} else if (!cursor.moveToFirst()) {
+		else if (!cursor.moveToFirst()) {
 			cursor.close();
 			return null;
 		}

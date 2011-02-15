@@ -1,8 +1,5 @@
 package com.androsz.electricsleepbeta.app;
 
-import java.io.IOException;
-import java.io.StreamCorruptedException;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -15,9 +12,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,12 +22,9 @@ import com.androsz.electricsleepbeta.db.SleepContentProvider;
 import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 import com.androsz.electricsleepbeta.db.SleepRecord;
 import com.androsz.electricsleepbeta.util.DeviceUtil;
-import com.androsz.electricsleepbeta.widget.DailySleepComparisonChart;
 import com.androsz.electricsleepbeta.widget.SleepHistoryCursorAdapter;
 
 public class HistoryActivity extends CustomTitlebarActivity {
-
-	public static final String SEARCH_FOR = "searchFor";
 
 	private class DeleteSleepTask extends AsyncTask<Long, Void, Void> {
 
@@ -172,18 +164,20 @@ public class HistoryActivity extends CustomTitlebarActivity {
 		}
 	}
 
+	public static final String SEARCH_FOR = "searchFor";
+
 	ProgressDialog progress;
 
 	private TextView mTextView;
 
 	private ListView mListView;
 
+	String searchFor = null;
+
 	@Override
 	protected int getContentAreaLayoutId() {
 		return R.layout.activity_history;
 	}
-
-	String searchFor = null;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -213,7 +207,7 @@ public class HistoryActivity extends CustomTitlebarActivity {
 			if (searchFor != null) {
 				HistoryActivity.this.setTitle(HistoryActivity.this.getTitle()
 						+ " " + searchFor);
-				//do exact searches only.
+				// do exact searches only.
 				searchFor = "\"" + searchFor + "\"";
 			} else {
 				searchFor = getString(string.to);

@@ -16,6 +16,11 @@
 
 package com.androsz.electricsleepbeta.widget.calendar;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -23,256 +28,265 @@ import android.os.Handler;
 import android.os.Process;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.androsz.electricsleepbeta.db.SleepRecord;
-import com.androsz.electricsleepbeta.widget.calendar.Event;
 
 public class EventLoader {
 
-    private Context mContext;
-    private Handler mHandler = new Handler();
-    private AtomicInteger mSequenceNumber = new AtomicInteger();
+	private static class LoaderThread extends Thread {
+		LinkedBlockingQueue<LoadRequest> mQueue;
+		EventLoader mEventLoader;
 
-    private LinkedBlockingQueue<LoadRequest> mLoaderQueue;
-    private LoaderThread mLoaderThread;
-    private ContentResolver mResolver;
+		public LoaderThread(LinkedBlockingQueue<LoadRequest> queue,
+				EventLoader eventLoader) {
+			mQueue = queue;
+			mEventLoader = eventLoader;
+		}
 
-    private static interface LoadRequest {
-        public void processRequest(EventLoader eventLoader);
-        public void skipRequest(EventLoader eventLoader);
-    }
+		@Override
+		public void run() {
+			Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+			while (true) {
+				try {
+					// Wait for the next request
+					LoadRequest request = mQueue.take();
 
-    private static class ShutdownRequest implements LoadRequest {
-        public void processRequest(EventLoader eventLoader) {
-        }
+					// If there are a bunch of requests already waiting, then
+					// skip all but the most recent request.
+					while (!mQueue.isEmpty()) {
+						// Let the request know that it was skipped
+						request.skipRequest(mEventLoader);
 
-        public void skipRequest(EventLoader eventLoader) {
-        }
-    }
+						// Skip to the next request
+						request = mQueue.take();
+					}
 
-    /**
-     *
-     * Code for handling requests to get whether days have an event or not
-     * and filling in the eventDays array.
-     *
-     */
-    private static class LoadEventDaysRequest implements LoadRequest {
-        public int startDay;
-        public int numDays;
-        public boolean[] eventDays;
-        public Runnable uiCallback;
+					if (request instanceof ShutdownRequest)
+						return;
+					request.processRequest(mEventLoader);
+				} catch (final InterruptedException ex) {
+					Log.e("Cal", "background LoaderThread interrupted!");
+				}
+			}
+		}
 
-        public LoadEventDaysRequest(int startDay, int numDays, boolean[] eventDays,
-                final Runnable uiCallback)
-        {
-            this.startDay = startDay;
-            this.numDays = numDays;
-            this.eventDays = eventDays;
-            this.uiCallback = uiCallback;
-        }
+		public void shutdown() {
+			try {
+				mQueue.put(new ShutdownRequest());
+			} catch (final InterruptedException ex) {
+				// The put() method fails with InterruptedException if the
+				// queue is full. This should never happen because the queue
+				// has no limit.
+				Log.e("Cal", "LoaderThread.shutdown() interrupted!");
+			}
+		}
+	}
 
-        public void processRequest(EventLoader eventLoader)
-        {
-            final Handler handler = eventLoader.mHandler;
-            ContentResolver cr = eventLoader.mResolver;
+	/**
+	 * 
+	 * Code for handling requests to get whether days have an event or not and
+	 * filling in the eventDays array.
+	 * 
+	 */
+	private static class LoadEventDaysRequest implements LoadRequest {
+		public int startDay;
+		public int numDays;
+		public boolean[] eventDays;
+		public Runnable uiCallback;
 
-            // Clear the event days
-            Arrays.fill(eventDays, false);
+		public LoadEventDaysRequest(int startDay, int numDays,
+				boolean[] eventDays, final Runnable uiCallback) {
+			this.startDay = startDay;
+			this.numDays = numDays;
+			this.eventDays = eventDays;
+			this.uiCallback = uiCallback;
+		}
 
-            //query which days have events
-            Cursor cursor = null;//EventDays.query(cr, startDay, numDays);
-            try {
-                int startDayColumnIndex = 0;//cursor.getColumnIndexOrThrow(EventDays.STARTDAY);
-                int endDayColumnIndex = 0;//cursor.getColumnIndexOrThrow(EventDays.ENDDAY);
+		@Override
+		public void processRequest(EventLoader eventLoader) {
+			final Handler handler = eventLoader.mHandler;
+			// Clear the event days
+			Arrays.fill(eventDays, false);
 
-                //Set all the days with events to true
-                while (cursor.moveToNext()) {
-                    int firstDay = cursor.getInt(startDayColumnIndex);
-                    int lastDay = cursor.getInt(endDayColumnIndex);
-                    //we want the entire range the event occurs, but only within the month
-                    int firstIndex = Math.max(firstDay - startDay, 0);
-                    int lastIndex = Math.min(lastDay - startDay, 30);
+			// query which days have events
+			final Cursor cursor = null;// EventDays.query(cr, startDay,
+										// numDays);
+			try {
+				final int startDayColumnIndex = 0;// cursor.getColumnIndexOrThrow(EventDays.STARTDAY);
+				final int endDayColumnIndex = 0;// cursor.getColumnIndexOrThrow(EventDays.ENDDAY);
 
-                    for(int i = firstIndex; i <= lastIndex; i++) {
-                        eventDays[i] = true;
-                    }
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-            handler.post(uiCallback);
-        }
+				// Set all the days with events to true
+				while (cursor.moveToNext()) {
+					final int firstDay = cursor.getInt(startDayColumnIndex);
+					final int lastDay = cursor.getInt(endDayColumnIndex);
+					// we want the entire range the event occurs, but only
+					// within the month
+					final int firstIndex = Math.max(firstDay - startDay, 0);
+					final int lastIndex = Math.min(lastDay - startDay, 30);
 
-        public void skipRequest(EventLoader eventLoader) {
-        }
-    }
+					for (int i = firstIndex; i <= lastIndex; i++) {
+						eventDays[i] = true;
+					}
+				}
+			} finally {
+				if (cursor != null) {
+					cursor.close();
+				}
+			}
+			handler.post(uiCallback);
+		}
 
-    private static class LoadEventsRequest implements LoadRequest {
+		@Override
+		public void skipRequest(EventLoader eventLoader) {
+		}
+	}
 
-        public int id;
-        public long startMillis;
-        public int numDays;
-        public ArrayList<SleepRecord> events;
-        public Runnable successCallback;
-        public Runnable cancelCallback;
+	private static class LoadEventsRequest implements LoadRequest {
 
-        public LoadEventsRequest(int id, long startMillis, int numDays, ArrayList<SleepRecord> events,
-                final Runnable successCallback, final Runnable cancelCallback) {
-            this.id = id;
-            this.startMillis = startMillis;
-            this.numDays = numDays;
-            this.events = events;
-            this.successCallback = successCallback;
-            this.cancelCallback = cancelCallback;
-        }
+		public int id;
+		public long startMillis;
+		public int numDays;
+		public ArrayList<SleepRecord> events;
+		public Runnable successCallback;
+		public Runnable cancelCallback;
 
-        public void processRequest(EventLoader eventLoader) {
-            SleepRecord.loadEvents(eventLoader.mContext, events, startMillis,
-                    numDays, id, eventLoader.mSequenceNumber);
+		public LoadEventsRequest(int id, long startMillis, int numDays,
+				ArrayList<SleepRecord> events, final Runnable successCallback,
+				final Runnable cancelCallback) {
+			this.id = id;
+			this.startMillis = startMillis;
+			this.numDays = numDays;
+			this.events = events;
+			this.successCallback = successCallback;
+			this.cancelCallback = cancelCallback;
+		}
 
-            // Check if we are still the most recent request.
-            if (id == eventLoader.mSequenceNumber.get()) {
-                eventLoader.mHandler.post(successCallback);
-            } else {
-                eventLoader.mHandler.post(cancelCallback);
-            }
-        }
+		@Override
+		public void processRequest(EventLoader eventLoader) {
+			SleepRecord.loadEvents(eventLoader.mContext, events, startMillis,
+					numDays, id, eventLoader.mSequenceNumber);
 
-        public void skipRequest(EventLoader eventLoader) {
-            eventLoader.mHandler.post(cancelCallback);
-        }
-    }
+			// Check if we are still the most recent request.
+			if (id == eventLoader.mSequenceNumber.get()) {
+				eventLoader.mHandler.post(successCallback);
+			} else {
+				eventLoader.mHandler.post(cancelCallback);
+			}
+		}
 
-    private static class LoaderThread extends Thread {
-        LinkedBlockingQueue<LoadRequest> mQueue;
-        EventLoader mEventLoader;
+		@Override
+		public void skipRequest(EventLoader eventLoader) {
+			eventLoader.mHandler.post(cancelCallback);
+		}
+	}
 
-        public LoaderThread(LinkedBlockingQueue<LoadRequest> queue, EventLoader eventLoader) {
-            mQueue = queue;
-            mEventLoader = eventLoader;
-        }
+	private static interface LoadRequest {
+		public void processRequest(EventLoader eventLoader);
 
-        public void shutdown() {
-            try {
-                mQueue.put(new ShutdownRequest());
-            } catch (InterruptedException ex) {
-                // The put() method fails with InterruptedException if the
-                // queue is full. This should never happen because the queue
-                // has no limit.
-                Log.e("Cal", "LoaderThread.shutdown() interrupted!");
-            }
-        }
+		public void skipRequest(EventLoader eventLoader);
+	}
 
-        @Override
-        public void run() {
-            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-            while (true) {
-                try {
-                    // Wait for the next request
-                    LoadRequest request = mQueue.take();
+	private static class ShutdownRequest implements LoadRequest {
+		@Override
+		public void processRequest(EventLoader eventLoader) {
+		}
 
-                    // If there are a bunch of requests already waiting, then
-                    // skip all but the most recent request.
-                    while (!mQueue.isEmpty()) {
-                        // Let the request know that it was skipped
-                        request.skipRequest(mEventLoader);
+		@Override
+		public void skipRequest(EventLoader eventLoader) {
+		}
+	}
 
-                        // Skip to the next request
-                        request = mQueue.take();
-                    }
+	private final Context mContext;
 
-                    if (request instanceof ShutdownRequest) {
-                        return;
-                    }
-                    request.processRequest(mEventLoader);
-                } catch (InterruptedException ex) {
-                    Log.e("Cal", "background LoaderThread interrupted!");
-                }
-            }
-        }
-    }
+	private final Handler mHandler = new Handler();
 
-    public EventLoader(Context context) {
-        mContext = context;
-        mLoaderQueue = new LinkedBlockingQueue<LoadRequest>();
-        mResolver = context.getContentResolver();
-    }
+	private final AtomicInteger mSequenceNumber = new AtomicInteger();
 
-    /**
-     * Call this from the activity's onResume()
-     */
-    public void startBackgroundThread() {
-        mLoaderThread = new LoaderThread(mLoaderQueue, this);
-        mLoaderThread.start();
-    }
+	private final LinkedBlockingQueue<LoadRequest> mLoaderQueue;
 
-    /**
-     * Call this from the activity's onPause()
-     */
-    public void stopBackgroundThread() {
-        mLoaderThread.shutdown();
-    }
+	private LoaderThread mLoaderThread;
 
-    /**
-     * Loads "numDays" days worth of events, starting at start, into events.
-     * Posts uiCallback to the {@link Handler} for this view, which will run in the UI thread.
-     * Reuses an existing background thread, if events were already being loaded in the background.
-     * NOTE: events and uiCallback are not used if an existing background thread gets reused --
-     * the ones that were passed in on the call that results in the background thread getting
-     * created are used, and the most recent call's worth of data is loaded into events and posted
-     * via the uiCallback.
-     */
-    void loadEventsInBackground(final int numDays, final ArrayList<SleepRecord> events,
-            long start, final Runnable successCallback, final Runnable cancelCallback) {
+	private final ContentResolver mResolver;
 
-        // Increment the sequence number for requests.  We don't care if the
-        // sequence numbers wrap around because we test for equality with the
-        // latest one.
-        int id = mSequenceNumber.incrementAndGet();
+	public EventLoader(Context context) {
+		mContext = context;
+		mLoaderQueue = new LinkedBlockingQueue<LoadRequest>();
+		mResolver = context.getContentResolver();
+	}
 
-        // Send the load request to the background thread
-        LoadEventsRequest request = new LoadEventsRequest(id, start, numDays,
-                events, successCallback, cancelCallback);
+	/**
+	 * Sends a request for the days with events to be marked. Loads "numDays"
+	 * worth of days, starting at start, and fills in eventDays to express which
+	 * days have events.
+	 * 
+	 * @param startDay
+	 *            First day to check for events
+	 * @param numDays
+	 *            Days following the start day to check
+	 * @param eventDay
+	 *            Whether or not an event exists on that day
+	 * @param uiCallback
+	 *            What to do when done (log data, redraw screen)
+	 */
+	void loadEventDaysInBackground(int startDay, int numDays,
+			boolean[] eventDays, final Runnable uiCallback) {
+		// Send load request to the background thread
+		final LoadEventDaysRequest request = new LoadEventDaysRequest(startDay,
+				numDays, eventDays, uiCallback);
+		try {
+			mLoaderQueue.put(request);
+		} catch (final InterruptedException ex) {
+			// The put() method fails with InterruptedException if the
+			// queue is full. This should never happen because the queue
+			// has no limit.
+			Log.e("Cal", "loadEventDaysInBackground() interrupted!");
+		}
+	}
 
-        try {
-            mLoaderQueue.put(request);
-        } catch (InterruptedException ex) {
-            // The put() method fails with InterruptedException if the
-            // queue is full. This should never happen because the queue
-            // has no limit.
-            Log.e("Cal", "loadEventsInBackground() interrupted!");
-        }
-    }
+	/**
+	 * Loads "numDays" days worth of events, starting at start, into events.
+	 * Posts uiCallback to the {@link Handler} for this view, which will run in
+	 * the UI thread. Reuses an existing background thread, if events were
+	 * already being loaded in the background. NOTE: events and uiCallback are
+	 * not used if an existing background thread gets reused -- the ones that
+	 * were passed in on the call that results in the background thread getting
+	 * created are used, and the most recent call's worth of data is loaded into
+	 * events and posted via the uiCallback.
+	 */
+	void loadEventsInBackground(final int numDays,
+			final ArrayList<SleepRecord> events, long start,
+			final Runnable successCallback, final Runnable cancelCallback) {
 
-    /**
-     * Sends a request for the days with events to be marked. Loads "numDays"
-     * worth of days, starting at start, and fills in eventDays to express which
-     * days have events.
-     *
-     * @param startDay First day to check for events
-     * @param numDays Days following the start day to check
-     * @param eventDay Whether or not an event exists on that day
-     * @param uiCallback What to do when done (log data, redraw screen)
-     */
-    void loadEventDaysInBackground(int startDay, int numDays, boolean[] eventDays,
-        final Runnable uiCallback)
-    {
-        // Send load request to the background thread
-        LoadEventDaysRequest request = new LoadEventDaysRequest(startDay, numDays,
-                eventDays, uiCallback);
-        try {
-            mLoaderQueue.put(request);
-        } catch (InterruptedException ex) {
-            // The put() method fails with InterruptedException if the
-            // queue is full. This should never happen because the queue
-            // has no limit.
-            Log.e("Cal", "loadEventDaysInBackground() interrupted!");
-        }
-    }
+		// Increment the sequence number for requests. We don't care if the
+		// sequence numbers wrap around because we test for equality with the
+		// latest one.
+		final int id = mSequenceNumber.incrementAndGet();
+
+		// Send the load request to the background thread
+		final LoadEventsRequest request = new LoadEventsRequest(id, start,
+				numDays, events, successCallback, cancelCallback);
+
+		try {
+			mLoaderQueue.put(request);
+		} catch (final InterruptedException ex) {
+			// The put() method fails with InterruptedException if the
+			// queue is full. This should never happen because the queue
+			// has no limit.
+			Log.e("Cal", "loadEventsInBackground() interrupted!");
+		}
+	}
+
+	/**
+	 * Call this from the activity's onResume()
+	 */
+	public void startBackgroundThread() {
+		mLoaderThread = new LoaderThread(mLoaderQueue, this);
+		mLoaderThread.start();
+	}
+
+	/**
+	 * Call this from the activity's onPause()
+	 */
+	public void stopBackgroundThread() {
+		mLoaderThread.shutdown();
+	}
 }

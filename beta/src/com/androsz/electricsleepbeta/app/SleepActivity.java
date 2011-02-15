@@ -2,23 +2,16 @@ package com.androsz.electricsleepbeta.app;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.text.format.DateFormat;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -34,6 +27,34 @@ import com.androsz.electricsleepbeta.widget.SleepChart;
 
 public class SleepActivity extends CustomTitlebarActivity {
 
+	private class DimScreenTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(final Void... params) {
+			// just wait without blocking the main thread!
+			try {
+				Thread.sleep(DIM_SCREEN_AFTER_MS);
+			} catch (final InterruptedException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(final Void results) {
+			// after we have waited, dim the screen on the main thread!
+			startActivity(new Intent(SleepActivity.this, DimSleepActivity.class));
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// notify the user that we've received that they need a dimmed
+			// screen
+			Toast.makeText(SleepActivity.this, R.string.screen_will_dim,
+					Toast.LENGTH_LONG).show();
+		}
+	}
+
 	private static final int DIM_SCREEN_AFTER_MS = 15000;
 
 	private static final String SLEEP_CHART = "sleepChart";
@@ -41,13 +62,13 @@ public class SleepActivity extends CustomTitlebarActivity {
 	public static final String UPDATE_CHART = "com.androsz.electricsleepbeta.UPDATE_CHART";
 
 	public static final String SYNC_CHART = "com.androsz.electricsleepbeta.SYNC_CHART";
-
 	private SleepChart sleepChart;
 	private LinearLayout waitForSleepData;
 	private TextView textSleepNoAlarm;
 	private View divSleepNoAlarm;
 	private TextView textSleepPluggedIn;
 	private View divSleepPluggedIn;
+
 	private TextView textSleepDim;
 
 	private final BroadcastReceiver updateChartReceiver = new BroadcastReceiver() {
@@ -72,9 +93,9 @@ public class SleepActivity extends CustomTitlebarActivity {
 	private final BroadcastReceiver batteryChangedReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
-			boolean pluggedIn = intent.getIntExtra(
+			final boolean pluggedIn = intent.getIntExtra(
 					BatteryManager.EXTRA_PLUGGED, 0) > 0;
-			int visibility = (pluggedIn ? View.GONE : View.VISIBLE);
+			final int visibility = (pluggedIn ? View.GONE : View.VISIBLE);
 
 			textSleepPluggedIn.setVisibility(visibility);
 			divSleepPluggedIn.setVisibility(visibility);
@@ -82,21 +103,6 @@ public class SleepActivity extends CustomTitlebarActivity {
 			showOrHideWarnings();
 		}
 	};
-
-	private void showOrHideWarnings() {
-		// hide warnings panel if there's no warnings.
-		ScrollView landscapeWarnings = (ScrollView) findViewById(R.id.sleep_landscape_warnings);
-		// make sure we're in landscape. portrait doesn't have this problem.
-		if (landscapeWarnings != null) {
-			int visibility = textSleepPluggedIn.getVisibility()
-					+ textSleepDim.getVisibility()
-					+ textSleepNoAlarm.getVisibility();
-
-			//if all are gone...
-			visibility = visibility == 24 ? View.GONE : View.VISIBLE;
-			landscapeWarnings.setVisibility(visibility);
-		}
-	}
 
 	private final BroadcastReceiver syncChartReceiver = new BroadcastReceiver() {
 		@SuppressWarnings("unchecked")
@@ -132,11 +138,12 @@ public class SleepActivity extends CustomTitlebarActivity {
 						java.text.DateFormat df = DateFormat
 								.getDateFormat(context);
 						df = DateFormat.getTimeFormat(context);
-						String dateTime = df.format(alarmTime.getTime());
+						final String dateTime = df.format(alarmTime.getTime());
 						final int alarmWindow = intent.getIntExtra(
-								StartSleepReceiver.EXTRA_FORCE_SCREEN_ON, 30);
+								StartSleepReceiver.EXTRA_ALARM_WINDOW, 30);
 						alarmTime.add(Calendar.MINUTE, -1 * alarmWindow);
-						String dateTimePre = df.format(alarmTime.getTime());
+						final String dateTimePre = df.format(alarmTime
+								.getTime());
 						sleepChart.xyMultipleSeriesRenderer
 								.setChartTitle(context.getString(
 										R.string.you_will_be_awoken_before,
@@ -185,34 +192,6 @@ public class SleepActivity extends CustomTitlebarActivity {
 	};
 
 	AsyncTask<Void, Void, Void> dimScreenTask;
-
-	private class DimScreenTask extends AsyncTask<Void, Void, Void> {
-
-		@Override
-		protected Void doInBackground(final Void... params) {
-			// just wait without blocking the main thread!
-			try {
-				Thread.sleep(DIM_SCREEN_AFTER_MS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			// notify the user that we've received that they need a dimmed
-			// screen
-			Toast.makeText(SleepActivity.this, R.string.screen_will_dim,
-					Toast.LENGTH_LONG).show();
-		}
-
-		@Override
-		protected void onPostExecute(final Void results) {
-			// after we have waited, dim the screen on the main thread!
-			startActivity(new Intent(SleepActivity.this, DimSleepActivity.class));
-		}
-	}
 
 	private final BroadcastReceiver sleepStoppedReceiver = new BroadcastReceiver() {
 		@Override
@@ -294,6 +273,21 @@ public class SleepActivity extends CustomTitlebarActivity {
 
 	public void onTitleButton2Click(final View v) {
 		startActivity(new Intent(this, AlarmClock.class));
+	}
+
+	private void showOrHideWarnings() {
+		// hide warnings panel if there's no warnings.
+		final ScrollView landscapeWarnings = (ScrollView) findViewById(R.id.sleep_landscape_warnings);
+		// make sure we're in landscape. portrait doesn't have this problem.
+		if (landscapeWarnings != null) {
+			int visibility = textSleepPluggedIn.getVisibility()
+					+ textSleepDim.getVisibility()
+					+ textSleepNoAlarm.getVisibility();
+
+			// if all are gone...
+			visibility = visibility == 24 ? View.GONE : View.VISIBLE;
+			landscapeWarnings.setVisibility(visibility);
+		}
 	}
 
 	private void showWaitForSeriesDataIfNeeded() {

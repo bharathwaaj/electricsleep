@@ -27,6 +27,12 @@ public abstract class CustomTitlebarActivity extends Activity {
 
 	protected abstract int getContentAreaLayoutId();
 
+	public void hideProgress() {
+		final ProgressBar progress = (ProgressBar) findViewById(R.id.title_progress_circular);
+		progress.setVisibility(View.GONE);
+		findViewById(R.id.title_sep_3).setVisibility(View.GONE);
+	}
+
 	public void hideTitleButton1() {
 		final ImageButton btn1 = (ImageButton) findViewById(R.id.title_button_1);
 		btn1.setVisibility(View.GONE);
@@ -37,12 +43,6 @@ public abstract class CustomTitlebarActivity extends Activity {
 		final ImageButton btn2 = (ImageButton) findViewById(R.id.title_button_2);
 		btn2.setVisibility(View.GONE);
 		findViewById(R.id.title_sep_2).setVisibility(View.GONE);
-	}
-
-	public void hideProgress() {
-		final ProgressBar progress = (ProgressBar) findViewById(R.id.title_progress_circular);
-		progress.setVisibility(View.GONE);
-		findViewById(R.id.title_sep_3).setVisibility(View.GONE);
 	}
 
 	@Override
@@ -61,18 +61,11 @@ public abstract class CustomTitlebarActivity extends Activity {
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
 				R.layout.titlebar);
 
-
 		final TextView titleTextView = (TextView) findViewById(R.id.title_text);
 		titleTextView.setText(getTitle());
 
 		titleTextView.getRootView().setBackgroundResource(
 				R.drawable.gradient_background_vert);
-	}
-
-	public void setTitle(CharSequence title) {
-		final TextView titleTextView = (TextView) findViewById(R.id.title_text);
-		titleTextView.setText(title);
-		super.setTitle(title);
 	}
 
 	@Override
@@ -139,6 +132,19 @@ public abstract class CustomTitlebarActivity extends Activity {
 		btnHome.setFocusable(false);
 	}
 
+	@Override
+	public void setTitle(CharSequence title) {
+		final TextView titleTextView = (TextView) findViewById(R.id.title_text);
+		titleTextView.setText(title);
+		super.setTitle(title);
+	}
+
+	public void showProgress() {
+		final ProgressBar progress = (ProgressBar) findViewById(R.id.title_progress_circular);
+		progress.setVisibility(View.VISIBLE);
+		findViewById(R.id.title_sep_3).setVisibility(View.VISIBLE);
+	}
+
 	public void showTitleButton1(final int drawableResourceId) {
 		final ImageButton btn1 = (ImageButton) findViewById(R.id.title_button_1);
 		btn1.setVisibility(View.VISIBLE);
@@ -151,12 +157,6 @@ public abstract class CustomTitlebarActivity extends Activity {
 		btn2.setVisibility(View.VISIBLE);
 		btn2.setImageResource(drawableResourceId);
 		findViewById(R.id.title_sep_2).setVisibility(View.VISIBLE);
-	}
-	
-	public void showProgress() {
-		final ProgressBar progress = (ProgressBar) findViewById(R.id.title_progress_circular);
-		progress.setVisibility(View.VISIBLE);
-		findViewById(R.id.title_sep_3).setVisibility(View.VISIBLE);
 	}
 
 	protected void trackEvent(final String label, final int value) {

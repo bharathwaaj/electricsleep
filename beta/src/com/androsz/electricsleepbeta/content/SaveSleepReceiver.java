@@ -1,7 +1,6 @@
 package com.androsz.electricsleepbeta.content;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -36,7 +35,6 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 
 			@Override
 			public void run() {
-
 				final double alarm = intent.getDoubleExtra(
 						StartSleepReceiver.EXTRA_ALARM,
 						SettingsActivity.DEFAULT_ALARM_SENSITIVITY);
@@ -53,7 +51,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 					// fis = context
 					// .openFileInput(SleepMonitoringService.SLEEP_DATA);
 					synchronized (SleepMonitoringService.sDataLock) {
-						File dataFile = context
+						final File dataFile = context
 								.getFileStreamPath(SleepMonitoringService.SLEEP_DATA);
 						raFile = new RandomAccessFile(dataFile, "r");
 						final long length = dataFile.length();
@@ -61,7 +59,8 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 						originalData = new ArrayList<PointD>((int) (length
 								/ chunkSize / 2));
 						if (length >= chunkSize) {
-							//just do one giant IO operation to load whole file into memory
+							// just do one giant IO operation to load whole file
+							// into memory
 							final byte[] buffer = new byte[(int) length];
 							raFile.read(buffer);
 							raFile.close();

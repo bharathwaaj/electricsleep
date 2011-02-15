@@ -34,13 +34,13 @@ public class SharedWakeLock {
 		sCpuWakeLock.setReferenceCounted(false);
 	}
 
+	public static boolean isHeld() {
+		return sCpuWakeLock != null && sCpuWakeLock.isHeld();
+	}
+
 	public static void release() {
 		if (isHeld()) {
 			sCpuWakeLock.release();
 		}
-	}
-	
-	public static boolean isHeld() {
-		return sCpuWakeLock != null && sCpuWakeLock.isHeld();
 	}
 }

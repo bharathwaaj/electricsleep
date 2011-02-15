@@ -86,7 +86,7 @@ public class SleepChart extends ChartView implements Serializable {
 
 			xyMultipleSeriesRenderer.setPanEnabled(false, false);
 			xyMultipleSeriesRenderer.setZoomEnabled(false, false);
-			float textSize = 18;
+			final float textSize = 18;
 			xyMultipleSeriesRenderer.setAxisTitleTextSize(textSize);
 			xyMultipleSeriesRenderer.setLabelsTextSize(textSize);
 			xyMultipleSeriesRenderer.setLegendHeight(60);
@@ -107,6 +107,10 @@ public class SleepChart extends ChartView implements Serializable {
 			return timeChart;
 		}
 		return null;
+	}
+
+	public double getCalibrationLevel() {
+		return calibrationLevel;
 	}
 
 	public boolean makesSenseToDisplay() {
@@ -135,8 +139,8 @@ public class SleepChart extends ChartView implements Serializable {
 
 	public void reconfigure() {
 		if (makesSenseToDisplay()) {
-			double firstX = xySeriesMovement.xyList.get(0).x;
-			double lastX = xySeriesMovement.xyList.get(xySeriesMovement
+			final double firstX = xySeriesMovement.xyList.get(0).x;
+			final double lastX = xySeriesMovement.xyList.get(xySeriesMovement
 					.getItemCount() - 1).x;
 
 			if (makesSenseToDisplay()) {
@@ -159,6 +163,10 @@ public class SleepChart extends ChartView implements Serializable {
 			xyMultipleSeriesRenderer
 					.setYAxisMax(SettingsActivity.MAX_ALARM_SENSITIVITY);
 		}
+	}
+
+	public void setCalibrationLevel(final double calibrationLevel) {
+		this.calibrationLevel = calibrationLevel;
 	}
 
 	public void sync(final Cursor cursor) throws StreamCorruptedException,
@@ -186,13 +194,5 @@ public class SleepChart extends ChartView implements Serializable {
 		xyMultipleSeriesRenderer.setChartTitle(sleepRecord.title);
 		reconfigure();
 		repaint();
-	}
-
-	public double getCalibrationLevel() {
-		return calibrationLevel;
-	}
-
-	public void setCalibrationLevel(final double calibrationLevel) {
-		this.calibrationLevel = calibrationLevel;
 	}
 }

@@ -23,109 +23,120 @@ import java.util.List;
  * A series for the category charts like the bar and pie ones.
  */
 public class CategorySeries implements Serializable {
-  /** The series title. */
-  private String mTitle;
-  /** The series categories. */
-  private List<String> mCategories = new ArrayList<String>();
-  /** The series values. */
-  private List<Double> mValues = new ArrayList<Double>();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5524479371643202576L;
+	/** The series title. */
+	private final String mTitle;
+	/** The series categories. */
+	private final List<String> mCategories = new ArrayList<String>();
+	/** The series values. */
+	private final List<Double> mValues = new ArrayList<Double>();
 
-  /**
-   * Builds a new category series.
-   * 
-   * @param title the series title
-   */
-  public CategorySeries(String title) {
-    mTitle = title;
-  }
+	/**
+	 * Builds a new category series.
+	 * 
+	 * @param title
+	 *            the series title
+	 */
+	public CategorySeries(String title) {
+		mTitle = title;
+	}
 
-  /**
-   * Returns the series title.
-   * 
-   * @return the series title
-   */
-  public String getTitle() {
-    return mTitle;
-  }
+	/**
+	 * Adds a new value to the series
+	 * 
+	 * @param value
+	 *            the new value
+	 */
+	public synchronized void add(double value) {
+		add(mCategories.size() + "", value);
+	}
 
-  /**
-   * Adds a new value to the series
-   * 
-   * @param value the new value
-   */
-  public synchronized void add(double value) {
-    add(mCategories.size() + "", value);
-  }
+	/**
+	 * Adds a new value to the series.
+	 * 
+	 * @param category
+	 *            the category
+	 * @param value
+	 *            the new value
+	 */
+	public synchronized void add(String category, double value) {
+		mCategories.add(category);
+		mValues.add(value);
+	}
 
-  /**
-   * Adds a new value to the series.
-   * 
-   * @param category the category
-   * @param value the new value
-   */
-  public synchronized void add(String category, double value) {
-    mCategories.add(category);
-    mValues.add(value);
-  }
+	/**
+	 * Removes all the existing values from the series.
+	 */
+	public synchronized void clear() {
+		mCategories.clear();
+		mValues.clear();
+	}
 
-  /**
-   * Removes an existing value from the series.
-   * 
-   * @param index the index in the series of the value to remove
-   */
-  public synchronized void remove(int index) {
-    mCategories.remove(index);
-    mValues.remove(index);
-  }
+	/**
+	 * Returns the category name at the specified index.
+	 * 
+	 * @param index
+	 *            the index
+	 * @return the category name at the index
+	 */
+	public synchronized String getCategory(int index) {
+		return mCategories.get(index);
+	}
 
-  /**
-   * Removes all the existing values from the series.
-   */
-  public synchronized void clear() {
-    mCategories.clear();
-    mValues.clear();
-  }
+	/**
+	 * Returns the series item count.
+	 * 
+	 * @return the series item count
+	 */
+	public synchronized int getItemCount() {
+		return mCategories.size();
+	}
 
-  /**
-   * Returns the value at the specified index.
-   * 
-   * @param index the index
-   * @return the value at the index
-   */
-  public synchronized double getValue(int index) {
-    return mValues.get(index);
-  }
+	/**
+	 * Returns the series title.
+	 * 
+	 * @return the series title
+	 */
+	public String getTitle() {
+		return mTitle;
+	}
 
-  /**
-   * Returns the category name at the specified index.
-   * 
-   * @param index the index
-   * @return the category name at the index
-   */
-  public synchronized String getCategory(int index) {
-    return mCategories.get(index);
-  }
+	/**
+	 * Returns the value at the specified index.
+	 * 
+	 * @param index
+	 *            the index
+	 * @return the value at the index
+	 */
+	public synchronized double getValue(int index) {
+		return mValues.get(index);
+	}
 
-  /**
-   * Returns the series item count.
-   * 
-   * @return the series item count
-   */
-  public synchronized int getItemCount() {
-    return mCategories.size();
-  }
+	/**
+	 * Removes an existing value from the series.
+	 * 
+	 * @param index
+	 *            the index in the series of the value to remove
+	 */
+	public synchronized void remove(int index) {
+		mCategories.remove(index);
+		mValues.remove(index);
+	}
 
-  /**
-   * Transforms the category series to an XY series.
-   * 
-   * @return the XY series
-   */
-  public XYSeries toXYSeries() {
-    XYSeries xySeries = new XYSeries(mTitle);
-    int k = 0;
-    for (double value : mValues) {
-      xySeries.add(++k, value);
-    }
-    return xySeries;
-  }
+	/**
+	 * Transforms the category series to an XY series.
+	 * 
+	 * @return the XY series
+	 */
+	public XYSeries toXYSeries() {
+		final XYSeries xySeries = new XYSeries(mTitle);
+		int k = 0;
+		for (final double value : mValues) {
+			xySeries.add(++k, value);
+		}
+		return xySeries;
+	}
 }

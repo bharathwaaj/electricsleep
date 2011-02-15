@@ -2,8 +2,6 @@ package com.androsz.electricsleepbeta.app;
 
 import java.lang.reflect.Field;
 
-import com.androsz.electricsleepbeta.R;
-
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Build;
@@ -11,8 +9,8 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.Toast;
 
 public class DimSleepActivity extends Activity {
 
@@ -26,32 +24,35 @@ public class DimSleepActivity extends Activity {
 				| WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
 				| WindowManager.LayoutParams.FLAG_FULLSCREEN;
 
-		// set screen brightness to the lowest possible without turning screen off
+		// set screen brightness to the lowest possible without turning screen
+		// off
 		winParams.screenBrightness = 0.01f;
 
+		// NOTE: this doesn't work on some devices (Motorola Droid, X, 2.. etc)
 		if (Build.VERSION.SDK_INT < 8) {
 			// hack for pre-froyo to set buttonBrightness off
 			try {
-				Field buttonBrightness = winParams.getClass().getField(
+				final Field buttonBrightness = winParams.getClass().getField(
 						"buttonBrightness");
 				buttonBrightness.set(winParams,
 						WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 			}
 		} else {
 			winParams.buttonBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF;
 		}
 
-		//win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-		//		WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		// win.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+		// WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		win.setAttributes(winParams);
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		LinearLayout blackness = new LinearLayout(this);
-		blackness.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.MATCH_PARENT));
+		final LinearLayout blackness = new LinearLayout(this);
+		blackness.setLayoutParams(new LayoutParams(
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT));
 
 		blackness.setBackgroundColor(Color.BLACK);
 		Toast.makeText(this,

@@ -22,91 +22,108 @@ import java.util.List;
  * A series for the range category charts like the range bar.
  */
 public class RangeCategorySeries extends CategorySeries {
-  /** The series values. */
-  private List<Double> mMaxValues = new ArrayList<Double>();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6546322282967811561L;
+	/** The series values. */
+	private final List<Double> mMaxValues = new ArrayList<Double>();
 
-  /**
-   * Builds a new category series.
-   * 
-   * @param title the series title
-   */
-  public RangeCategorySeries(String title) {
-    super(title);
-  }
+	/**
+	 * Builds a new category series.
+	 * 
+	 * @param title
+	 *            the series title
+	 */
+	public RangeCategorySeries(String title) {
+		super(title);
+	}
 
-  /**
-   * Adds new values to the series
-   * 
-   * @param minValue the new minimum value
-   * @param maxValue the new maximum value
-   */
-  public synchronized void add(double minValue, double maxValue) {
-    super.add(minValue);
-    mMaxValues.add(maxValue);
-  }
+	/**
+	 * Adds new values to the series
+	 * 
+	 * @param minValue
+	 *            the new minimum value
+	 * @param maxValue
+	 *            the new maximum value
+	 */
+	public synchronized void add(double minValue, double maxValue) {
+		super.add(minValue);
+		mMaxValues.add(maxValue);
+	}
 
-  /**
-   * Adds new values to the series.
-   * 
-   * @param category the category
-   * @param minValue the new minimum value
-   * @param maxValue the new maximum value
-   */
-  public synchronized void add(String category, double minValue, double maxValue) {
-    super.add(category, minValue);
-    mMaxValues.add(maxValue);
-  }
+	/**
+	 * Adds new values to the series.
+	 * 
+	 * @param category
+	 *            the category
+	 * @param minValue
+	 *            the new minimum value
+	 * @param maxValue
+	 *            the new maximum value
+	 */
+	public synchronized void add(String category, double minValue,
+			double maxValue) {
+		super.add(category, minValue);
+		mMaxValues.add(maxValue);
+	}
 
-  /**
-   * Removes existing values from the series.
-   * 
-   * @param index the index in the series of the values to remove
-   */
-  public synchronized void remove(int index) {
-    super.remove(index);
-    mMaxValues.remove(index);
-  }
+	/**
+	 * Removes all the existing values from the series.
+	 */
+	@Override
+	public synchronized void clear() {
+		super.clear();
+		mMaxValues.clear();
+	}
 
-  /**
-   * Removes all the existing values from the series.
-   */
-  public synchronized void clear() {
-    super.clear();
-    mMaxValues.clear();
-  }
+	/**
+	 * Returns the maximum value at the specified index.
+	 * 
+	 * @param index
+	 *            the index
+	 * @return the maximum value at the index
+	 */
+	public double getMaximumValue(int index) {
+		return mMaxValues.get(index);
+	}
 
-  /**
-   * Returns the minimum value at the specified index.
-   * 
-   * @param index the index
-   * @return the minimum value at the index
-   */
-  public double getMinimumValue(int index) {
-    return getValue(index);
-  }
+	/**
+	 * Returns the minimum value at the specified index.
+	 * 
+	 * @param index
+	 *            the index
+	 * @return the minimum value at the index
+	 */
+	public double getMinimumValue(int index) {
+		return getValue(index);
+	}
 
-  /**
-   * Returns the maximum value at the specified index.
-   * 
-   * @param index the index
-   * @return the maximum value at the index
-   */
-  public double getMaximumValue(int index) {
-    return mMaxValues.get(index);
-  }
+	/**
+	 * Removes existing values from the series.
+	 * 
+	 * @param index
+	 *            the index in the series of the values to remove
+	 */
+	@Override
+	public synchronized void remove(int index) {
+		super.remove(index);
+		mMaxValues.remove(index);
+	}
 
-  /**
-   * Transforms the range category series to an XY series.
-   * 
-   * @return the XY series
-   */
-  public XYSeries toXYSeries() {
-    XYSeries xySeries = new XYSeries(getTitle());
-    int length = getItemCount();
-    for (int k = 0; k < length; k++) {
-      xySeries.add(k + 1, getMinimumValue(k));
-      xySeries.add(k + 1, getMaximumValue(k));
-    }
-    return xySeries;
-  }
+	/**
+	 * Transforms the range category series to an XY series.
+	 * 
+	 * @return the XY series
+	 */
+	@Override
+	public XYSeries toXYSeries() {
+		final XYSeries xySeries = new XYSeries(getTitle());
+		final int length = getItemCount();
+		for (int k = 0; k < length; k++) {
+			xySeries.add(k + 1, getMinimumValue(k));
+			xySeries.add(k + 1, getMaximumValue(k));
+		}
+		return xySeries;
+	}
 }

@@ -174,10 +174,9 @@ public class SetAlarm extends CustomTitlebarPreferenceActivity implements
 				final String val = (String) newValue;
 				// Set the summary based on the new label.
 				p.setSummary(val);
-				if (val != null && !val.equals(mLabel.getText())) {
+				if (val != null && !val.equals(mLabel.getText()))
 					// Call through to the generic listener.
 					return SetAlarm.this.onPreferenceChange(p, newValue);
-				}
 				return true;
 			}
 		});
