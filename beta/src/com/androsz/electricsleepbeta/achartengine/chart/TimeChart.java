@@ -37,7 +37,7 @@ public class TimeChart extends LineChart {
 	/** The number of milliseconds in a day. */
 	public static final long DAY = 24 * 60 * 60 * 1000;
 	/** The date format pattern to be used in formatting the X axis labels. */
-	private String mDateFormat;
+	protected String mDateFormat;
 
 	/**
 	 * Builds a new time chart instance.
@@ -119,7 +119,7 @@ public class TimeChart extends LineChart {
 	 *            the end date in milliseconds
 	 * @return the date format
 	 */
-	private DateFormat getDateFormat(double start, double end) {
+	protected DateFormat getDateFormat(double start, double end) {
 		if (mDateFormat != null) {
 			SimpleDateFormat format = null;
 			try {

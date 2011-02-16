@@ -93,7 +93,7 @@ public class EventGeometry {
 	/**
 	 * Returns true if this event intersects the selection region.
 	 */
-	boolean eventIntersectsSelection(Event event, Rect selection) {
+	boolean eventIntersectsSelection(SleepRecord event, Rect selection) {
 		if (event.left < selection.right && event.right >= selection.left
 				&& event.top < selection.bottom
 				&& event.bottom >= selection.top)
@@ -104,7 +104,7 @@ public class EventGeometry {
 	/**
 	 * Computes the distance from the given point to the given event.
 	 */
-	float pointToEvent(float x, float y, Event event) {
+	float pointToEvent(float x, float y, SleepRecord event) {
 		final float left = event.left;
 		final float right = event.right;
 		final float top = event.top;

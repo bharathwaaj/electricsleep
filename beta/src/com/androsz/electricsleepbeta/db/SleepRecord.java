@@ -224,13 +224,13 @@ public class SleepRecord {
 				return;
 
 			context.getResources();
-			while (c.moveToNext()) {
+			do {
 				final SleepRecord s = new SleepRecord(c);
 				final long startTime = s.getStartTime();
 				if (startTime > start && startTime < end) {
 					events.add(s);
 				}
-			}
+			} while (c.moveToNext());
 
 			computePositions(events);
 		} finally {
@@ -329,9 +329,14 @@ public class SleepRecord {
 	}
 
 	public CharSequence getDurationText(final Resources res) {
-		final Calendar duration = getTimeDiffCalendar(this.duration);
-		final int hours = Math.min(24, duration.get(Calendar.HOUR_OF_DAY));
-		final int minutes = duration.get(Calendar.MINUTE);
+		return getTimespanText(duration, res);
+	}
+
+	public static CharSequence getTimespanText(long timespanMs,
+			final Resources res) {
+		final Calendar timespan = getTimeDiffCalendar(timespanMs);
+		final int hours = Math.min(24, timespan.get(Calendar.HOUR_OF_DAY));
+		final int minutes = timespan.get(Calendar.MINUTE);
 		return res.getQuantityString(R.plurals.hour, hours, hours) + " "
 				+ res.getQuantityString(R.plurals.minute, minutes, minutes);
 	}
@@ -354,12 +359,11 @@ public class SleepRecord {
 	}
 
 	public CharSequence getFellAsleepText(final Resources res) {
-		final Calendar fellAsleep = getTimeDiffCalendar(this.fellAsleep
-				- getStartTime());
-		final int hours = Math.min(24, fellAsleep.get(Calendar.HOUR_OF_DAY));
-		final int minutes = fellAsleep.get(Calendar.MINUTE);
-		return res.getQuantityString(R.plurals.hour, hours, hours) + " "
-				+ res.getQuantityString(R.plurals.minute, minutes, minutes);
+		return getTimespanText(getTimeToFallAsleep(), res);
+	}
+
+	public long getTimeToFallAsleep() {
+		return this.fellAsleep - getStartTime();
 	}
 
 	public int getMaxColumns() {
@@ -375,7 +379,7 @@ public class SleepRecord {
 		final float diffFrom8HoursPct = 1 - Math.abs((duration - eightHours)
 				/ eightHours);
 		final float timeToFallAsleepPct = fifteenMinutes
-				/ Math.max(fellAsleep - getStartTime(), fifteenMinutes);
+				/ Math.max(getTimeToFallAsleep(), fifteenMinutes);
 		// ratingPct *= 1;
 		// deepPct *= 1;
 		// diffFrom8HoursPct *= 1.4;
@@ -404,7 +408,7 @@ public class SleepRecord {
 		return cal.get(Calendar.MINUTE) + (cal.get(Calendar.HOUR_OF_DAY) * 60);
 	}
 
-	private Calendar getTimeDiffCalendar(final long time) {
+	public static Calendar getTimeDiffCalendar(final long time) {
 		// set calendar to GMT +0
 		final Calendar timeDiffCalendar = Calendar.getInstance(TimeZone
 				.getTimeZone(TimeZone.getAvailableIDs(0)[0]));

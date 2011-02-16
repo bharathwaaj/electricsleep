@@ -381,7 +381,7 @@ public class SleepMonitoringService extends Service implements
 			toggleAirplaneMode(true);
 
 			// TODO: doesn't happen more than once? right?
-			// deleteFile(SleepMonitoringService.SLEEP_DATA);
+			deleteFile(SleepMonitoringService.SLEEP_DATA);
 
 			final SharedPreferences.Editor ed = getSharedPreferences(
 					SERVICE_IS_RUNNING, Context.MODE_PRIVATE).edit();

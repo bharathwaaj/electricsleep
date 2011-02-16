@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,6 +77,9 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 			((TextView) findViewById(R.id.value_note_text))
 					.setText(sleepRecord.note);
 
+			((RatingBar) findViewById(R.id.value_rating_bar))
+					.setRating(sleepRecord.rating);
+
 			sleepChart.sync(sleepRecord);
 		}
 
@@ -83,7 +87,6 @@ public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 		protected void onPreExecute() {
 			sleepChart = (SleepChart) findViewById(R.id.sleep_movement_chart);
 		}
-
 	}
 
 	ProgressDialog progress;

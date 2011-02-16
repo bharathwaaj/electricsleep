@@ -36,7 +36,7 @@ public class FlingableTabHost extends TabHost {
 				R.anim.slide_left_out);
 
 		final int minScaledFlingVelocity = ViewConfiguration.get(context)
-				.getScaledMinimumFlingVelocity() * 5; // 5 = fudge by
+				.getScaledMinimumFlingVelocity(); // 5 = fudge by
 														// experimentation
 
 		mGestureDetector = new GestureDetector(
@@ -49,7 +49,7 @@ public class FlingableTabHost extends TabHost {
 						final int tabCount = getTabWidget().getTabCount();
 						final int currentTab = getCurrentTab();
 						if (Math.abs(velocityX) > minScaledFlingVelocity
-								&& Math.abs(velocityY) < minScaledFlingVelocity) {
+								&& Math.abs(velocityY) < minScaledFlingVelocity*2) {
 
 							final boolean right = velocityX < 0;
 							final int newTab = MathUtils.constrain(currentTab

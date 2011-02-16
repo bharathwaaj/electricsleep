@@ -12,14 +12,13 @@ import android.os.PowerManager;
 public class SharedWakeLock {
 
 	private static PowerManager.WakeLock sCpuWakeLock;
-	private static ArrayList<Integer> wakeLockFlags = new ArrayList<Integer>();
 
-	public static void acquire(final Context context, int wakeLockFlags) {
+	public synchronized static void acquire(final Context context, int wakeLockFlags) {
 		createWakeLock(context, wakeLockFlags);
 		sCpuWakeLock.acquire();
 	}
 
-	public static void acquire(final Context context, int wakeLockFlags,
+	public synchronized static void acquire(final Context context, int wakeLockFlags,
 			int releaseAfter) {
 		createWakeLock(context, wakeLockFlags);
 		sCpuWakeLock.acquire(releaseAfter);

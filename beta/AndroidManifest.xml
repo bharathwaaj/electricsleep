@@ -18,8 +18,7 @@
 			android:label="@string/title_sleep" />
 
 		<activity android:name="com.androsz.electricsleepbeta.app.DimSleepActivity"
-			android:label="@string/title_sleep" android:excludeFromRecents="true"
-			android:launchMode="singleInstance" />
+			android:label="@string/title_sleep" android:noHistory="true" />
 
 		<activity android:name="com.androsz.electricsleepbeta.app.AboutActivity"
 			android:label="@string/about" />

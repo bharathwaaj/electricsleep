@@ -141,8 +141,10 @@
 		feel:</string>
 	<string name="save">Save</string>
 	<string name="discard">Discard</string>
+	<string name="home_last_sleep_title_text_empty">...</string>
+	<string name="home_last_sleep_title_text">Last Night\'s Sleep Chart</string>
 	<string name="home_review_title_text_empty">No sleep to review...</string>
-	<string name="home_review_title_text">Sleep Statistics Dashboard</string>
+	<string name="home_review_title_text">Sleep Averages</string>
 	<string name="to">to</string>
 	<string name="summary_pref_calibration">Tap to calibrate movement sensitivities
 		automatically</string>

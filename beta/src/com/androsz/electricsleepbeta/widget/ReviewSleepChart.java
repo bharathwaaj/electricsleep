@@ -25,9 +25,4 @@ public class ReviewSleepChart extends SleepChart {
 		chart.setDateFormat("h");
 		return chart;
 	}
-
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		return false;
-	}
 }
