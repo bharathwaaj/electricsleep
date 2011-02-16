@@ -48,7 +48,7 @@ public class HomeActivity extends CustomTitlebarActivity {
 		protected void onPostExecute(final Cursor cursor) {
 			final TextView lastSleepTitleText = (TextView) findViewById(R.id.home_last_sleep_title_text);
 			final TextView reviewTitleText = (TextView) findViewById(R.id.home_review_title_text);
-			final RelativeLayout container = (RelativeLayout)findViewById(R.id.home_stats_container);
+			final RelativeLayout container = (RelativeLayout) findViewById(R.id.home_stats_container);
 			if (cursor == null) {
 				container.setVisibility(View.GONE);
 				sleepChart.setVisibility(View.GONE);
@@ -122,48 +122,6 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 	}
 
-	private class LoadSleepStatisticsTask extends AsyncTask<Void, Void, Cursor> {
-
-		@Override
-		protected Cursor doInBackground(Void... params) {
-			return managedQuery(SleepContentProvider.CONTENT_URI, null, null,
-					null, null);
-		}
-
-		@Override
-		protected void onPostExecute(final Cursor cursor) {
-			if (cursor == null) {
-				finish();
-				return;
-			}
-			cursor.moveToFirst();
-
-			final SleepRecord sleepRecord = new SleepRecord(cursor);
-
-			((TextView) findViewById(R.id.value_score_text))
-					.setText(sleepRecord.getSleepScore() + "%");
-			((TextView) findViewById(R.id.value_duration_text))
-					.setText(sleepRecord.getDurationText(getResources()));
-			((TextView) findViewById(R.id.value_spikes_text))
-					.setText(sleepRecord.spikes + "");
-			((TextView) findViewById(R.id.value_fell_asleep_text))
-					.setText(sleepRecord.getFellAsleepText(getResources()));
-			((TextView) findViewById(R.id.value_note_text))
-					.setText(sleepRecord.note);
-
-			((RatingBar) findViewById(R.id.value_rating_bar))
-					.setRating(sleepRecord.rating);
-
-			sleepChart.sync(sleepRecord);
-		}
-
-		@Override
-		protected void onPreExecute() {
-			sleepChart = (SleepChart) findViewById(R.id.home_sleep_chart);
-		}
-
-	}
-
 	private SleepChart sleepChart;
 
 	LoadLastSleepChartTask loadLastSleepChartTask;
@@ -197,37 +155,59 @@ public class HomeActivity extends CustomTitlebarActivity {
 					.putExtra("required", true));
 		} else {
 
-			if (!WelcomeTutorialWizardActivity
+			if (WelcomeTutorialWizardActivity
 					.enforceCalibrationBeforeStartingSleep(this)) {
 				// we've already calibrated... now show the beta-ending-donate
 				// message
-
-				final AlertDialog.Builder dialog = new AlertDialog.Builder(this)
-						.setMessage(getString(R.string.delete_sleep_record))
-						.setPositiveButton(getString(R.string.ok),
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(
-											final DialogInterface dialog,
-											final int id) {
-										final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-										notificationManager
-												.cancel(getIntent()
-														.getExtras()
-														.getInt(SleepMonitoringService.EXTRA_ID));
-										finish();
-									}
-								})
-						.setNegativeButton(getString(R.string.cancel),
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(
-											final DialogInterface dialog,
-											final int id) {
-										dialog.cancel();
-									}
-								});
-				dialog.show();
+				final boolean betaEndingShown = userPrefs.getBoolean(
+						"betaEndingShown", false);
+				if (!betaEndingShown) {
+					userPrefs.edit().putBoolean("betaEndingShown", true)
+							.commit();
+					final AlertDialog.Builder dialog = new AlertDialog.Builder(
+							this)
+							.setTitle(R.string.beta_has_ended)
+							.setMessage(
+									R.string.beta_has_ended_message)
+							.setPositiveButton(getString(R.string.donate),
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(
+												final DialogInterface dialog,
+												final int id) {
+											analytics.trackPageView("donate");
+											final Uri marketUri = Uri
+													.parse("market://details?id=com.androsz.electricsleepdonate");
+											final Intent marketIntent = new Intent(
+													Intent.ACTION_VIEW,
+													marketUri);
+											startActivity(marketIntent);
+										}
+									})
+							.setNeutralButton(getString(R.string.manual),
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(
+												final DialogInterface dialog,
+												final int id) {
+											analytics
+													.trackPageView("manualInstall");
+											startActivity(new Intent(
+													"android.intent.action.VIEW",
+													Uri.parse("http://code.google.com/p/electricsleep/downloads/list")));
+										}
+									})
+							.setNegativeButton(getString(R.string.ok),
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(
+												final DialogInterface dialog,
+												final int id) {
+											dialog.cancel();
+										}
+									});
+					dialog.show();
+				}
 			}
 
 		}

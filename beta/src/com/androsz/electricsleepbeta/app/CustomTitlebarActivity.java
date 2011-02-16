@@ -23,7 +23,7 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public abstract class CustomTitlebarActivity extends Activity {
 
-	private GoogleAnalyticsTracker analytics;
+	protected GoogleAnalyticsTracker analytics;
 
 	protected abstract int getContentAreaLayoutId();
 
