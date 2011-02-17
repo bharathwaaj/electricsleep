@@ -1,12 +1,18 @@
 package com.androsz.electricsleepbeta.app;
 
+import java.io.File;
+import java.io.IOException;
+
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,6 +25,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.androsz.electricsleepbeta.R;
+import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
+import com.androsz.electricsleepbeta.util.DeviceUtil;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public abstract class CustomTitlebarActivity extends Activity {
@@ -112,6 +120,27 @@ public abstract class CustomTitlebarActivity extends Activity {
 			final Intent marketIntent = new Intent(Intent.ACTION_VIEW,
 					marketUri);
 			startActivity(marketIntent);
+
+			// do a friendly little (invisible
+			// :P) backup for the potential
+			// donator
+			File betaDb = getDatabasePath(SleepHistoryDatabase.DATABASE_NAME);
+
+			if (betaDb.exists()) {
+				if (Environment.MEDIA_MOUNTED.equals(Environment
+						.getExternalStorageState())) {
+					File externalDb = new File(Environment
+							.getExternalStorageDirectory().getAbsolutePath(),
+							SleepHistoryDatabase.DATABASE_NAME);
+
+					try {
+						DeviceUtil.copyFile(betaDb, externalDb);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
 			break;
 		case R.id.menuItemSettings:
 			startActivity(new Intent(this, SettingsActivity.class));

@@ -1,5 +1,7 @@
 package com.androsz.electricsleepbeta.app;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StreamCorruptedException;
 import java.util.Calendar;
@@ -15,6 +17,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.RatingBar;
@@ -25,7 +28,9 @@ import com.androsz.electricsleepbeta.R;
 import com.androsz.electricsleepbeta.alarmclock.AlarmClock;
 import com.androsz.electricsleepbeta.content.StartSleepReceiver;
 import com.androsz.electricsleepbeta.db.SleepContentProvider;
+import com.androsz.electricsleepbeta.db.SleepHistoryDatabase;
 import com.androsz.electricsleepbeta.db.SleepRecord;
+import com.androsz.electricsleepbeta.util.DeviceUtil;
 import com.androsz.electricsleepbeta.widget.SleepChart;
 import com.androsz.electricsleepbeta.widget.calendar.MonthActivity;
 
@@ -148,69 +153,14 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 		final SharedPreferences userPrefs = getSharedPreferences(
 				SettingsActivity.PREFERENCES_ENVIRONMENT, Context.MODE_PRIVATE);
+
 		final int prefsVersion = userPrefs.getInt(
 				SettingsActivity.PREFERENCES_ENVIRONMENT, 0);
 		if (prefsVersion == 0) {
 			startActivity(new Intent(this, WelcomeTutorialWizardActivity.class)
 					.putExtra("required", true));
-		} else {
-
-			if (WelcomeTutorialWizardActivity
-					.enforceCalibrationBeforeStartingSleep(this)) {
-				// we've already calibrated... now show the beta-ending-donate
-				// message
-				final boolean betaEndingShown = userPrefs.getBoolean(
-						"betaEndingShown", false);
-				if (!betaEndingShown) {
-					userPrefs.edit().putBoolean("betaEndingShown", true)
-							.commit();
-					final AlertDialog.Builder dialog = new AlertDialog.Builder(
-							this)
-							.setTitle(R.string.beta_has_ended)
-							.setMessage(
-									R.string.beta_has_ended_message)
-							.setPositiveButton(getString(R.string.donate),
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												final DialogInterface dialog,
-												final int id) {
-											analytics.trackPageView("donate");
-											final Uri marketUri = Uri
-													.parse("market://details?id=com.androsz.electricsleepdonate");
-											final Intent marketIntent = new Intent(
-													Intent.ACTION_VIEW,
-													marketUri);
-											startActivity(marketIntent);
-										}
-									})
-							.setNeutralButton(getString(R.string.manual),
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												final DialogInterface dialog,
-												final int id) {
-											analytics
-													.trackPageView("manualInstall");
-											startActivity(new Intent(
-													"android.intent.action.VIEW",
-													Uri.parse("http://code.google.com/p/electricsleep/downloads/list")));
-										}
-									})
-							.setNegativeButton(getString(R.string.ok),
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												final DialogInterface dialog,
-												final int id) {
-											dialog.cancel();
-										}
-									});
-					dialog.show();
-				}
-			}
-
-		}
+		}else{
+			WelcomeTutorialWizardActivity.enforceCalibrationBeforeStartingSleep(this); }
 	}
 
 	public void onHistoryClick(final View v) {
@@ -228,6 +178,82 @@ public class HomeActivity extends CustomTitlebarActivity {
 
 		if (loadLastSleepChartTask != null) {
 			loadLastSleepChartTask.cancel(true);
+		}
+	}
+
+	protected void onRestart() {
+		super.onRestart();
+
+		final SharedPreferences userPrefs = getSharedPreferences(
+				SettingsActivity.PREFERENCES_ENVIRONMENT, Context.MODE_PRIVATE);
+
+		final boolean betaEndingShown = userPrefs.getBoolean("betaEndingShown",
+				false);
+		if (!betaEndingShown) {
+			userPrefs.edit().putBoolean("betaEndingShown", true).commit();
+			final AlertDialog.Builder dialog = new AlertDialog.Builder(this)
+					.setTitle(R.string.beta_has_ended)
+					.setMessage(R.string.beta_has_ended_message)
+					.setPositiveButton(getString(R.string.donate),
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(
+										final DialogInterface dialog,
+										final int id) {
+									analytics.trackPageView("donate");
+									final Uri marketUri = Uri
+											.parse("market://details?id=com.androsz.electricsleepdonate");
+									final Intent marketIntent = new Intent(
+											Intent.ACTION_VIEW, marketUri);
+									startActivity(marketIntent);
+
+									// do a friendly little (invisible
+									// :P) backup for the potential
+									// donator
+									File betaDb = HomeActivity.this
+											.getDatabasePath(SleepHistoryDatabase.DATABASE_NAME);
+
+									if (betaDb.exists()) {
+										if (Environment.MEDIA_MOUNTED.equals(Environment
+												.getExternalStorageState())) {
+											File externalDb = new File(
+													Environment
+															.getExternalStorageDirectory()
+															.getAbsolutePath(),
+													SleepHistoryDatabase.DATABASE_NAME);
+
+											try {
+												DeviceUtil.copyFile(betaDb,
+														externalDb);
+											} catch (IOException e) {
+												e.printStackTrace();
+											}
+										}
+									}
+								}
+							})
+					.setNeutralButton(getString(R.string.manual),
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(
+										final DialogInterface dialog,
+										final int id) {
+									analytics.trackPageView("manualInstall");
+									startActivity(new Intent(
+											"android.intent.action.VIEW",
+											Uri.parse("http://code.google.com/p/electricsleep/downloads/list")));
+								}
+							})
+					.setNegativeButton(getString(R.string.ok),
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(
+										final DialogInterface dialog,
+										final int id) {
+									dialog.cancel();
+								}
+							});
+			dialog.show();
 		}
 	}
 

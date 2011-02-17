@@ -26,7 +26,7 @@ public class SaveSleepReceiver extends BroadcastReceiver {
 	public static final String EXTRA_SUCCESS = "success";
 	public static final String EXTRA_NOTE = "note";
 	public static final String EXTRA_RATING = "rating";
-	public static String SAVE_SLEEP_COMPLETED = "com.androsz.electricsleep.SAVE_SLEEP_COMPLETED";
+	public static String SAVE_SLEEP_COMPLETED = "com.androsz.electricsleepbeta.SAVE_SLEEP_COMPLETED";
 
 	@Override
 	public void onReceive(final Context context, final Intent intent) {

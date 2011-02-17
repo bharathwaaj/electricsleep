@@ -86,7 +86,7 @@ public class SleepHistoryDatabase {
 		}
 	}
 
-	private static final String DATABASE_NAME = "sleephistory";
+	public static final String DATABASE_NAME = "sleephistory";
 
 	private static final int DATABASE_VERSION = 5;
 	public static final String FTS_VIRTUAL_TABLE = "FTSsleephistory";
