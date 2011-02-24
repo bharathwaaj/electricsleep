@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.androsz.electricsleep.widget.ViewFlipperBugfix
+	xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/wizardViewFlipper"
+	android:layout_height="fill_parent" android:layout_width="fill_parent">
+	<ScrollView android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+		<RelativeLayout android:layout_height="wrap_content"
+			android:orientation="vertical" android:layout_width="fill_parent">
+			<TextView style="@style/TextHeader" android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:text="@string/title_welcome"
+				android:layout_alignParentTop="true"
+				android:layout_centerHorizontal="true" android:id="@+id/welcomeTitle"></TextView>
+			<TextView android:layout_height="wrap_content" style="@style/TextBody"
+				android:layout_width="wrap_content" android:text="@string/electricsleep_description"
+				android:layout_below="@+id/welcomeTitle"
+				android:layout_centerHorizontal="true"></TextView>
+		</RelativeLayout>
+	</ScrollView>
+	<ScrollView android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+		<RelativeLayout android:layout_height="wrap_content"
+			android:orientation="vertical" android:layout_width="fill_parent">
+			<TextView style="@style/TextHeader" android:layout_height="wrap_content"
+				android:layout_width="wrap_content" android:text="@string/electricsleep_about"
+				android:id="@+id/how_it_works" android:layout_centerHorizontal="true"></TextView>
+
+			<ImageView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:src="@android:drawable/ic_menu_preferences"
+				android:layout_below="@+id/how_it_works" android:id="@+id/imgConfigure"
+				android:tint="@android:color/white" android:layout_margin="15dip"></ImageView>
+			<TextView android:layout_height="wrap_content" android:id="@+id/textConfigure"
+				android:layout_width="wrap_content" android:layout_toRightOf="@+id/imgConfigure"
+				android:layout_alignTop="@+id/imgConfigure" android:text="@string/how_configure"
+				style="@style/TextHeaderTwo"></TextView>
+
+			<ImageView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:layout_toRightOf="@+id/welcomeTitle"
+				android:src="@drawable/home_btn_sleep" android:layout_below="@+id/imgConfigure"
+				android:id="@+id/imgSleep" android:layout_margin="10dip"></ImageView>
+			<TextView android:layout_height="wrap_content" android:id="@+id/textSleep"
+				android:layout_width="wrap_content" android:layout_toRightOf="@+id/imgConfigure"
+				android:layout_alignTop="@+id/imgSleep" android:text="@string/how_sleep"
+				style="@style/TextHeaderTwo"></TextView>
+
+			<ImageView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:layout_toRightOf="@+id/welcomeTitle"
+				android:layout_margin="15dip" android:id="@+id/imgAlarm"
+				android:src="@drawable/ic_menu_alarms" android:tint="@android:color/white"
+				android:layout_below="@+id/imgSleep"></ImageView>
+			<TextView android:layout_height="wrap_content" android:id="@+id/textAlarm"
+				android:layout_width="wrap_content" style="@style/TextHeaderTwo"
+				android:layout_toRightOf="@+id/imgConfigure"
+				android:layout_alignTop="@+id/imgAlarm" android:text="@string/how_wake"></TextView>
+
+			<ImageView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:layout_toRightOf="@+id/welcomeTitle"
+				android:layout_margin="10dip" android:id="@+id/imgReview"
+				android:layout_below="@+id/imgAlarm" android:src="@drawable/home_btn_history"></ImageView>
+			<TextView android:layout_height="wrap_content" android:id="@+id/textReview"
+				android:layout_width="wrap_content" android:layout_toRightOf="@+id/imgConfigure"
+				style="@style/TextHeaderTwo" android:layout_alignTop="@+id/imgReview"
+				android:text="@string/how_review"></TextView>
+		</RelativeLayout>
+	</ScrollView>
+</com.androsz.electricsleep.widget.ViewFlipperBugfix>
