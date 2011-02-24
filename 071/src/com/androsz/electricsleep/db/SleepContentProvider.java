@@ -17,23 +17,14 @@
 
 package com.androsz.electricsleep.db;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.channels.FileChannel;
-
-import com.androsz.electricsleep.util.IntentUtil;
-
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.BaseColumns;
 
 /**
@@ -147,7 +138,7 @@ public class SleepContentProvider extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-		Context context = getContext();
+		final Context context = getContext();
 		sleepHistoryDatabase = new SleepHistoryDatabase(context);
 		return true;
 	}

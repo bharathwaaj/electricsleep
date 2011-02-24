@@ -18,23 +18,17 @@
 package com.androsz.electricsleep.db;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StreamCorruptedException;
-import java.nio.channels.FileChannel;
-
-import com.androsz.electricsleep.util.DeviceUtil;
-import com.androsz.electricsleep.util.IntentUtil;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.os.Environment;
+
+import com.androsz.electricsleep.util.DeviceUtil;
 
 /**
  * Contains logic to return specific words from the dictionary, and load the
@@ -68,21 +62,21 @@ public class SleepHistoryDatabase {
 		public void onCreate(SQLiteDatabase db) {
 			if (Environment.MEDIA_MOUNTED.equals(Environment
 					.getExternalStorageState())) {
-				File externalDb = new File(Environment
+				final File externalDb = new File(Environment
 						.getExternalStorageDirectory().getAbsolutePath(),
-						SleepHistoryDatabase.DATABASE_NAME);
+						DATABASE_NAME);
 				if (externalDb.exists()) {
-					File data = Environment.getDataDirectory();
+					final File data = Environment.getDataDirectory();
 
-					String restoredDbPath = "/data/com.androsz.electricsleepdonate/databases/";
-					File restoredDb = new File(data + restoredDbPath,
+					final String restoredDbPath = data + "/data/com.androsz.electricsleepdonate/databases/";
+					final File restoredDb = new File(restoredDbPath,
 							DATABASE_NAME);
 					try {
-						db.close();
+						//db.endTransaction();
 						DeviceUtil.copyFile(externalDb, restoredDb);
-						db = SQLiteDatabase.openDatabase(restoredDbPath, null,
+						db = SQLiteDatabase.openDatabase(restoredDbPath + DATABASE_NAME, null,
 								SQLiteDatabase.OPEN_READONLY);
-					} catch (IOException e) {
+					} catch (final IOException e) {
 						db.execSQL(FTS_TABLE_CREATE);
 					}
 				} else {

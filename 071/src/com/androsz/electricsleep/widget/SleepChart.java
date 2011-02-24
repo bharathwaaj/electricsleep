@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.achartengine.ChartView;
 import com.androsz.electricsleep.achartengine.chart.AbstractChart;
 import com.androsz.electricsleep.achartengine.chart.TimeChart;
@@ -20,6 +19,7 @@ import com.androsz.electricsleep.achartengine.renderer.XYSeriesRenderer;
 import com.androsz.electricsleep.app.SettingsActivity;
 import com.androsz.electricsleep.app.SleepMonitoringService;
 import com.androsz.electricsleep.db.SleepRecord;
+import com.androsz.electricsleepdonate.R;
 
 public class SleepChart extends ChartView implements Serializable {
 

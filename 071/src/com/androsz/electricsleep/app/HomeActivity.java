@@ -2,32 +2,26 @@ package com.androsz.electricsleep.app;
 
 import java.io.IOException;
 import java.io.StreamCorruptedException;
-import java.util.Calendar;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
-import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.alarmclock.AlarmClock;
 import com.androsz.electricsleep.content.StartSleepReceiver;
 import com.androsz.electricsleep.db.SleepContentProvider;
 import com.androsz.electricsleep.db.SleepRecord;
 import com.androsz.electricsleep.widget.SleepChart;
 import com.androsz.electricsleep.widget.calendar.MonthActivity;
+import com.androsz.electricsleepdonate.R;
 
 /**
  * Front-door {@link Activity} that displays high-level features the application

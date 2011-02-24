@@ -23,8 +23,8 @@ import android.provider.BaseColumns;
 import android.text.format.Time;
 import android.util.Log;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleepbeta.util.PointD;
+import com.androsz.electricsleepdonate.R;
 
 public class SleepRecord {
 
@@ -160,6 +160,23 @@ public class SleepRecord {
 		return 64;
 	}
 
+	public static Calendar getTimeDiffCalendar(final long time) {
+		// set calendar to GMT +0
+		final Calendar timeDiffCalendar = Calendar.getInstance(TimeZone
+				.getTimeZone(TimeZone.getAvailableIDs(0)[0]));
+		timeDiffCalendar.setTimeInMillis(time);
+		return timeDiffCalendar;
+	}
+
+	public static CharSequence getTimespanText(long timespanMs,
+			final Resources res) {
+		final Calendar timespan = getTimeDiffCalendar(timespanMs);
+		final int hours = Math.min(24, timespan.get(Calendar.HOUR_OF_DAY));
+		final int minutes = timespan.get(Calendar.MINUTE);
+		return res.getQuantityString(R.plurals.hour, hours, hours) + " "
+				+ res.getQuantityString(R.plurals.minute, minutes, minutes);
+	}
+
 	/**
 	 * Loads <i>days</i> days worth of instances starting at <i>start</i>.
 	 */
@@ -250,10 +267,10 @@ public class SleepRecord {
 
 	// The coordinates of the event rectangle drawn on the screen.
 	public float left;
-
 	public float right;
 
 	public float top;
+
 	public float bottom;
 
 	private int mColumn;
@@ -262,18 +279,18 @@ public class SleepRecord {
 
 	public final String title;
 
+	//
+
 	public List<PointD> chartData;
 
 	public final double min;
-
-	//
-
 	public final double alarm;
-
 	public final int rating;
 	public final long duration;
 	public final int spikes;
+
 	public final long fellAsleep;
+
 	public final String note;
 
 	@SuppressWarnings("unchecked")
@@ -332,15 +349,6 @@ public class SleepRecord {
 		return getTimespanText(duration, res);
 	}
 
-	public static CharSequence getTimespanText(long timespanMs,
-			final Resources res) {
-		final Calendar timespan = getTimeDiffCalendar(timespanMs);
-		final int hours = Math.min(24, timespan.get(Calendar.HOUR_OF_DAY));
-		final int minutes = timespan.get(Calendar.MINUTE);
-		return res.getQuantityString(R.plurals.hour, hours, hours) + " "
-				+ res.getQuantityString(R.plurals.minute, minutes, minutes);
-	}
-
 	public int getEndJulianDay() {
 		final Time local = new Time();
 		local.set(getEndTime());
@@ -360,10 +368,6 @@ public class SleepRecord {
 
 	public CharSequence getFellAsleepText(final Resources res) {
 		return getTimespanText(getTimeToFallAsleep(), res);
-	}
-
-	public long getTimeToFallAsleep() {
-		return this.fellAsleep - getStartTime();
 	}
 
 	public int getMaxColumns() {
@@ -408,12 +412,8 @@ public class SleepRecord {
 		return cal.get(Calendar.MINUTE) + (cal.get(Calendar.HOUR_OF_DAY) * 60);
 	}
 
-	public static Calendar getTimeDiffCalendar(final long time) {
-		// set calendar to GMT +0
-		final Calendar timeDiffCalendar = Calendar.getInstance(TimeZone
-				.getTimeZone(TimeZone.getAvailableIDs(0)[0]));
-		timeDiffCalendar.setTimeInMillis(time);
-		return timeDiffCalendar;
+	public long getTimeToFallAsleep() {
+		return this.fellAsleep - getStartTime();
 	}
 
 	public long insertIntoDb(final SQLiteDatabase db) throws IOException {

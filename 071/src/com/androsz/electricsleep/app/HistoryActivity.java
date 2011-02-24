@@ -16,12 +16,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.db.SleepContentProvider;
 import com.androsz.electricsleep.db.SleepHistoryDatabase;
 import com.androsz.electricsleep.db.SleepRecord;
 import com.androsz.electricsleep.util.DeviceUtil;
 import com.androsz.electricsleep.widget.SleepHistoryCursorAdapter;
+import com.androsz.electricsleepdonate.R;
 
 public class HistoryActivity extends CustomTitlebarActivity {
 

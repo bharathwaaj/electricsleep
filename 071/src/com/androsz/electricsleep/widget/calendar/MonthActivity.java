@@ -38,9 +38,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.app.CustomTitlebarActivity;
 import com.androsz.electricsleep.db.SleepContentProvider;
+import com.androsz.electricsleepdonate.R;
 
 public class MonthActivity extends CustomTitlebarActivity implements
 		ViewSwitcher.ViewFactory, Navigator, AnimationListener {

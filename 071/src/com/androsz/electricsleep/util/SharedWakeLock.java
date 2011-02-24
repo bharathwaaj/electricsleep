@@ -1,7 +1,5 @@
 package com.androsz.electricsleep.util;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.os.PowerManager;
 
@@ -13,13 +11,14 @@ public class SharedWakeLock {
 
 	private static PowerManager.WakeLock sCpuWakeLock;
 
-	public synchronized static void acquire(final Context context, int wakeLockFlags) {
+	public synchronized static void acquire(final Context context,
+			int wakeLockFlags) {
 		createWakeLock(context, wakeLockFlags);
 		sCpuWakeLock.acquire();
 	}
 
-	public synchronized static void acquire(final Context context, int wakeLockFlags,
-			int releaseAfter) {
+	public synchronized static void acquire(final Context context,
+			int wakeLockFlags, int releaseAfter) {
 		createWakeLock(context, wakeLockFlags);
 		sCpuWakeLock.acquire(releaseAfter);
 	}

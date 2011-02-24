@@ -82,8 +82,8 @@ public class AlarmProvider extends ContentProvider {
 	static {
 		sURLMatcher.addURI("com.androsz.electricsleep.alarmclock", "alarm",
 				ALARMS);
-		sURLMatcher.addURI("com.androsz.electricsleep.alarmclock",
-				"alarm/#", ALARMS_ID);
+		sURLMatcher.addURI("com.androsz.electricsleep.alarmclock", "alarm/#",
+				ALARMS_ID);
 	}
 
 	public AlarmProvider() {

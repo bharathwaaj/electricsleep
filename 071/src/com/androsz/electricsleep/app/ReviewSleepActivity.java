@@ -12,10 +12,10 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.db.SleepHistoryDatabase;
 import com.androsz.electricsleep.db.SleepRecord;
 import com.androsz.electricsleep.widget.SleepChart;
+import com.androsz.electricsleepdonate.R;
 
 public class ReviewSleepActivity extends CustomTitlebarTabActivity {
 

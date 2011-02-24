@@ -12,10 +12,10 @@ import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.widget.DecimalSeekBar;
 import com.androsz.electricsleep.widget.SleepChart;
 import com.androsz.electricsleepbeta.util.PointD;
+import com.androsz.electricsleepdonate.R;
 
 public class CalibrateAlarmActivity extends CalibrateForResultActivity {
 

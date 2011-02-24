@@ -1,7 +1,21 @@
+/**
+ * Copyright (C) 2009, 2010 SC 4ViewSoft SRL
+ *  
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.androsz.electricsleep.achartengine;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -10,43 +24,44 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Handler;
-import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.androsz.electricsleep.achartengine.chart.AbstractChart;
 import com.androsz.electricsleep.achartengine.chart.XYChart;
-import com.androsz.electricsleep.achartengine.renderer.DefaultRenderer;
 import com.androsz.electricsleep.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleep.achartengine.tools.FitZoom;
 import com.androsz.electricsleep.achartengine.tools.Pan;
 import com.androsz.electricsleep.achartengine.tools.Zoom;
-import com.androsz.electricsleepdonate.R;
 
 /**
  * The view that encapsulates the graphical chart.
  */
-public abstract class ChartView extends View {
+public class GraphicalView extends View {
 	/** The chart to be drawn. */
-	protected AbstractChart mChart;
+	private final AbstractChart mChart;
 	/** The chart renderer. */
 	private XYMultipleSeriesRenderer mRenderer;
 	/** The view bounds. */
 	private final Rect mRect = new Rect();
 	/** The user interface thread handler. */
-	private Handler mHandler;
+	private final Handler mHandler;
 	/** The old x coordinate. */
 	private float oldX;
 	/** The old y coordinate. */
 	private float oldY;
+	/** The old x2 coordinate. */
+	private float oldX2;
+	/** The old y2 coordinate. */
+	private float oldY2;
 	/** The zoom buttons rectangle. */
 	private final RectF zoomR = new RectF();
 	/** The zoom in icon. */
-	//private Bitmap zoomInImage;
+	private Bitmap zoomInImage;
 	/** The zoom out icon. */
-	//private Bitmap zoomOutImage;
+	private Bitmap zoomOutImage;
 	/** The fit zoom icon. */
-	//private Bitmap fitZoomImage;
+	private Bitmap fitZoomImage;
 	/** The zoom area size. */
 	private static final int ZOOM_SIZE = 45;
 	/** The zoom buttons background color. */
@@ -58,6 +73,8 @@ public abstract class ChartView extends View {
 	private Zoom zoomIn;
 	/** The zoom out tool. */
 	private Zoom zoomOut;
+	/** The zoom for the pinch gesture. */
+	private Zoom pinchZoom;
 	/** The fit zoom tool. */
 	private FitZoom fitZoom;
 	/** The paint to be used when drawing the chart. */
@@ -71,34 +88,76 @@ public abstract class ChartView extends View {
 	 * @param chart
 	 *            the chart to be drawn
 	 */
-	public ChartView(Context context) {
+	public GraphicalView(Context context, AbstractChart chart) {
 		super(context);
-		setup(context);
+		mChart = chart;
+		mHandler = new Handler();
+		if (mChart instanceof XYChart) {
+			zoomInImage = BitmapFactory.decodeStream(getClass()
+					.getResourceAsStream("image/zoom_in.png"));
+			zoomOutImage = BitmapFactory.decodeStream(getClass()
+					.getResourceAsStream("image/zoom_out.png"));
+			fitZoomImage = BitmapFactory.decodeStream(getClass()
+					.getResourceAsStream("image/zoom-1.png"));
+			mRenderer = ((XYChart) mChart).getRenderer();
+			if (mRenderer.getMarginsColor() == XYMultipleSeriesRenderer.NO_COLOR) {
+				mRenderer.setMarginsColor(mPaint.getColor());
+			}
+			if (mRenderer.isPanXEnabled() || mRenderer.isPanYEnabled()) {
+				pan = new Pan((XYChart) mChart);
+			}
+			if (mRenderer.isZoomXEnabled() || mRenderer.isZoomYEnabled()) {
+				zoomIn = new Zoom((XYChart) mChart, true,
+						mRenderer.getZoomRate());
+				zoomOut = new Zoom((XYChart) mChart, false,
+						mRenderer.getZoomRate());
+				fitZoom = new FitZoom((XYChart) mChart);
+				pinchZoom = new Zoom((XYChart) mChart, true, 1);
+			}
+		}
 	}
-
-	public ChartView(final Context context, final AttributeSet as) {
-		super(context, as);
-		setup(context);
-	}
-
-	protected abstract AbstractChart buildChart();
 
 	public void handleTouch(MotionEvent event) {
 		final int action = event.getAction();
 		if (mRenderer != null && action == MotionEvent.ACTION_MOVE) {
 			if (oldX >= 0 || oldY >= 0) {
-				final float newX = event.getX();
-				final float newY = event.getY();
-				if (mRenderer.isPanXEnabled() || mRenderer.isPanYEnabled()) {
+				final float newX = event.getX(0);
+				final float newY = event.getY(0);
+				if (event.getPointerCount() > 1
+						&& (oldX2 >= 0 || oldY2 >= 0)
+						&& (mRenderer.isZoomXEnabled() || mRenderer
+								.isZoomYEnabled())) {
+					final float newX2 = event.getX(1);
+					final float newY2 = event.getY(1);
+					final float newDeltaX = Math.abs(newX - newX2);
+					final float newDeltaY = Math.abs(newY - newY2);
+					final float oldDeltaX = Math.abs(oldX - oldX2);
+					final float oldDeltaY = Math.abs(oldY - oldY2);
+					float zoomRate = 1;
+					if (Math.abs(newX - oldX) >= Math.abs(newY - oldY)) {
+						zoomRate = newDeltaX / oldDeltaX;
+					} else {
+						zoomRate = newDeltaY / oldDeltaY;
+					}
+					if (zoomRate > 0.909 && zoomRate < 1.1) {
+						pinchZoom.setZoomRate(zoomRate);
+						pinchZoom.apply();
+					}
+					oldX2 = newX2;
+					oldY2 = newY2;
+				} else if (mRenderer.isPanXEnabled()
+						|| mRenderer.isPanYEnabled()) {
 					pan.apply(oldX, oldY, newX, newY);
+					oldX2 = 0;
+					oldY2 = 0;
 				}
 				oldX = newX;
 				oldY = newY;
 				repaint();
 			}
 		} else if (action == MotionEvent.ACTION_DOWN) {
-			oldX = event.getX();
-			oldY = event.getY();
+			oldX = event.getX(0);
+			oldY = event.getY(0);
 			if (mRenderer != null
 					&& (mRenderer.isZoomXEnabled() || mRenderer
 							.isZoomYEnabled()) && zoomR.contains(oldX, oldY)) {
@@ -110,9 +169,16 @@ public abstract class ChartView extends View {
 					fitZoom.apply();
 				}
 			}
-		} else if (action == MotionEvent.ACTION_UP) {
+		} else if (action == MotionEvent.ACTION_UP
+				|| action == MotionEvent.ACTION_POINTER_UP) {
 			oldX = 0;
 			oldY = 0;
+			oldX2 = 0;
+			oldY2 = 0;
+			if (action == MotionEvent.ACTION_POINTER_UP) {
+				oldX = -1;
+				oldY = -1;
+			}
 		}
 	}
 
@@ -131,20 +197,20 @@ public abstract class ChartView extends View {
 			zoomR.set(left + width - ZOOM_SIZE * 3, top + height - ZOOM_SIZE
 					* 0.775f, left + width, top + height);
 			canvas.drawRoundRect(zoomR, ZOOM_SIZE / 3, ZOOM_SIZE / 3, mPaint);
-			/*final float buttonY = top + height - ZOOM_SIZE * 0.625f;
+			final float buttonY = top + height - ZOOM_SIZE * 0.625f;
 			canvas.drawBitmap(zoomInImage, left + width - ZOOM_SIZE * 2.75f,
 					buttonY, null);
 			canvas.drawBitmap(zoomOutImage, left + width - ZOOM_SIZE * 1.75f,
 					buttonY, null);
 			canvas.drawBitmap(fitZoomImage, left + width - ZOOM_SIZE * 0.75f,
-					buttonY, null);*/
+					buttonY, null);
 		}
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (mRenderer != null
-				&& (mRenderer.isPanXEnabled() || mRenderer.isZoomYEnabled()
+				&& (mRenderer.isPanXEnabled() || mRenderer.isPanYEnabled()
 						|| mRenderer.isZoomXEnabled() || mRenderer
 						.isZoomYEnabled())) {
 			handleTouch(event);
@@ -187,30 +253,47 @@ public abstract class ChartView extends View {
 		});
 	}
 
-	private void setup(final Context context) {
-		mChart = buildChart();
-		mHandler = new Handler();
-		/*if (mChart instanceof XYChart) {
-			final Resources res = context.getResources();
-			zoomInImage = BitmapFactory.decodeResource(res, R.drawable.zoom_in);
-			zoomOutImage = BitmapFactory.decodeResource(res,
-					R.drawable.zoom_out);
-			fitZoomImage = BitmapFactory.decodeResource(res, R.drawable.zoom_1);
-			mRenderer = ((XYChart) mChart).getRenderer();
-			if (mRenderer.getMarginsColor() == DefaultRenderer.NO_COLOR) {
-				mRenderer.setMarginsColor(mPaint.getColor());
-			}
-			if (mRenderer.isPanXEnabled() || mRenderer.isPanYEnabled()) {
-				pan = new Pan((XYChart) mChart);
-			}
-			if (mRenderer.isZoomXEnabled() || mRenderer.isZoomYEnabled()) {
-				zoomIn = new Zoom((XYChart) mChart, true,
-						mRenderer.getZoomRate());
-				zoomOut = new Zoom((XYChart) mChart, false,
-						mRenderer.getZoomRate());
-				fitZoom = new FitZoom((XYChart) mChart);
-			}
-		}*/
+	/**
+	 * Sets the zoom rate.
+	 * 
+	 * @param rate
+	 *            the zoom rate
+	 */
+	public void setZoomRate(float rate) {
+		if (zoomIn != null && zoomOut != null) {
+			zoomIn.setZoomRate(rate);
+			zoomOut.setZoomRate(rate);
+		}
+	}
+
+	/**
+	 * Do a chart zoom in.
+	 */
+	public void zoomIn() {
+		if (zoomIn != null) {
+			zoomIn.apply();
+			repaint();
+		}
+	}
+
+	/**
+	 * Do a chart zoom out.
+	 */
+	public void zoomOut() {
+		if (zoomOut != null) {
+			zoomOut.apply();
+			repaint();
+		}
+	}
+
+	/**
+	 * Do a chart zoom reset / fit zoom.
+	 */
+	public void zoomReset() {
+		if (fitZoom != null) {
+			fitZoom.apply();
+			repaint();
+		}
 	}
 
 }

@@ -52,12 +52,12 @@ import android.view.ViewConfiguration;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.app.HistoryActivity;
 import com.androsz.electricsleep.app.ReviewSleepActivity;
 import com.androsz.electricsleep.db.SleepContentProvider;
 import com.androsz.electricsleep.db.SleepHistoryDatabase;
 import com.androsz.electricsleep.db.SleepRecord;
+import com.androsz.electricsleepdonate.R;
 
 public class MonthView extends View {
 

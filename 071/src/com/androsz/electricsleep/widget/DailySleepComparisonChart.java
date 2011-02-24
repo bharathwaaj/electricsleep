@@ -6,7 +6,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.achartengine.ChartView;
 import com.androsz.electricsleep.achartengine.chart.AbstractChart;
 import com.androsz.electricsleep.achartengine.chart.TimeChart;
@@ -15,6 +14,7 @@ import com.androsz.electricsleep.achartengine.model.XYSeries;
 import com.androsz.electricsleep.achartengine.renderer.XYMultipleSeriesRenderer;
 import com.androsz.electricsleep.achartengine.renderer.XYSeriesRenderer;
 import com.androsz.electricsleepbeta.util.PointD;
+import com.androsz.electricsleepdonate.R;
 
 public class DailySleepComparisonChart extends ChartView implements
 		Serializable {

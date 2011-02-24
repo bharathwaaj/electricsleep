@@ -29,8 +29,8 @@ import android.content.Intent;
 import android.os.Parcel;
 import android.os.PowerManager;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.util.SharedWakeLock;
+import com.androsz.electricsleepdonate.R;
 
 /**
  * Glue class: connects AlarmAlert IntentReceiver to AlarmAlert activity. Passes

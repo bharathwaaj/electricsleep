@@ -16,10 +16,10 @@ import android.widget.RatingBar;
 import android.widget.RatingBar.OnRatingBarChangeListener;
 import android.widget.Toast;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.alarmclock.Alarms;
 import com.androsz.electricsleep.content.SaveSleepReceiver;
 import com.androsz.electricsleep.db.SleepContentProvider;
+import com.androsz.electricsleepdonate.R;
 
 public class SaveSleepActivity extends CustomTitlebarActivity implements
 		OnRatingBarChangeListener {

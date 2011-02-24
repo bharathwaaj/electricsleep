@@ -13,8 +13,8 @@ import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.widget.Toast;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.preference.CustomTitlebarPreferenceActivity;
+import com.androsz.electricsleepdonate.R;
 
 public class SettingsActivity extends CustomTitlebarPreferenceActivity
 		implements Preference.OnPreferenceChangeListener {

@@ -6,8 +6,8 @@ import android.view.ViewStub;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.widget.ViewFlipperBugfix;
+import com.androsz.electricsleepdonate.R;
 
 public abstract class CustomTitlebarWizardActivity extends
 		CustomTitlebarActivity {

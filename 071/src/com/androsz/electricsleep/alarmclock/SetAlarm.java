@@ -33,8 +33,8 @@ import android.widget.Button;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.preference.CustomTitlebarPreferenceActivity;
+import com.androsz.electricsleepdonate.R;
 
 /**
  * Manages each alarm

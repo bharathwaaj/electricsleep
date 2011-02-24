@@ -17,13 +17,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.alarmclock.Alarm;
 import com.androsz.electricsleep.alarmclock.AlarmClock;
 import com.androsz.electricsleep.alarmclock.Alarms;
 import com.androsz.electricsleep.content.StartSleepReceiver;
 import com.androsz.electricsleep.widget.SleepChart;
 import com.androsz.electricsleepbeta.util.PointD;
+import com.androsz.electricsleepdonate.R;
 
 public class SleepActivity extends CustomTitlebarActivity {
 
@@ -174,7 +174,7 @@ public class SleepActivity extends CustomTitlebarActivity {
 					dimScreenTask.cancel(true);
 				}
 				dimScreenTask = new DimScreenTask();
-				dimScreenTask.execute((Void[])null);
+				dimScreenTask.execute((Void[]) null);
 
 			} else {
 				textSleepDim.setVisibility(View.GONE);

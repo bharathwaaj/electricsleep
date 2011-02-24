@@ -16,9 +16,9 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.app.HomeActivity;
 import com.androsz.electricsleep.app.SettingsActivity;
+import com.androsz.electricsleepdonate.R;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public abstract class CustomTitlebarPreferenceActivity extends
@@ -99,11 +99,11 @@ public abstract class CustomTitlebarPreferenceActivity extends
 		/*
 		 * switch (item.getItemId()) { case R.id.menuItemDonate: final Uri
 		 * marketUri = Uri
-		 * .parse("market://details?id=com.androsz.electricsleepdonate");
-		 * final Intent marketIntent = new Intent(Intent.ACTION_VIEW,
-		 * marketUri); startActivity(marketIntent); return true; case
-		 * R.id.menuItemSettings: startActivity(new Intent(this,
-		 * SettingsActivity.class)); return true; default: return false; }
+		 * .parse("market://details?id=com.androsz.electricsleepdonate"); final
+		 * Intent marketIntent = new Intent(Intent.ACTION_VIEW, marketUri);
+		 * startActivity(marketIntent); return true; case R.id.menuItemSettings:
+		 * startActivity(new Intent(this, SettingsActivity.class)); return true;
+		 * default: return false; }
 		 */
 		return false;
 	}

@@ -10,8 +10,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TabHost;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.util.MathUtils;
+import com.androsz.electricsleepdonate.R;
 
 public class FlingableTabHost extends TabHost {
 	GestureDetector mGestureDetector;
@@ -37,7 +37,7 @@ public class FlingableTabHost extends TabHost {
 
 		final int minScaledFlingVelocity = ViewConfiguration.get(context)
 				.getScaledMinimumFlingVelocity(); // 5 = fudge by
-														// experimentation
+													// experimentation
 
 		mGestureDetector = new GestureDetector(
 				new GestureDetector.SimpleOnGestureListener() {
@@ -49,7 +49,7 @@ public class FlingableTabHost extends TabHost {
 						final int tabCount = getTabWidget().getTabCount();
 						final int currentTab = getCurrentTab();
 						if (Math.abs(velocityX) > minScaledFlingVelocity
-								&& Math.abs(velocityY) < minScaledFlingVelocity*2) {
+								&& Math.abs(velocityY) < minScaledFlingVelocity * 2) {
 
 							final boolean right = velocityX < 0;
 							final int newTab = MathUtils.constrain(currentTab

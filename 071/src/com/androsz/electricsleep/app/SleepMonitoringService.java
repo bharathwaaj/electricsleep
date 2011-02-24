@@ -29,12 +29,12 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.widget.Toast;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.alarmclock.Alarm;
 import com.androsz.electricsleep.alarmclock.Alarms;
 import com.androsz.electricsleep.content.StartSleepReceiver;
 import com.androsz.electricsleep.util.SharedWakeLock;
 import com.androsz.electricsleepbeta.util.PointD;
+import com.androsz.electricsleepdonate.R;
 
 public class SleepMonitoringService extends Service implements
 		SensorEventListener {

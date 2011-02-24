@@ -34,8 +34,8 @@ import android.os.Vibrator;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
-import com.androsz.electricsleepdonate.R;
 import com.androsz.electricsleep.util.SharedWakeLock;
+import com.androsz.electricsleepdonate.R;
 
 /**
  * Manages alarms and vibe. Runs as a service so that it can continue to play if
